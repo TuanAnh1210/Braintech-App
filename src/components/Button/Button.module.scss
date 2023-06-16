@@ -1,0 +1,92 @@
+.wrapper {
+    font-size: 16px;
+    font-weight: 600;
+    // font-family: var(--font-family);
+
+    padding: 6px 16px;
+    min-width: 100px;
+    border-radius: 4px;
+    cursor: pointer;
+    // background-color: var(--while);
+    border: 1px solid transparent;
+    user-select: none;
+
+    + .wrapper {
+        margin-left: 8px;
+    }
+}
+
+// Button type
+.rounded {
+    border-radius: 999px;
+    color: rgba(22, 24, 35, 0.75);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 6%);
+    border-color: rgba(22, 24, 35, 0.12);
+
+    &:hover {
+        border-color: rgba(22, 24, 35, 0.2);
+        background-color: rgba(22, 24, 35, 0.03);
+    }
+}
+
+.primary {
+    color: var(--while);
+    background-color: var(--primary);
+    border-color: var(--primary);
+
+    &:hover {
+        border-color: var(--primary);
+
+        background: linear-gradient(0deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.06)), #fe2c55;
+    }
+}
+
+.outline {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    &:hover {
+        border-color: var(--primary-color);
+
+        background-color: rgba(254, 44, 85, 0.06);
+    }
+}
+
+.text {
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.icon + .title,
+.title + .icon {
+    margin-left: 8px;
+}
+
+.icon {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+}
+
+// Button size
+.small {
+    min-width: 88px;
+    padding: 4px 16px;
+}
+
+.large {
+    margin-top: 24px;
+    font-size: 20px;
+    padding: 8px 24px;
+    background-color: #fad961;
+    background-image: linear-gradient(90deg, #fad961 0%, #f76b1c 100%);
+    border: none;
+    border-radius: 4px;
+    box-shadow: rgba(255, 155, 48, 0.17) 0px -23px 25px 0px inset, rgba(255, 43, 43, 0.15) 0px -36px 30px 0px inset,
+        rgba(245, 25, 25, 0.1) 0px -79px 40px 0px inset, rgba(255, 84, 84, 0.06) 0px 2px 1px,
+        rgba(219, 32, 32, 0.09) 0px 4px 2px, rgba(240, 163, 163, 0.09) 0px 8px 4px, rgba(244, 14, 14, 0.09) 0px 16px 8px,
+        rgba(211, 10, 10, 0.09) 0px 32px 16px;
+    color: var(--white-color);
+    font-weight: 700;
+    transition: all linear 0.2s;
+}
