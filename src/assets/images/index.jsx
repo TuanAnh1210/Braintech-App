@@ -14,6 +14,7 @@ import be from './be.png';
 import bg from './bg.webp';
 import group from './group.png';
 import footer from './footer.png';
+import bn_courses from './web_developing.gif';
 const images = {
     logo,
     noImage,
@@ -30,6 +31,7 @@ const images = {
     bg,
     group,
     footer,
+    bn_courses,
 };
 
 export default images;

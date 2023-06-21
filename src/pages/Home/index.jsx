@@ -5,7 +5,6 @@ import 'slick-carousel/slick/slick-theme.css';
 
 import styles from './Home.module.scss';
 import Banner from '@/components/Banner/Banner';
-import Header from '@/components/Header/Header';
 
 import { base_banner } from '@/components/Banner/Base';
 import { Col, Container, Row } from 'react-bootstrap';
@@ -20,7 +19,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import BannerCard from './components/BannerCard';
 import images from '@/assets/images';
-import Footer from '@/components/Footer/Footer';
+
 import { useRef } from 'react';
 
 const cx = classNames.bind(styles);
@@ -98,8 +97,7 @@ const Home = () => {
     };
 
     return (
-        <div className="main">
-            <Header />
+        <>
             <Banner {...base_banner.banner_home} />
             <div className="banner__bottom">
                 <Container>
@@ -321,9 +319,7 @@ const Home = () => {
                     </Row>
                 </Container>
             </div>
-
-            <Footer />
-        </div>
+        </>
     );
 };
 
