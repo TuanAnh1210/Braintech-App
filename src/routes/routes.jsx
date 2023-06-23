@@ -1,5 +1,6 @@
 import config from '@/config/routes';
 import About from '@/pages/About';
+import Contact from '@/pages/Contact';
 
 // Pages
 import Courses from '@/pages/Courses';
@@ -11,6 +12,7 @@ const publicRoutes = [
     { path: config.courses, component: Courses },
     { path: config.login, component: Login },
     { path: config.about, component: About },
+    { path: config.contact, component: Contact },
 ];
 
 const privateRoutes = [];

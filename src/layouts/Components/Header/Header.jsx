@@ -77,10 +77,16 @@ const Header = () => {
                                 Giới thiệu
                             </Button>
                         </li>
-                        <li data-item="contact" className={cx('nav_item')}>
-                            <a className={cx('nav_link')} href="#">
+                        <li
+                            data-item="contact"
+                            className={cx('nav_item', { active: activeNavItem === 'contact' })}
+                            onClick={() => {
+                                handleNavItemClick('contact');
+                            }}
+                        >
+                            <Button className={cx('nav_link')} to="/contact">
                                 Liên hệ
-                            </a>
+                            </Button>
                         </li>
                     </ul>
 
