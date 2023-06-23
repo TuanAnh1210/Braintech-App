@@ -14,8 +14,10 @@ const cx = classNames.bind(styles);
 
 const Header = () => {
     const currentUser = true;
-
-    const [activeNavItem, setActiveNavItem] = useState('');
+    // handle active navbar
+    const pathPages = window.location.pathname;
+    const arrPaths = pathPages.split('/');
+    const [activeNavItem, setActiveNavItem] = useState(arrPaths[arrPaths.length - 1]);
 
     const [isNavbarOpen, setIsNavbarOpen] = useState(false);
     const handleNavbarToggle = () => {
@@ -64,10 +66,16 @@ const Header = () => {
                                 Khóa học
                             </Button>
                         </li>
-                        <li data-item="about" className={cx('nav_item')}>
-                            <a className={cx('nav_link')} href="#">
+                        <li
+                            data-item="about"
+                            className={cx('nav_item', { active: activeNavItem === 'about' })}
+                            onClick={() => {
+                                handleNavItemClick('about');
+                            }}
+                        >
+                            <Button className={cx('nav_link')} to="/about">
                                 Giới thiệu
-                            </a>
+                            </Button>
                         </li>
                         <li data-item="contact" className={cx('nav_item')}>
                             <a className={cx('nav_link')} href="#">

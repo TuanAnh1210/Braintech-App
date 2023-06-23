@@ -1,0 +1,118 @@
+.courses__wrapper {
+    margin: 96px 0 32px 0;
+    h1 {
+        font-weight: 700;
+        font-size: 28px;
+        margin-bottom: 20px;
+    }
+}
+
+.pro__label {
+    background-color: #1473e6;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 3px 6px;
+    position: relative;
+    right: -4px;
+    text-transform: uppercase;
+    top: -6px;
+}
+
+// courses-newest_item
+.courses-newest_item {
+    user-select: none;
+    text-align: center;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+    border-radius: 8px;
+    padding: 18px 14px 20px 14px;
+    transition: all linear 0.3s;
+    margin: 0 10px 20px 10px;
+
+    &:hover {
+        transform: translateY(-4px);
+        transition: all linear 0.2s;
+        box-shadow: rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;
+        cursor: pointer;
+    }
+
+    h4 {
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        margin-top: 20px;
+    }
+
+    img {
+        width: 100%;
+        border-radius: 8px;
+    }
+}
+
+.courses-newest_info {
+    margin-top: 14px;
+    span {
+        margin-left: 4px;
+    }
+
+    p {
+        margin-top: 6px;
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+}
+
+.old__price {
+    font-size: 14px;
+    margin-right: 8px;
+    text-decoration: line-through;
+    color: #666 !important;
+}
+
+.price__wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* group */
+.group {
+    margin-top: 96px;
+}
+
+.group__text {
+    h3 {
+        font-size: 24px;
+        font-weight: 700;
+        line-height: 1.6;
+    }
+    p {
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 32px;
+    }
+    a {
+        font-size: 14px;
+        padding: 8px 20px;
+        border: 2px solid var(--text-color);
+        background-color: var(--white-color);
+        color: var(--text-color);
+        font-weight: 700;
+        border-radius: 20px;
+        transition: all linear 0.2s;
+
+        &:hover {
+            background-color: var(--text-color);
+            color: var(--white-color);
+            transition: all linear 0.2s;
+        }
+    }
+}
+
+.group__img {
+    img {
+        width: 100%;
+    }
+}

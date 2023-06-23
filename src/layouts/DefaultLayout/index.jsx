@@ -6,7 +6,7 @@ const DefaultLayout = ({ children }) => {
     return (
         <div className="main">
             <Header />
-            <div>{children}</div>
+            <div style={{ paddingTop: 'var(--height-header)' }}>{children}</div>
             <Footer />
         </div>
     );

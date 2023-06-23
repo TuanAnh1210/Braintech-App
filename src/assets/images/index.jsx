@@ -15,7 +15,13 @@ import bg from './bg.webp';
 import group from './group.png';
 import footer from './footer.png';
 import bn_courses from './web_developing.gif';
+import about from './about.gif';
+import core from './core.gif';
+import ta from './tuananh.jpg';
 const images = {
+    ta,
+    core,
+    about,
     logo,
     noImage,
     bn_home,

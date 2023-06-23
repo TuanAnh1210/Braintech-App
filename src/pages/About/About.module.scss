@@ -1,0 +1,160 @@
+.about_intro {
+    padding-top: var(--height-header);
+    padding-bottom: 48px;
+    background-color: #0093e9;
+    background-image: linear-gradient(160deg, #0093e9 0%, #80d0c7 100%);
+}
+
+.about_intro-img {
+    img {
+        width: 100%;
+        border-radius: 16px;
+    }
+}
+
+.about_intro-text {
+    h1 {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 22px;
+        color: #fff;
+        text-shadow: 0 0.2rem 0.2rem #0c71c3;
+    }
+
+    p {
+        color: #fff;
+        text-shadow: 0 0.2rem 0.2rem #0c71c3;
+        line-height: 1.8;
+        font-size: 18px;
+        text-align: justify;
+    }
+}
+
+// about_goal
+.about_goal {
+    margin-top: 64px;
+}
+
+.about_goal-item {
+    padding: 12px 28px;
+    box-shadow: rgb(0 0 0 / 5%) 0px 6px 24px 0px, rgb(0 0 0 / 8%) 0px 0px 0px 1px;
+    transition: all linear 0.2s;
+    border-radius: 16px;
+    margin-top: 18px;
+
+    &:hover {
+        transform: translateY(-3px);
+        transition: all linear 0.2s;
+        box-shadow: rgb(0 0 0 / 19%) 0px 10px 20px, rgb(0 0 0 / 23%) 0px 6px 6px;
+        cursor: pointer;
+    }
+    .icon {
+        font-size: 24px;
+        margin-right: 20px;
+    }
+
+    span {
+        font-size: 18px;
+        font-weight: 600;
+    }
+}
+
+.about_goal-img {
+    img {
+        width: 100%;
+    }
+}
+
+/* about_hr-card */
+
+.about_hr {
+    margin-top: 96px;
+}
+
+.about_hr-card {
+    padding: 32px;
+    text-align: center;
+    box-shadow: rgb(0 0 0 / 5%) 0px 6px 24px 0px, rgb(0 0 0 / 8%) 0px 0px 0px 1px;
+    transition: all linear 0.2s;
+    border-radius: 8px;
+
+    &:hover {
+        transform: translateY(-4px);
+        transition: all linear 0.2s;
+        box-shadow: rgb(0 0 0 / 19%) 0px 10px 20px, rgb(0 0 0 / 23%) 0px 6px 6px;
+        cursor: pointer;
+    }
+
+    img {
+        width: 100%;
+        border-radius: 50%;
+    }
+
+    h4 {
+        font-weight: 600;
+        font-size: 20px;
+        margin: 20px 0 6px 0;
+    }
+
+    p {
+        color: #242424;
+        font-size: 14px;
+    }
+}
+
+.about_hr-contact {
+    display: flex;
+    justify-content: center;
+    margin-top: 22px;
+
+    a {
+        margin: 0 6px;
+    }
+
+    .icon {
+        font-size: 32px;
+    }
+}
+
+/* about_whatToSale */
+.about_whatToSale {
+    margin-top: 96px;
+    height: 280px;
+    background-color: #0093e9;
+    padding-top: 96px;
+    margin-bottom: 540px;
+}
+
+.about_whatToSale_header {
+    max-width: 1100px;
+    height: 520px;
+    margin: auto;
+    background-color: var(--white-color);
+    box-shadow: 0 12px 18px -6px rgb(0 0 0 / 12%);
+    padding: 32px 64px;
+
+    h3 {
+        color: #0c71c3;
+        font-size: 24px;
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 28px;
+    }
+}
+
+.about_textContent {
+    margin-top: 48px;
+
+    h4 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    p {
+        line-height: 1.6;
+        font-size: 18px;
+        text-align: start;
+    }
+}
