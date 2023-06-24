@@ -4,9 +4,9 @@ import classNames from 'classnames/bind';
 import styles from './Courses.module.scss';
 import Banner from '@/components/Banner/Banner';
 import { base_banner } from '@/components/Banner/Base';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUsers } from '@fortawesome/free-solid-svg-icons';
+
 import images from '@/assets/images';
+import CourseItem from '@/components/CourseItem/CourseItem';
 
 const cx = classNames.bind(styles);
 const Courses = () => {
@@ -21,104 +21,10 @@ const Courses = () => {
                     </h1>
                     <Row data-course="1" className={cx('courseWrapper')}>
                         <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
+                            <CourseItem />
                         </Col>
                         <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
-                        </Col>
-                        <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
-                        </Col>
-                        <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
-                        </Col>
-                        <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
+                            <CourseItem />
                         </Col>
                     </Row>
                 </Container>
@@ -128,104 +34,17 @@ const Courses = () => {
                     <h1>Khóa học Front-End miễn phí</h1>
                     <Row data-course="1" className={cx('courseWrapper')}>
                         <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
+                            <CourseItem />
                         </Col>
+                    </Row>
+                </Container>
+            </div>
+            <div className={cx('courses__wrapper')}>
+                <Container>
+                    <h1>Khóa học Back-End miễn phí</h1>
+                    <Row data-course="1" className={cx('courseWrapper')}>
                         <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
-                        </Col>
-                        <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
-                        </Col>
-                        <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
-                        </Col>
-                        <Col lg={3} md={4}>
-                            <a href="">
-                                <div className={cx('courses-newest_item')}>
-                                    <img
-                                        src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                        alt=""
-                                    />
-                                    <h4>ten khoa hoc</h4>
-                                    <div className={cx('courses-newest_info')}>
-                                        <FontAwesomeIcon icon={faUsers} />
-                                        <span>123</span>
-                                        <div className={cx('price__wrapper')}>
-                                            <p className={cx('old__price')}>123đ</p>
-                                            <p>345đ</p>
-                                        </div>
-                                        {/* <p>Miễn phí</p> */}
-                                    </div>
-                                </div>
-                            </a>
+                            <CourseItem />
                         </Col>
                     </Row>
                 </Container>

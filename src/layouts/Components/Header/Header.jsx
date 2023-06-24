@@ -13,7 +13,7 @@ import { faBarsStaggered } from '@fortawesome/free-solid-svg-icons';
 const cx = classNames.bind(styles);
 
 const Header = () => {
-    const currentUser = true;
+    const currentUser = false;
     // handle active navbar
     const pathPages = window.location.pathname;
     const arrPaths = pathPages.split('/');

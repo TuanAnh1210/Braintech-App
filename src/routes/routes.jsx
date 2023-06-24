@@ -10,7 +10,7 @@ import Login from '@/pages/Login';
 const publicRoutes = [
     { path: config.home, component: Home },
     { path: config.courses, component: Courses },
-    { path: config.login, component: Login },
+    { path: config.login, component: Login, layout: null },
     { path: config.about, component: About },
     { path: config.contact, component: Contact },
 ];

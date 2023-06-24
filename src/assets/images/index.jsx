@@ -18,7 +18,9 @@ import bn_courses from './web_developing.gif';
 import about from './about.gif';
 import core from './core.gif';
 import ta from './tuananh.jpg';
+import bg_blue from './bg_blue.png';
 const images = {
+    bg_blue,
     ta,
     core,
     about,

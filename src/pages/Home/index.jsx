@@ -2,10 +2,8 @@ import classNames from 'classnames/bind';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
-
 import styles from './Home.module.scss';
 import Banner from '@/components/Banner/Banner';
-
 import { base_banner } from '@/components/Banner/Base';
 import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,12 +13,12 @@ import {
     faCalendarDays,
     faNoteSticky,
     faUserShield,
-    faUsers,
 } from '@fortawesome/free-solid-svg-icons';
 import BannerCard from './components/BannerCard';
 import images from '@/assets/images';
 
 import { useRef } from 'react';
+import CourseItem from '@/components/CourseItem/CourseItem';
 
 const cx = classNames.bind(styles);
 
@@ -116,132 +114,14 @@ const Home = () => {
             <div className={cx('courses-newest')}>
                 <h2>Khóa học mới nhất</h2>
                 <Slider ref={sliderRef} {...settings} className={cx('courses-newest_list')}>
-                    <a href="">
-                        <div className={cx('courses-newest_item')}>
-                            <img
-                                src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                alt=""
-                            />
-                            <h4>ten khoa hoc</h4>
-                            <div className={cx('courses-newest_info')}>
-                                <FontAwesomeIcon icon={faUsers} />
-                                <span>123</span>
-                                <div className={cx('price__wrapper')}>
-                                    <p className={cx('old__price')}>123đ</p>
-                                    <p>345đ</p>
-                                </div>
-                                {/* <p>Miễn phí</p> */}
-                            </div>
-                        </div>
-                    </a>
-                    <a href="">
-                        <div className={cx('courses-newest_item')}>
-                            <img
-                                src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                alt=""
-                            />
-                            <h4>ten khoa hoc</h4>
-                            <div className={cx('courses-newest_info')}>
-                                <FontAwesomeIcon icon={faUsers} />
-                                <span>123</span>
-                                <div className={cx('price__wrapper')}>
-                                    <p className={cx('old__price')}>123đ</p>
-                                    <p>345đ</p>
-                                </div>
-                                {/* <p>Miễn phí</p> */}
-                            </div>
-                        </div>
-                    </a>
-                    <a href="">
-                        <div className={cx('courses-newest_item')}>
-                            <img
-                                src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                alt=""
-                            />
-                            <h4>ten khoa hoc</h4>
-                            <div className={cx('courses-newest_info')}>
-                                <FontAwesomeIcon icon={faUsers} />
-                                <span>123</span>
-                                <div className={cx('price__wrapper')}>
-                                    <p className={cx('old__price')}>123đ</p>
-                                    <p>345đ</p>
-                                </div>
-                                {/* <p>Miễn phí</p> */}
-                            </div>
-                        </div>
-                    </a>
-                    <a href="">
-                        <div className={cx('courses-newest_item')}>
-                            <img
-                                src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                alt=""
-                            />
-                            <h4>ten khoa hoc</h4>
-                            <div className={cx('courses-newest_info')}>
-                                <FontAwesomeIcon icon={faUsers} />
-                                <span>123</span>
-                                <div className={cx('price__wrapper')}>
-                                    <p className={cx('old__price')}>123đ</p>
-                                    <p>345đ</p>
-                                </div>
-                                {/* <p>Miễn phí</p> */}
-                            </div>
-                        </div>
-                    </a>
-                    <a href="">
-                        <div className={cx('courses-newest_item')}>
-                            <img
-                                src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                alt=""
-                            />
-                            <h4>ten khoa hoc</h4>
-                            <div className={cx('courses-newest_info')}>
-                                <FontAwesomeIcon icon={faUsers} />
-                                <span>123</span>
-                                <div className={cx('price__wrapper')}>
-                                    <p className={cx('old__price')}>123đ</p>
-                                    <p>345đ</p>
-                                </div>
-                                {/* <p>Miễn phí</p> */}
-                            </div>
-                        </div>
-                    </a>
-                    <a href="">
-                        <div className={cx('courses-newest_item')}>
-                            <img
-                                src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                alt=""
-                            />
-                            <h4>ten khoa hoc</h4>
-                            <div className={cx('courses-newest_info')}>
-                                <FontAwesomeIcon icon={faUsers} />
-                                <span>123</span>
-                                <div className={cx('price__wrapper')}>
-                                    <p className={cx('old__price')}>123đ</p>
-                                    <p>345đ</p>
-                                </div>
-                                {/* <p>Miễn phí</p> */}
-                            </div>
-                        </div>
-                    </a>
-                    <a href="">
-                        <div className={cx('courses-newest_item')}>
-                            <img
-                                src="https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377441/braintech/ptvkhwcfsdeqm4pgvmib.png"
-                                alt=""
-                            />
-                            <h4>ten khoa hoc</h4>
-                            <div className={cx('courses-newest_info')}>
-                                <FontAwesomeIcon icon={faUsers} />
-                                <span>123</span>
-                                <div className={cx('price__wrapper')}>
-                                    <p className={cx('old__price')}>123đ</p>
-                                    <p>345đ</p>
-                                </div>
-                                {/* <p>Miễn phí</p> */}
-                            </div>
-                        </div>
-                    </a>
+                    <CourseItem />
+                    <CourseItem />
+                    <CourseItem />
+                    <CourseItem />
+                    <CourseItem />
+                    <CourseItem />
+                    <CourseItem />
+                    <CourseItem />
                 </Slider>
                 <div className={cx('courses-action')}>
                     <button onClick={handlePrevious}>
