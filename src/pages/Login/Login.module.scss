@@ -11,6 +11,22 @@
     @media (max-width: 576px) {
         overflow-y: auto;
     }
+
+    .go-home {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        border: none;
+        background-color: #fff;
+        padding: 4px 8px;
+        border-radius: 4px;
+        color: var(--primary-color);
+        opacity: 0.7;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
 }
 
 .form__wrapper {
@@ -80,12 +96,47 @@
     }
 }
 
+.login--with-gg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #dce0e3;
+    border-radius: 26px;
+    background-color: transparent;
+    transition: all linear 0.2s;
+
+    &:hover {
+        background-color: #dce0e3;
+        cursor: pointer;
+    }
+
+    .icon--gg {
+        color: #ff2525;
+        font-size: 20px;
+        margin-right: 4px;
+    }
+}
+
+.login--gg {
+    // width: 100%;
+    // margin-top: 20px;
+    color: var(--text-color);
+    font-weight: 500;
+
+    border: none;
+    font-size: 14px;
+
+    padding: 8px;
+    // border-radius: 26px;
+    transition: all linear 0.2s;
+}
+
 .forgot__pass {
     display: inline-flex;
-    justify-content: center;
-    font-size: 14px;
+    justify-content: end;
+    font-size: 13px;
     line-height: 24px;
-    margin-top: 24px;
+    // margin-top: 24px;
     transition: all linear 0.3s;
 
     &:hover {
@@ -118,7 +169,7 @@
 //
 .form__regis {
     background-color: var(--white-color);
-    padding: 16px 20px;
+    padding: 16px 20px 32px 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -251,5 +302,26 @@
 @media (min-width: 768px) and (max-width: 992px) {
     .form__wrapper {
         max-width: 720px;
+    }
+}
+
+.IFLxoy {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 8px 0;
+    // padding-bottom: 2px;
+    .IFLxoy--right,
+    .IFLxoy--left {
+        height: 1px;
+        width: 100%;
+        background-color: #dbdbdb;
+        flex: 1;
+    }
+    .IFLxoy--title {
+        color: rgb(143, 141, 141);
+        padding: 0 16px;
+        text-transform: uppercase;
+        font-size: 12px;
     }
 }

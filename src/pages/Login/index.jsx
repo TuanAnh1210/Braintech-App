@@ -2,12 +2,16 @@ import classNames from 'classnames/bind';
 import styles from './Login.module.scss';
 import images from '@/assets/images';
 import { useState } from 'react';
-import Button from '@/components/Button/Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGoogle } from '@fortawesome/free-brands-svg-icons';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
 const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const navigate = useNavigate();
 
     const handleSwitchForm = () => {
         setIsLogin(!isLogin);
@@ -21,6 +25,14 @@ const Login = () => {
             }}
             className={cx('account__wrapper')}
         >
+            <button
+                className={cx('go-home')}
+                onClick={() => {
+                    navigate(-1);
+                }}
+            >
+                <FontAwesomeIcon icon={faArrowLeft} />
+            </button>
             <div className={cx('form__wrapper')}>
                 <form className={cx('form__login', { ani: !isLogin })}>
                     <h2 className={cx('form__title')}>Đăng nhập</h2>
@@ -34,13 +46,20 @@ const Login = () => {
                         <input id="pass_login" type="password" placeholder="Mật khẩu" name="pass_login" />
                         <p className="error"></p>
                     </div>
-                    <button className={cx('btn__login')}>Đăng nhập</button>
                     <a className={cx('forgot__pass')} href="">
                         Quên mật khẩu
                     </a>
-                    <Button text className={cx('forgot__pass')} to="/">
-                        Trang chủ
-                    </Button>
+                    <button className={cx('btn__login')}>Đăng nhập</button>
+
+                    <div className={cx('IFLxoy')}>
+                        <div className={cx('IFLxoy--left')}></div>
+                        <span className={cx('IFLxoy--title')}>HOẶC</span>
+                        <div className={cx('IFLxoy--right')}></div>
+                    </div>
+                    <button className={cx('login--with-gg')}>
+                        <FontAwesomeIcon className={cx('icon--gg')} icon={faGoogle} />
+                        <p className={cx('login--gg')}>Đăng nhập với Google</p>
+                    </button>
                 </form>
                 <form className={cx('form__regis', { ani: isLogin })}>
                     <h2 className={cx('form__title', 'regis')}>Đăng ký</h2>
@@ -65,9 +84,6 @@ const Login = () => {
                         <p className="error"></p>
                     </div>
                     <button className={cx('btn__regis')}>Đăng ký</button>
-                    <Button text className={cx('forgot__pass')} to="/">
-                        Trang chủ
-                    </Button>
                 </form>
                 <div className={cx('overlay_container', { isRegis: !isLogin })}>
                     <div className={cx('overlay-login')}>
