@@ -19,10 +19,14 @@ import images from '@/assets/images';
 
 import { useRef } from 'react';
 import CourseItem from '@/components/CourseItem/CourseItem';
+import { useGetCoursesQuery } from '@/providers/apis/courseApi';
 
 const cx = classNames.bind(styles);
 
 const Home = () => {
+    const { data, isLoading, isFetching, isError } = useGetCoursesQuery();
+    console.log(data, 'data');
+
     const { html, css, intern, js, node, react, fe, be, bg, group } = images;
     const infos = [
         {
