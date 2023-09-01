@@ -98,3 +98,35 @@
     margin-left: 16px;
     line-height: 20px;
 }
+
+.old__price {
+    font-size: 16px;
+    margin-right: 8px;
+    text-decoration: line-through;
+    color: #666 !important;
+}
+
+.price__wrapper {
+    margin: 12px 0 24px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.price_cur {
+    color: var(--primary-color);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.course_btn-learn {
+    background-color: var(--primary-color);
+    border: none;
+    color: #fff;
+    padding: 6px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    border-radius: 8px;
+    display: flex;
+    margin: auto;
+}

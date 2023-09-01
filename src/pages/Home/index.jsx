@@ -24,8 +24,7 @@ import { useGetCoursesQuery } from '@/providers/apis/courseApi';
 const cx = classNames.bind(styles);
 
 const Home = () => {
-    const { data, isLoading, isFetching, isError } = useGetCoursesQuery();
-    console.log(data, 'data');
+    const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
 
     const { html, css, intern, js, node, react, fe, be, bg, group } = images;
     const infos = [
@@ -118,14 +117,9 @@ const Home = () => {
             <div className={cx('courses-newest')}>
                 <h2>Khóa học mới nhất</h2>
                 <Slider ref={sliderRef} {...settings} className={cx('courses-newest_list')}>
-                    <CourseItem />
-                    <CourseItem />
-                    <CourseItem />
-                    <CourseItem />
-                    <CourseItem />
-                    <CourseItem />
-                    <CourseItem />
-                    <CourseItem />
+                    {listCourses?.courses?.slice(0, 5)?.map((course) => (
+                        <CourseItem key={course.id} course={course} />
+                    ))}
                 </Slider>
                 <div className={cx('courses-action')}>
                     <button onClick={handlePrevious}>

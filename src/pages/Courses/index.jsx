@@ -7,25 +7,30 @@ import { base_banner } from '@/components/Banner/Base';
 
 import images from '@/assets/images';
 import CourseItem from '@/components/CourseItem/CourseItem';
+import { useGetCoursesQuery } from '@/providers/apis/courseApi';
 
 const cx = classNames.bind(styles);
 const Courses = () => {
+    const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
+
     const { group } = images;
     return (
         <>
             <Banner {...base_banner.banner_course} />
+
             <div className={cx('courses__wrapper')}>
                 <Container>
                     <h1>
                         Khóa học Pro <span className={cx('pro__label')}>Mới</span>
                     </h1>
                     <Row data-course="1" className={cx('courseWrapper')}>
-                        <Col lg={3} md={4}>
-                            <CourseItem />
-                        </Col>
-                        <Col lg={3} md={4}>
-                            <CourseItem />
-                        </Col>
+                        {listCourses?.courses
+                            ?.filter((course) => course.cate_id.name == 'pro')
+                            ?.map((course) => (
+                                <Col lg={3} md={4} key={course.id}>
+                                    <CourseItem course={course} />
+                                </Col>
+                            ))}
                     </Row>
                 </Container>
             </div>
@@ -33,9 +38,13 @@ const Courses = () => {
                 <Container>
                     <h1>Khóa học Front-End miễn phí</h1>
                     <Row data-course="1" className={cx('courseWrapper')}>
-                        <Col lg={3} md={4}>
-                            <CourseItem />
-                        </Col>
+                        {listCourses?.courses
+                            ?.filter((course) => course.cate_id.name == 'fe')
+                            ?.map((course) => (
+                                <Col lg={3} md={4} key={course.id}>
+                                    <CourseItem course={course} />
+                                </Col>
+                            ))}
                     </Row>
                 </Container>
             </div>
@@ -43,9 +52,13 @@ const Courses = () => {
                 <Container>
                     <h1>Khóa học Back-End miễn phí</h1>
                     <Row data-course="1" className={cx('courseWrapper')}>
-                        <Col lg={3} md={4}>
-                            <CourseItem />
-                        </Col>
+                        {listCourses?.courses
+                            ?.filter((course) => course.cate_id.name == 'be')
+                            ?.map((course) => (
+                                <Col lg={3} md={4} key={course.id}>
+                                    <CourseItem course={course} />
+                                </Col>
+                            ))}
                     </Row>
                 </Container>
             </div>

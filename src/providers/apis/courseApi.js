@@ -5,9 +5,17 @@ export const courseApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
     endpoints: (build) => ({
         getCourses: build.query({
-            query: () => '/courses',
+            query: (arg) => {
+                console.log(arg, 'arg ne');
+                return '/courses/all';
+            },
+        }),
+        getDetail: build.query({
+            query: (id) => {
+                return `/courses/${id}`;
+            },
         }),
     }),
 });
 
-export const { useGetCoursesQuery } = courseApi;
+export const { useGetCoursesQuery, useGetDetailQuery } = courseApi;
