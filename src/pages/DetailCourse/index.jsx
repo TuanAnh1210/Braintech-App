@@ -4,17 +4,30 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 
 const cx = classNames.bind(styles);
 const DetailCourse = () => {
     const { id } = useParams();
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
-    console.log(data, 'data');
+    const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
+    const [handleAddSttCourse] = useAddSttCourseMutation();
+
+    const navigate = useNavigate();
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
+
+    const handleLearnCourse = () => {
+        if (!_accessToken) {
+            return navigate('/login');
+        }
+
+        handleAddSttCourse();
+    };
     return (
         <>
             <div className={cx('detail-course')}>
@@ -68,7 +81,9 @@ const DetailCourse = () => {
                                     <>
                                         <h4 className={cx('course_free')}>Miễn phí</h4>
                                         <div className={cx('firstLessonBtn')}>
-                                            <button className={cx('course_btn-learn')}>Học ngay</button>
+                                            <button onClick={handleLearnCourse} className={cx('course_btn-learn')}>
+                                                Học ngay
+                                            </button>
                                         </div>
                                     </>
                                 )}

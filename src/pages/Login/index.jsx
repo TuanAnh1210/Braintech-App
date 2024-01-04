@@ -3,13 +3,20 @@ import styles from './Login.module.scss';
 import images from '@/assets/images';
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGoogle } from '@fortawesome/free-brands-svg-icons';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
+import jwt_decode from 'jwt-decode';
+import { GoogleLogin } from '@react-oauth/google';
+import useLocalStorage from '@/hooks/useLocalStorage';
+import { useAuthUserMutation, useGetUsersQuery } from '@/providers/apis/userApi';
 
 const cx = classNames.bind(styles);
 
 const Login = () => {
+    const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
+
+    const [handleAddUser, { isLoading }] = useAuthUserMutation();
+
     const [isLogin, setIsLogin] = useState(true);
     const navigate = useNavigate();
 
@@ -17,6 +24,32 @@ const Login = () => {
         setIsLogin(!isLogin);
     };
     const { bg_blue } = images;
+    const { data } = useGetUsersQuery();
+
+    const checkUserExist = (email) => {
+        return data?.data.some((user) => user.email === email);
+    };
+
+    const handleLogin = (credentialResponse) => {
+        const decoded = jwt_decode(credentialResponse.credential);
+
+        if (!checkUserExist(decoded.email)) {
+            handleAddUser({
+                email: decoded.email,
+                fullname: decoded.name,
+                avatar: decoded.picture,
+            });
+        }
+
+        setAccessToken({
+            token: credentialResponse.credential,
+            email: decoded.email,
+            fullname: decoded.name,
+            avatar: decoded.picture,
+        });
+
+        navigate('/courses');
+    };
 
     return (
         <div
@@ -56,10 +89,17 @@ const Login = () => {
                         <span className={cx('IFLxoy--title')}>HOẶC</span>
                         <div className={cx('IFLxoy--right')}></div>
                     </div>
-                    <button className={cx('login--with-gg')}>
-                        <FontAwesomeIcon className={cx('icon--gg')} icon={faGoogle} />
-                        <p className={cx('login--gg')}>Đăng nhập với Google</p>
-                    </button>
+
+                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <GoogleLogin
+                            onSuccess={(credentialResponse) => {
+                                handleLogin(credentialResponse);
+                            }}
+                            onError={() => {
+                                console.log('Login Failed');
+                            }}
+                        />
+                    </div>
                 </form>
                 <form className={cx('form__regis', { ani: isLogin })}>
                     <h2 className={cx('form__title', 'regis')}>Đăng ký</h2>

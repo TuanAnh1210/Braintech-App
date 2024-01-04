@@ -5,8 +5,7 @@ export const courseApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
     endpoints: (build) => ({
         getCourses: build.query({
-            query: (arg) => {
-                console.log(arg, 'arg ne');
+            query: () => {
                 return '/courses/all';
             },
         }),

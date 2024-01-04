@@ -7,13 +7,15 @@ import Button from '../../../components/Button/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { faBarsStaggered } from '@fortawesome/free-solid-svg-icons';
+import useLocalStorage from '@/hooks/useLocalStorage';
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 
 const cx = classNames.bind(styles);
 
 const Header = () => {
-    const currentUser = false;
+    const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
+
     // handle active navbar
     const pathPages = window.location.pathname;
     const arrPaths = pathPages.split('/');
@@ -91,14 +93,11 @@ const Header = () => {
                     </ul>
 
                     <div className={cx('actions')}>
-                        {currentUser ? (
+                        {_accessToken ? (
                             <div className={cx('acc_wrapper')}>
                                 <div className={cx('info')}>
-                                    <img
-                                        src="https://scontent.fhan14-3.fna.fbcdn.net/v/t39.30808-6/272631936_998241551114847_5199724819137837589_n.jpg?stp=dst-jpg_p843x403&_nc_cat=108&ccb=1-7&_nc_sid=09cbfe&_nc_ohc=6OwGS4DJfP8AX9qpPvj&_nc_ht=scontent.fhan14-3.fna&oh=00_AfCkgB51IZEXGVdtM7Hkk_aCdDlv4LmuIRL-6x_kWM_FUA&oe=64893432"
-                                        alt=""
-                                    />
-                                    <strong>Nguyen Tuan Anh</strong>
+                                    <img src={_accessToken?.avatar} alt="" />
+                                    <strong>{_accessToken?.fullname}</strong>
                                 </div>
                                 <ul className={cx('acc_menu')}>
                                     <li className={cx('accMenu_item')}>
