@@ -1,14 +1,14 @@
 import config from '@/config/routes';
-import About from '@/pages/About';
-import Contact from '@/pages/Contact';
+import About from '@/pages/Client/About';
+import Contact from '@/pages/Client/Contact';
 
 // Pages
-import Courses from '@/pages/Courses';
-import DetailCourse from '@/pages/DetailCourse';
-import Home from '@/pages/Home';
-import Info from '@/pages/Info';
-import Learning from '@/pages/Learning';
-import Login from '@/pages/Login';
+import Courses from '@/pages/Client/Courses';
+import DetailCourse from '@/pages/Client/DetailCourse';
+import Home from '@/pages/Client/Home';
+import Info from '@/pages/Client/Info';
+import Learning from '@/pages/Client/Learning';
+import Login from '@/pages/Client/Login';
 
 const publicRoutes = [
     { path: config.home, component: Home },
