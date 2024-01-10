@@ -25,7 +25,7 @@ const Courses = () => {
                     </h1>
                     <Row data-course="1" className={cx('courseWrapper')}>
                         {listCourses?.courses
-                            ?.filter((course) => course.cate_id.name == 'pro')
+                            ?.filter((course) => course?.cate_id?.name == 'pro')
                             ?.map((course) => (
                                 <Col lg={3} md={4} key={course.id}>
                                     <CourseItem course={course} />
@@ -39,7 +39,7 @@ const Courses = () => {
                     <h1>Khóa học Front-End miễn phí</h1>
                     <Row data-course="1" className={cx('courseWrapper')}>
                         {listCourses?.courses
-                            ?.filter((course) => course.cate_id.name == 'fe')
+                            ?.filter((course) => course?.cate_id?.name == 'fe')
                             ?.map((course) => (
                                 <Col lg={3} md={4} key={course.id}>
                                     <CourseItem course={course} />
@@ -53,7 +53,7 @@ const Courses = () => {
                     <h1>Khóa học Back-End miễn phí</h1>
                     <Row data-course="1" className={cx('courseWrapper')}>
                         {listCourses?.courses
-                            ?.filter((course) => course.cate_id.name == 'be')
+                            ?.filter((course) => course?.cate_id?.name == 'be')
                             ?.map((course) => (
                                 <Col lg={3} md={4} key={course.id}>
                                     <CourseItem course={course} />
