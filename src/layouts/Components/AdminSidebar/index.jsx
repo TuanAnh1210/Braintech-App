@@ -52,7 +52,7 @@ function AdminSidebar() {
                         </div>
                     </Link>
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'row', paddingTop: '22px', padding: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'row', padding: '12px', paddingTop: '22px' }}>
                     <div className={cx('nav')}>
                         {navItem.map((item, index) => {
                             return (
@@ -61,7 +61,7 @@ function AdminSidebar() {
                                     to={item.path}
                                     className={({ isActive }) => cx(isActive ? 'active' : '', 'nav-item')}
                                 >
-                                    <div className="d-flex align-items-center gap-2">
+                                    <div className="d-flex align-items-center gap-3">
                                         {item.icon}
                                         <span>{item.label}</span>
                                     </div>

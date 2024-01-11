@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { Breadcrumb, Button, Input, Space, Table } from 'antd';
+import { Breadcrumb, Button, Image, Input, Space, Table } from 'antd';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import Highlighter from 'react-highlight-words';
 import { useEffect, useRef, useState } from 'react';
 import qs from 'qs';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 const getRandomuserParams = (params) => ({
     results: params.pagination?.pageSize,
@@ -141,6 +141,17 @@ function UserManager() {
             });
     };
 
+    const rowSelection = {
+        onChange: (selectedRowKeys, selectedRows) => {
+            console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+        },
+        getCheckboxProps: (record) => ({
+            disabled: record.name === 'Disabled User',
+            // Column configuration not to be checked
+            name: record.name,
+        }),
+    };
+
     useEffect(() => {
         fetchData();
     }, [JSON.stringify(tableParams)]);
@@ -171,7 +182,7 @@ function UserManager() {
             dataIndex: 'picture',
             render: (picture) => {
                 return (
-                    <img
+                    <Image
                         width={40}
                         style={{ minWidth: '40px', minHeight: '40px' }}
                         className="rounded-circle"
@@ -180,6 +191,11 @@ function UserManager() {
                     />
                 );
             },
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+            ...getColumnSearchProps('email'),
         },
         {
             title: 'Giới tính',
@@ -194,15 +210,28 @@ function UserManager() {
                     value: 'female',
                 },
             ],
-            width: '20%',
-        },
-        {
-            title: 'Địa chỉ email',
-            dataIndex: 'email',
+            width: '10%',
         },
         {
             title: 'Điện thoại',
             dataIndex: 'cell',
+        },
+        {
+            title: 'Quốc gia',
+            dataIndex: 'location',
+            render: (location) => location.country,
+        },
+        {
+            title: 'Thao tác',
+            dataIndex: 'cell',
+            render: () => {
+                return (
+                    <div className="d-flex gap-3">
+                        <Button type="primary">Cập nhật</Button>
+                        <Button danger>Khóa</Button>
+                    </div>
+                );
+            },
         },
     ];
 
@@ -226,6 +255,9 @@ function UserManager() {
             <Table
                 className="bg-white p-3 rounded"
                 columns={columns}
+                rowSelection={{
+                    ...rowSelection,
+                }}
                 rowKey={(record) => record.login.uuid}
                 dataSource={data}
                 pagination={tableParams.pagination}

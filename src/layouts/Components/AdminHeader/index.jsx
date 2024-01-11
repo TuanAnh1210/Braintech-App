@@ -1,7 +1,7 @@
 import classNames from 'classnames/bind';
 import { CgSun } from 'react-icons/cg';
 import { FaGear, FaExpand, FaCompress, FaBell } from 'react-icons/fa6';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import styles from './AdminHeader.module.scss';
 
@@ -28,6 +28,29 @@ function AdminHeader() {
         if (document.msExitFullscreen) document.msExitFullscreen();
         setFullScreen(false);
     };
+
+    useEffect(() => {
+        const handleFullScreenChange = () => {
+            if (document.fullscreenElement) {
+                setFullScreen(true);
+            } else {
+                setFullScreen(false);
+            }
+        };
+
+        const handleFullScreenError = (event) => {
+            console.error('Lỗi full screen:', event);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+        document.addEventListener('fullscreenerror', handleFullScreenError);
+
+        // Cleanup khi component unmount
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullScreenChange);
+            document.removeEventListener('fullscreenerror', handleFullScreenError);
+        };
+    }, []);
 
     return (
         <div className={cx('header')} style={{ height: '60px' }}>
