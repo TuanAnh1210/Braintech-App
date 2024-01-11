@@ -10,6 +10,8 @@ import Info from '@/pages/Client/Info';
 import Learning from '@/pages/Client/Learning';
 import Login from '@/pages/Client/Login';
 
+import UserManager from '@/pages/Admin/UserManager';
+
 const publicRoutes = [
     { path: config.home, component: Home },
     { path: config.courses, component: Courses },
@@ -21,6 +23,13 @@ const publicRoutes = [
     { path: config.info, component: Info },
 ];
 
-const privateRoutes = [];
+const privateRoutes = [
+    { path: 'dashboard', component: UserManager },
+    { path: 'manager-users', component: UserManager },
+    { path: 'manager-courses', component: UserManager },
+    { path: 'manager-comments', component: UserManager },
+    { path: 'manager-bills', component: UserManager },
+    { path: 'statistical', component: UserManager },
+];
 
 export { publicRoutes, privateRoutes };
