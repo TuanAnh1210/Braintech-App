@@ -7,6 +7,7 @@ const routes = {
     learning: '/learning',
     login: '/login',
     info: '/info',
+    admin_dashboard: '/admin_dashboard'
 };
 
 export default routes;

@@ -1,4 +1,5 @@
 import config from '@/config/routes';
+import Dashboard from '@/pages/Admin/Dashboard';
 import About from '@/pages/Client/About';
 import Contact from '@/pages/Client/Contact';
 
@@ -22,5 +23,8 @@ const publicRoutes = [
 ];
 
 const privateRoutes = [];
+const RoutesAdmin = [
+    { path: config.admin_dashboard, component: Dashboard },
+];
 
-export { publicRoutes, privateRoutes };
+export { publicRoutes, privateRoutes, RoutesAdmin };
