@@ -22,11 +22,10 @@ const DetailCourse = () => {
     }, []);
 
     const handleLearnCourse = () => {
-        if (!_accessToken) {
-            return navigate('/login');
-        }
-
-        handleAddSttCourse();
+        // if (!_accessToken) {
+        //     return navigate('/login');
+        // }
+        // handleAddSttCourse();
     };
     return (
         <>
