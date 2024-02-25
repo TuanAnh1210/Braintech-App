@@ -11,6 +11,7 @@ import Learning from '@/pages/Client/Learning';
 import Login from '@/pages/Client/Login';
 
 import UserManager from '@/pages/Admin/UserManager';
+import CourseList from '@/pages/Admin/CoursesList';
 
 const publicRoutes = [
     { path: config.home, component: Home },
@@ -26,7 +27,7 @@ const publicRoutes = [
 const privateRoutes = [
     { path: 'dashboard', component: UserManager },
     { path: 'manager-users', component: UserManager },
-    { path: 'manager-courses', component: UserManager },
+    { path: 'manager-courses', component: CourseList },
     { path: 'manager-comments', component: UserManager },
     { path: 'manager-bills', component: UserManager },
     { path: 'statistical', component: UserManager },

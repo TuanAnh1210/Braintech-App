@@ -95,8 +95,10 @@
 .trackItem--title {
     font-size: 14px;
     font-weight: 500;
-    margin-left: 16px;
+    margin: 16px;
     line-height: 20px;
+    display: flex;
+    gap: 5px;
 }
 
 .old__price {

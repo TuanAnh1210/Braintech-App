@@ -236,7 +236,7 @@ function UserManager() {
     ];
 
     return (
-        <div className="w-100">
+        <div className="w-full">
             <Breadcrumb
                 className="mb-4"
                 items={[

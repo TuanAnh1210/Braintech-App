@@ -1,12 +1,19 @@
 import classNames from 'classnames/bind';
 import styles from './Learning.module.scss';
-import { Container } from 'react-bootstrap';
+import { Button, Container } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faChevronLeft, faEllipsis, faNoteSticky, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
 import images from '@/assets/images';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useGetDetailQuery } from '@/providers/apis/courseApi';
+import { useState } from 'react';
 
 const cx = classNames.bind(styles);
 const Learning = () => {
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
+    const [path, setPath] = useState('');
     const { logo } = images;
     return (
         <div className="main">
@@ -15,13 +22,18 @@ const Learning = () => {
                     <div className={cx('header__wrapper')}>
                         <div className={cx('header--left')}>
                             <div className={cx('header__back')}>
-                                <FontAwesomeIcon icon={faChevronLeft} />
+                                <button
+                                    className={cx('button__back btn btn-outline-primary')}
+                                    onClick={() => navigate(-1)}
+                                >
+                                    <FontAwesomeIcon icon={faChevronLeft} />
+                                </button>
                             </div>
                             <div className={cx('header__logo')}>
-                                <a href="<?= $GLOBALS['domainPage'] ?>">
+                                <Link to="/">
                                     <img src={logo} alt="" />
-                                    <p>Ten khoa hoc</p>
-                                </a>
+                                    <p>{data?.courses?.name}</p>
+                                </Link>
                             </div>
                         </div>
                         <div className={cx('header__actions')}>
@@ -69,7 +81,7 @@ const Learning = () => {
                                 <iframe
                                     width="100%"
                                     height="515"
-                                    src="https://www.youtube.com/embed/xRrlYlwZCdo"
+                                    src={`https://www.youtube.com/embed/${path}`}
                                     title="YouTube video player"
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -80,7 +92,7 @@ const Learning = () => {
                             <div className={cx('comment__wrapper')}>
                                 <div className={cx('commment__option')}>
                                     <button className="commment__option-btn active">Bình luận</button>
-                                    <button className="note__option-btn">Ghi chú</button>
+                                    <button className="note__option-btn ">Ghi chú</button>
                                 </div>
 
                                 <div className="commentZone open">
@@ -180,7 +192,39 @@ const Learning = () => {
                         </div>
                         <div className={cx('learning__bar')}>
                             <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
-                            <div className={cx('course_topic')}></div>
+                            <div className={cx('course_topic')}>
+                                {data?.courses?.chapters.map((item, index) => {
+                                    return (
+                                        <div className={cx('learning__chapter')} key={item.id}>
+                                            <h3 className={cx('learning__chapter--txt')}>
+                                                {++index}.{item.name}
+                                            </h3>
+
+                                            {item?.lessons.map((lesson, index) => {
+                                                return (
+                                                    <div className={cx('learning__chapter--lesson')} key={lesson.id}>
+                                                        <div
+                                                            onClick={() => {
+                                                                setPath(lesson.path_video);
+                                                            }}
+                                                        >
+                                                            <p
+                                                                className={cx(
+                                                                    path === lesson.path_video
+                                                                        ? 'learning__chapter--lesson_name_active'
+                                                                        : 'learning__chapter--lesson_name',
+                                                                )}
+                                                            >
+                                                                {lesson.name}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
+                                    );
+                                })}
+                            </div>
                         </div>
                     </div>
                 </Container>
