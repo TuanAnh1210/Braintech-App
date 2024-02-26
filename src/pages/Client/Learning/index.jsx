@@ -6,15 +6,56 @@ import { faBars, faChevronLeft, faEllipsis, faNoteSticky, faPen, faTrash } from 
 import images from '@/assets/images';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const cx = classNames.bind(styles);
 const Learning = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
+    const [chapterIndex, setChapterIndex] = useState(0);
+    const [lessonIndex, setLessonIndex] = useState(0);
     const [path, setPath] = useState('');
+
+    useEffect(() => {
+        if (data && data.courses && data.courses.chapters && data.courses.chapters.length > 0) {
+            const chapter = data.courses.chapters[chapterIndex];
+            const lesson = chapter?.lessons[lessonIndex];
+            if (lesson) {
+                setPath(lesson.path_video);
+            } else {
+                if (chapterIndex < data.courses.chapters.length - 1) {
+                    setChapterIndex(chapterIndex + 1);
+                    setLessonIndex(0);
+                }
+            }
+        }
+    }, [data, chapterIndex, lessonIndex]);
+    const handleNext = () => {
+        const chapter = data?.courses?.chapters[chapterIndex];
+        if (lessonIndex < chapter?.lessons.length - 1) {
+            setLessonIndex(lessonIndex + 1);
+        } else {
+            if (chapterIndex < data?.courses?.chapters.length - 1) {
+                setChapterIndex(chapterIndex + 1);
+                setLessonIndex(0);
+            }
+        }
+    };
+
+    const handlePrev = () => {
+        if (lessonIndex > 0) {
+            setLessonIndex(lessonIndex - 1);
+        } else {
+            if (chapterIndex > 0) {
+                setChapterIndex(chapterIndex - 1);
+                const prevChapter = data?.courses?.chapters[chapterIndex];
+                setLessonIndex(prevChapter.lessons.length - 1);
+            }
+        }
+    };
     const { logo } = images;
+
     return (
         <div className="main">
             <header className={cx('header')}>
@@ -24,7 +65,7 @@ const Learning = () => {
                             <div className={cx('header__back')}>
                                 <button
                                     className={cx('button__back btn btn-outline-primary')}
-                                    onClick={() => navigate(-1)}
+                                    onClick={() => navigate(`/detail/${id}`)}
                                 >
                                     <FontAwesomeIcon icon={faChevronLeft} />
                                 </button>
@@ -200,12 +241,14 @@ const Learning = () => {
                                                 {++index}.{item.name}
                                             </h3>
 
-                                            {item?.lessons.map((lesson, index) => {
+                                            {item?.lessons.map((lesson, indexLesson) => {
                                                 return (
                                                     <div className={cx('learning__chapter--lesson')} key={lesson.id}>
                                                         <div
                                                             onClick={() => {
                                                                 setPath(lesson.path_video);
+                                                                setLessonIndex(indexLesson);
+                                                                setChapterIndex(index - 1);
                                                             }}
                                                         >
                                                             <p
@@ -236,8 +279,12 @@ const Learning = () => {
                     <span>Ghi chú</span>
                 </button>
                 <div className={cx('actionBtn')}>
-                    <button className={cx('pre-lesson')}>Bài trước</button>
-                    <button className={cx('next-lesson')}>Bài kế tiếp</button>
+                    <button className={cx('pre-lesson')} onClick={handlePrev}>
+                        Bài trước
+                    </button>
+                    <button className={cx('next-lesson')} onClick={handleNext}>
+                        Bài kế tiếp
+                    </button>
                 </div>
                 <button className={cx('btn__bar')}>
                     <FontAwesomeIcon className={cx('icon')} icon={faBars} />
