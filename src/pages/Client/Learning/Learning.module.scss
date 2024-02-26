@@ -406,3 +406,36 @@
     font-size: 24px;
     padding: 4px;
 }
+.learning__chapter {
+    margin-top: 16px;
+    padding-left: 24px;
+}
+.learning__chapter--txt{
+    font-size: 16px;
+    font-weight: 600;
+}
+.learning__chapter--lesson_name {
+    padding: 20px;
+    border-radius: 10px;
+    color: #000000;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.learning__chapter--lesson_name_active{
+    background-color: #f76b1c;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.learning__chapter--lesson_name:hover {
+    background-color: #f76b1c;
+    color: #ffffff;
+}

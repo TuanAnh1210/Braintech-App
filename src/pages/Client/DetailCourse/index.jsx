@@ -4,7 +4,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
@@ -80,9 +80,11 @@ const DetailCourse = () => {
                                     <>
                                         <h4 className={cx('course_free')}>Miễn phí</h4>
                                         <div className={cx('firstLessonBtn')}>
-                                            <button onClick={handleLearnCourse} className={cx('course_btn-learn')}>
-                                                Học ngay
-                                            </button>
+                                            <Link to={`/learning/${id}`}>
+                                                <button onClick={handleLearnCourse} className={cx('course_btn-learn')}>
+                                                    Học ngay
+                                                </button>
+                                            </Link>
                                         </div>
                                     </>
                                 )}
