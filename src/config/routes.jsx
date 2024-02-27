@@ -6,6 +6,7 @@ const routes = {
     detail: '/detail/:id',
     learning: '/learning/:id',
     login: '/login',
+    register: '/register',
     info: '/info',
 };
 

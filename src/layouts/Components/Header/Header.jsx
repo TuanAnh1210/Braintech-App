@@ -8,8 +8,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { faBarsStaggered } from '@fortawesome/free-solid-svg-icons';
 import useLocalStorage from '@/hooks/useLocalStorage';
+
 // import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
+
+import Login from '@/pages/Client/Login';
+import Register from '@/pages/Client/Register';
 
 const cx = classNames.bind(styles);
 
@@ -114,11 +118,13 @@ const Header = () => {
                                 </ul>
                             </div>
                         ) : (
-                            <Button outline className={cx('btn-login')} to={'/login'}>
-                                Đăng nhập
-                            </Button>
+                            <div className="d-flex">
+                                <Login />
+                                <Register />
+                            </div>
                         )}
                     </div>
+
                     <div className={cx('header_bar')} onClick={handleNavbarToggle}>
                         <FontAwesomeIcon icon={faBarsStaggered} />
                     </div>

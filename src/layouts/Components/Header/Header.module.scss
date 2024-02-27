@@ -1,4 +1,5 @@
 $_height-header: 84px;
+
 // $_primary-color: #f76b1c;
 header {
     border-bottom: 1px solid #949596;
@@ -23,19 +24,23 @@ header {
                 height: 100%;
                 display: flex;
                 align-items: center;
+
                 img {
                     height: 100%;
                     border-radius: 10px;
+
                     @media (max-width: 576px) {
                         width: 40px;
                         height: 40px;
                     }
                 }
+
                 p {
                     margin-bottom: 0;
                     font-size: 14px;
                     font-weight: 700;
                     margin-left: 12px;
+
                     @media (max-width: 576px) {
                         font-size: 12px;
                     }
@@ -66,6 +71,7 @@ header {
         box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
         transition: all linear 0.2s;
     }
+
     @media (max-width: 576px) {
         width: 60%;
         z-index: 10;
@@ -80,6 +86,7 @@ header {
     .close_icon {
         padding: 8px;
         font-size: 24px;
+
         &:hover {
             cursor: pointer;
             color: var(--primary-color);
@@ -153,6 +160,19 @@ header {
     .btn-login {
         font-size: 14px;
         font-weight: 700;
+        background-color: #f76b1c;
+        color: var(--white-color);
+        border-width: 2px;
+        padding: 6px 10px;
+
+        &:hover {
+            background-color: var(--primary-color);
+        }
+    }
+
+    .btn-register {
+        font-size: 14px;
+        font-weight: 700;
         background-color: transparent;
         border-width: 2px;
         padding: 6px 10px;
@@ -169,6 +189,7 @@ header {
 
         &:hover {
             cursor: pointer;
+
             .acc_menu {
                 display: block;
             }
@@ -193,6 +214,7 @@ header {
             height: 40px;
             top: 20px;
             right: -20px;
+
             @media (max-width: 576px) {
                 width: 100%;
             }
@@ -219,12 +241,14 @@ header {
             .accMenu_item {
                 list-style-type: none;
                 padding: 4px 16px;
+
                 &:hover {
                     a {
                         color: var(--primary-color);
                     }
                 }
             }
+
             .accMenu_item:first-child {
                 border-bottom: 1px solid #f5f5f5;
             }
@@ -235,10 +259,12 @@ header {
 .header_bar {
     font-size: 24px;
     display: none;
+
     @media (max-width: 992px) {
         display: block;
     }
 }
+
 // .nav_link::after {
 //     display: none;
 //     position: absolute;

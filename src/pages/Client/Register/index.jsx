@@ -4,12 +4,11 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 import Button from '../../../components/Button/Button';
-
-import styles from './Login.module.scss';
+import styles from './Register.module.scss';
 
 const cx = classNames.bind(styles);
 
-const Login = () => {
+const Register = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const onFinish = (value) => {
@@ -22,8 +21,8 @@ const Login = () => {
 
     return (
         <>
-            <Button outline onClick={() => setIsModalOpen(true)} className={cx('btn-login')}>
-                Đăng nhập
+            <Button outline onClick={() => setIsModalOpen(true)} className={cx('btn-register')}>
+                Đăng ký
             </Button>
             <Modal open={isModalOpen} onCancel={onCancel} closable={true} footer={false}>
                 <div className={cx('container')}>
@@ -32,7 +31,7 @@ const Login = () => {
                     </div>
                     <div className="text-center">
                         <h3 className="mb-3" style={{ fontWeight: 600 }}>
-                            Đăng nhập
+                            Đăng ký
                             <span style={{ color: '#3dd6a3', marginLeft: '6px' }}>Brain</span>
                             <span style={{ color: '#6666ff' }}>Tech</span>
                         </h3>
@@ -42,6 +41,18 @@ const Login = () => {
                         </p>
                     </div>
                     <Form onFinish={onFinish} autoComplete="off">
+                        <div className="mb-4">
+                            <p className="mb-1">Họ và tên</p>
+                            <Form.Item
+                                name="full_name"
+                                rules={[
+                                    { whitespace: true, message: 'Vui lòng nhập họ và tên!' },
+                                    { required: true, message: 'Vui lòng nhập họ và tên!' },
+                                ]}
+                            >
+                                <Input className="w-100 p-2 rounded" placeholder="Họ và tên" />
+                            </Form.Item>
+                        </div>
                         <div className="mb-4">
                             <p className="mb-1">Số điện thoại</p>
                             <Form.Item
@@ -66,16 +77,30 @@ const Login = () => {
                                 <Input type="password" className="w-100 p-2 rounded" placeholder="Mật khẩu" />
                             </Form.Item>
                         </div>
-
+                        <div className="mb-4">
+                            <p className="mb-1">Xác nhận mật khẩu</p>
+                            <Form.Item
+                                name="re_password"
+                                rules={[
+                                    { whitespace: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                                    { required: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                                ]}
+                            >
+                                <Input
+                                    type="password"
+                                    className="w-100 p-2 rounded"
+                                    placeholder="Nhập mật khẩu xác nhận"
+                                />
+                            </Form.Item>
+                        </div>
                         <ButtonPrimary htmlType="submit" className="w-100 mt-4" type="primary" size={'large'}>
-                            Đăng nhập
+                            Đăng ký
                         </ButtonPrimary>
                     </Form>
-
                     <p className="text-center mt-5" style={{ fontWeight: 500 }}>
-                        Bạn chưa có tài khoản?{' '}
-                        <Link to={'/register'} style={{ color: '#1677ff' }}>
-                            Đăng ký
+                        Bạn đã có tài khoản?{' '}
+                        <Link to={'/login'} style={{ color: '#1677ff' }}>
+                            Đăng nhập
                         </Link>
                     </p>
 
@@ -92,4 +117,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Register;
