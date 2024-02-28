@@ -11,7 +11,7 @@ import { useGetCoursesQuery } from '@/providers/apis/courseApi';
 
 const cx = classNames.bind(styles);
 const Courses = () => {
-    const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
+    const { data: listCourses } = useGetCoursesQuery();
 
     const { group } = images;
     return (

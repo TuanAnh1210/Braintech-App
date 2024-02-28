@@ -184,7 +184,6 @@ header {
     }
 
     .acc_wrapper {
-        width: 168px;
         position: relative;
 
         &:hover {
@@ -241,9 +240,19 @@ header {
             .accMenu_item {
                 list-style-type: none;
                 padding: 4px 16px;
+                cursor: pointer;
+
+                span {
+                    color: #000 !important;
+                }
 
                 &:hover {
-                    a {
+                    background: rgba(0, 0, 0, 0.1);
+                }
+
+                &:hover {
+                    span {
+                        user-select: none;
                         color: var(--primary-color);
                     }
                 }
