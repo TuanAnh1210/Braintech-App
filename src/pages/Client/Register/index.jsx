@@ -1,20 +1,15 @@
 /* eslint-disable react/prop-types */
 import { Button, Form, Input, Spin, notification } from 'antd';
-import { useDispatch } from 'react-redux';
 
-import { useLoginMutation } from '@/providers/apis/userApi';
+import { useRegisterMutation } from '@/providers/apis/userApi';
 import useLocalStorage from '@/hooks/useLocalStorage';
 
-import { login } from '@/providers/slices/userSlice';
-
-const Login = ({ setOpen }) => {
+const Register = ({ setOpen }) => {
     const [, setAccessToken] = useLocalStorage('access_token', null);
-    const [handleLogin, { isLoading }] = useLoginMutation();
-
-    const dispatch = useDispatch();
+    const [handleRegister, { isLoading }] = useRegisterMutation();
 
     const onFinish = async (value) => {
-        const { data, error } = await handleLogin({
+        const { data, error } = await handleRegister({
             ...value,
             auth_type: 'phone',
         });
@@ -33,21 +28,30 @@ const Login = ({ setOpen }) => {
             duration: 1.75,
         });
 
-        const user = {
+        setAccessToken({
             token: data.user.accessToken,
             email: data.user.email,
             fullName: data.user.fullName,
             avatar: data.user.avatar,
-        };
-
-        setAccessToken(user);
-        dispatch(login(user));
+        });
 
         setOpen(false);
     };
 
     return (
         <Form onFinish={onFinish} autoComplete="off">
+            <div className="mb-4">
+                <p className="mb-1">Họ và tên</p>
+                <Form.Item
+                    name="full_name"
+                    rules={[
+                        { whitespace: true, message: 'Vui lòng nhập họ và tên!' },
+                        { required: true, message: 'Vui lòng nhập họ và tên!' },
+                    ]}
+                >
+                    <Input className="w-100 p-2 rounded" placeholder="Họ và tên" />
+                </Form.Item>
+            </div>
             <div className="mb-4">
                 <p className="mb-1">Số điện thoại</p>
                 <Form.Item
@@ -72,37 +76,23 @@ const Login = ({ setOpen }) => {
                     <Input type="password" className="w-100 p-2 rounded" placeholder="Mật khẩu" />
                 </Form.Item>
             </div>
-
-            <Button htmlType="submit" className="w-100 mt-4" type="primary" size={'large'}>
-                {isLoading ? <Spin /> : 'Đăng nhập'}
-            </Button>
-
-            <div className="d-flex align-items-center gap-3 mt-5 mb-1">
-                <div
-                    className="w-100 d-flex align-items-center justify-content-center gap-2 p-2 rounded"
-                    style={{ border: '1px solid #9999', cursor: 'pointer' }}
+            <div className="mb-4">
+                <p className="mb-1">Xác nhận mật khẩu</p>
+                <Form.Item
+                    name="password_confirm"
+                    rules={[
+                        { whitespace: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                        { required: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                    ]}
                 >
-                    <img
-                        width={25}
-                        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQzODxDmyXiDdzXilTH_Ha2d83AoyVB8S3FHzq9rSiGww&s"
-                        alt=""
-                    />
-                    <span style={{ fontWeight: 500 }}>Google</span>
-                </div>
-                <div
-                    className="w-100 d-flex align-items-center justify-content-center gap-2 p-2 rounded"
-                    style={{ border: '1px solid #9999', cursor: 'pointer' }}
-                >
-                    <img
-                        width={25}
-                        src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Facebook_Logo_%282019%29.png/1024px-Facebook_Logo_%282019%29.png"
-                        alt=""
-                    />
-                    <span style={{ fontWeight: 500 }}>Facebook</span>
-                </div>
+                    <Input type="password" className="w-100 p-2 rounded" placeholder="Nhập mật khẩu xác nhận" />
+                </Form.Item>
             </div>
+            <Button htmlType="submit" className="w-100 mt-4" type="primary" size={'large'}>
+                {isLoading ? <Spin /> : 'Đăng ký'}
+            </Button>
         </Form>
     );
 };
 
-export default Login;
+export default Register;

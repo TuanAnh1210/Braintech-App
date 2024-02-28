@@ -9,6 +9,7 @@ import Home from '@/pages/Client/Home';
 import Info from '@/pages/Client/Info';
 import Learning from '@/pages/Client/Learning';
 import Login from '@/pages/Client/Login';
+import Register from '@/pages/Client/Register';
 
 import UserManager from '@/pages/Admin/UserManager';
 import CourseList from '@/pages/Admin/CoursesList';
@@ -17,6 +18,7 @@ const publicRoutes = [
     { path: config.home, component: Home },
     { path: config.courses, component: Courses },
     { path: config.login, component: Login, layout: null },
+    { path: config.register, component: Register, layout: null },
     { path: config.learning, component: Learning, layout: null },
     { path: config.about, component: About },
     { path: config.detail, component: DetailCourse },
