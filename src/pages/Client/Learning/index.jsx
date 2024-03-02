@@ -7,6 +7,8 @@ import images from '@/assets/images';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
 import { useEffect, useState } from 'react';
+import { useGetUsersQuery } from '@/providers/apis/userApi';
+import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
 
 const cx = classNames.bind(styles);
 const Learning = () => {
@@ -15,8 +17,38 @@ const Learning = () => {
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
     const [chapterIndex, setChapterIndex] = useState(0);
     const [lessonIndex, setLessonIndex] = useState(0);
+    const [cmtInput, setCmtInput] = useState('');
     const [path, setPath] = useState('');
+    const [isComment, setCommment] = useState(true);
+    const [userId, setUserId] = useState(null);
+    const [idLesson, setIdLesson] = useState('');
 
+    const dataUser = useGetUsersQuery();
+    const cmtData = useGetAllQuery(idLesson);
+    const [handleAddCmt] = useCreateCmtMutation();
+    useEffect(() => {
+        const lesson = data?.courses?.chapters[chapterIndex].lessons[lessonIndex]._id;
+        setIdLesson(lesson);
+        const { email } = JSON.parse(localStorage.getItem('access_token'));
+        if (dataUser.data) {
+            const idUser = dataUser.data.data.find((user) => user.email === email);
+            setUserId(idUser?._id);
+        }
+    }, [dataUser, lessonIndex, chapterIndex]);
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const newCmt = {
+            content: cmtInput,
+            user_id: userId,
+            lesson_id: idLesson,
+        };
+
+        handleAddCmt(newCmt).then(() => {
+            setCmtInput('');
+        });
+        cmtData.refetch();
+    };
     useEffect(() => {
         if (data && data.courses && data.courses.chapters && data.courses.chapters.length > 0) {
             const chapter = data.courses.chapters[chapterIndex];
@@ -132,103 +164,142 @@ const Learning = () => {
 
                             <div className={cx('comment__wrapper')}>
                                 <div className={cx('commment__option')}>
-                                    <button className="commment__option-btn active">Bình luận</button>
-                                    <button className="note__option-btn ">Ghi chú</button>
+                                    <button
+                                        className="commment__option-btn active"
+                                        onClick={() => {
+                                            setCommment(true);
+                                        }}
+                                    >
+                                        Bình luận
+                                    </button>
+                                    <button
+                                        className="note__option-btn "
+                                        onClick={() => {
+                                            setCommment(false);
+                                        }}
+                                    >
+                                        Ghi chú
+                                    </button>
                                 </div>
 
-                                <div className="commentZone open">
-                                    <div className={cx('commentBox')}>
-                                        <img
-                                            className={cx('commentBox--img')}
-                                            src="https://yt3.ggpht.com/UsflU74uvka_3sejOu3LUGwzOhHJV0eIYoWcvOfkOre_c12uIN4ys-QqRlAkbusEmbZjTA-b=s88-c-k-c0x00ffffff-no-rj"
-                                            alt=""
-                                        />
-
-                                        <form className={cx('form__comment')}>
-                                            <input hidden type="text" name="cmt_idUser" value="" />
-
-                                            <textarea
-                                                required
-                                                className={cx('commentBox--ipt')}
-                                                name="cmt_content"
-                                                id=""
-                                                placeholder="Gửi bình luận của bạn"
-                                            ></textarea>
-                                            <button className={cx('send__comment')}>Gửi bình luận</button>
-                                        </form>
-                                    </div>
-
-                                    <div className={cx('comment_wrapper-content')}>
-                                        <div className={cx('commentBox', 'noMt')}>
+                                {isComment ? (
+                                    <div className="commentZone">
+                                        <div className={cx('commentBox')}>
                                             <img
                                                 className={cx('commentBox--img')}
                                                 src="https://yt3.ggpht.com/UsflU74uvka_3sejOu3LUGwzOhHJV0eIYoWcvOfkOre_c12uIN4ys-QqRlAkbusEmbZjTA-b=s88-c-k-c0x00ffffff-no-rj"
                                                 alt=""
                                             />
 
-                                            <div className={cx('commentBox--right')}>
-                                                <h5>
-                                                    Tuan Anh <span className={cx('comment__time')}>12-10-2003</span>
-                                                </h5>
-                                                <p className={cx('commentBox--text')}>gfg</p>
-                                                <form className={cx('update_cmt_form')}>
-                                                    <input hidden type="text" name="cmt_idUser" value="" />
+                                            <form className={cx('form__comment')} onSubmit={handleSubmit}>
+                                                <label>Bình luận của bạn : </label>
 
-                                                    <input
-                                                        className="contentUpdateIpt"
-                                                        type="text"
-                                                        value=""
-                                                        name="contentUpdateIpt"
-                                                    />
-                                                    <button>Cập nhật</button>
-                                                </form>
-                                                <div className={cx('comments-options')}>
-                                                    <FontAwesomeIcon icon={faEllipsis} />
-                                                    <div className={cx('options-sub')}>
-                                                        <p className={cx('btn_option-cmt')}>
-                                                            Sửa&emsp;
-                                                            <FontAwesomeIcon className={cx('icon')} icon={faPen} />
-                                                        </p>
+                                                <textarea
+                                                    required
+                                                    className={cx('commentBox--ipt')}
+                                                    name="cmt_content"
+                                                    id=""
+                                                    placeholder="Gửi bình luận của bạn"
+                                                    value={cmtInput}
+                                                    onChange={(e) => {
+                                                        setCmtInput(e.target.value);
+                                                    }}
+                                                ></textarea>
+                                                <button className={cx('send__comment')}>Gửi bình luận</button>
+                                            </form>
+                                        </div>
 
-                                                        <p
-                                                            data-idCourse="<?= $id_course ?>"
-                                                            data-idLesson="<?= $id_lesson ?>"
-                                                            data-idCmt=""
-                                                            className={cx('btn_option-cmt')}
-                                                        >
-                                                            Xóa&emsp;
-                                                            <FontAwesomeIcon className={cx('icon')} icon={faTrash} />
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        <div className={cx('comment_wrapper-content')}>
+                                            {cmtData?.data?.data.map((cmt) => {
+                                                const user = dataUser?.data?.data?.findIndex((data) => {
+                                                    return data._id === cmt.user_id;
+                                                });
+
+                                                return (
+                                                    <>
+                                                        <div className={cx('commentBox', 'noMt')} key={cmt._id}>
+                                                            <img
+                                                                className={cx('commentBox--img')}
+                                                                src="https://yt3.ggpht.com/UsflU74uvka_3sejOu3LUGwzOhHJV0eIYoWcvOfkOre_c12uIN4ys-QqRlAkbusEmbZjTA-b=s88-c-k-c0x00ffffff-no-rj"
+                                                                alt=""
+                                                            />
+
+                                                            <div className={cx('commentBox--right')}>
+                                                                <h5>Người dùng {user}</h5>
+                                                                <p className={cx('commentBox--text')}>{cmt.text}</p>
+                                                                <form className={cx('update_cmt_form')}>
+                                                                    <input
+                                                                        hidden
+                                                                        type="text"
+                                                                        name="cmt_idUser"
+                                                                        value=""
+                                                                    />
+
+                                                                    <input
+                                                                        className="contentUpdateIpt"
+                                                                        type="text"
+                                                                        value=""
+                                                                        name="contentUpdateIpt"
+                                                                    />
+                                                                    <button>Cập nhật</button>
+                                                                </form>
+                                                                <div className={cx('comments-options')}>
+                                                                    <FontAwesomeIcon icon={faEllipsis} />
+                                                                    <div className={cx('options-sub')}>
+                                                                        <p className={cx('btn_option-cmt')}>
+                                                                            Sửa&emsp;
+                                                                            <FontAwesomeIcon
+                                                                                className={cx('icon')}
+                                                                                icon={faPen}
+                                                                            />
+                                                                        </p>
+
+                                                                        <p
+                                                                            data-idCourse="<?= $id_course ?>"
+                                                                            data-idLesson="<?= $id_lesson ?>"
+                                                                            data-idCmt=""
+                                                                            className={cx('btn_option-cmt')}
+                                                                        >
+                                                                            Xóa&emsp;
+                                                                            <FontAwesomeIcon
+                                                                                className={cx('icon')}
+                                                                                icon={faTrash}
+                                                                            />
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                                );
+                                            })}
                                         </div>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="noteZone">
+                                        <form className="noteForm">
+                                            <h2 className="note--title">
+                                                Thêm ghi chú tại <span className="note--time">bài học này</span>
+                                            </h2>
+                                            <input hidden type="text" value="<?= $id_lesson ?>" name="id_lesson" />
 
-                                <div hidden className="noteZone">
-                                    <form className="noteForm">
-                                        <h2 className="note--title">
-                                            Thêm ghi chú tại <span className="note--time">bài học này</span>
-                                        </h2>
-                                        <input hidden type="text" value="<?= $id_lesson ?>" name="id_lesson" />
+                                            <div className="form__group">
+                                                <label>Nội dung ghi chú:</label>
+                                                <textarea
+                                                    required
+                                                    placeholder="Nội dung ghi chú..."
+                                                    className="note--ipt"
+                                                    name="note_content"
+                                                    id=""
+                                                    cols="30"
+                                                    rows="10"
+                                                ></textarea>
+                                            </div>
 
-                                        <div className="form__group">
-                                            <label>Nội dung ghi chú:</label>
-                                            <textarea
-                                                required
-                                                placeholder="Nội dung ghi chú..."
-                                                className="note--ipt"
-                                                name="note_content"
-                                                id=""
-                                                cols="30"
-                                                rows="10"
-                                            ></textarea>
-                                        </div>
-
-                                        <button className="send__comment">Thêm ghi chú</button>
-                                    </form>
-                                </div>
+                                            <button className="send__comment">Thêm ghi chú</button>
+                                        </form>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <div className={cx('learning__bar')}>

@@ -107,7 +107,7 @@ const Header = () => {
                                     </li>
 
                                     <li className={cx('accMenu_item')}>
-                                        <a className="accMenu_link" href="<?= $GLOBALS['domainPage'] ?>/account/logout">
+                                        <a className="accMenu_link" href="">
                                             Đăng xuất
                                         </a>
                                     </li>
