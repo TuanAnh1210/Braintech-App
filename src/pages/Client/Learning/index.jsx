@@ -2,39 +2,78 @@ import classNames from 'classnames/bind';
 import styles from './Learning.module.scss';
 import { Button, Container } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faChevronLeft, faEllipsis, faNoteSticky, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import {
+    faBars,
+    faCaretDown,
+    faChevronLeft,
+    faEllipsis,
+    faNoteSticky,
+    faPen,
+    faTimes,
+    faTrash,
+} from '@fortawesome/free-solid-svg-icons';
 import images from '@/assets/images';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { useEffect, useState } from 'react';
+import { useGetCoursesQuery, useGetDetailQuery } from '@/providers/apis/courseApi';
+import { useEffect, useRef, useState } from 'react';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
+import { useCreateNoteMutation, useGetNotebyIdClientQuery } from '@/providers/apis/noteApi';
+import { useGetLessonQuery } from '@/providers/apis/lessonApi';
 
 const cx = classNames.bind(styles);
 const Learning = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const ref = useRef(null);
+    const refCmtInput = useRef(null);
+    const refNoteInput = useRef(null);
+    const mainView = useRef(null);
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
+    const { data: allLesson } = useGetLessonQuery();
     const [chapterIndex, setChapterIndex] = useState(0);
     const [lessonIndex, setLessonIndex] = useState(0);
     const [cmtInput, setCmtInput] = useState('');
     const [path, setPath] = useState('');
     const [isComment, setCommment] = useState(true);
     const [userId, setUserId] = useState(null);
-    const [idLesson, setIdLesson] = useState('');
+    const [idLesson, setIdLesson] = useState(null);
+    const [noteInput, setNoteInput] = useState('');
+    const [openStorage, setOpenStorage] = useState(false);
 
     const dataUser = useGetUsersQuery();
-    const cmtData = useGetAllQuery(idLesson);
+    const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(idLesson);
     const [handleAddCmt] = useCreateCmtMutation();
+    const [handleAddNote] = useCreateNoteMutation();
+    const { data: noteData, refetch: refetchNote } = useGetNotebyIdClientQuery(userId);
+    const handleClickScroll = () => {
+        ref.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const handleSubmitNote = (e) => {
+        e.preventDefault();
+        const newNote = {
+            content: noteInput,
+            user_id: userId,
+            lesson_id: idLesson,
+        };
+        handleAddNote(newNote).then((res) => {
+            refNoteInput.current.value = '';
+
+            setNoteInput('');
+            refetchNote();
+        });
+    };
     useEffect(() => {
-        const lesson = data?.courses?.chapters[chapterIndex].lessons[lessonIndex]._id;
+        mainView.current?.scrollIntoView({ behavior: 'smooth' });
+        const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id;
         setIdLesson(lesson);
         const { email } = JSON.parse(localStorage.getItem('access_token'));
         if (dataUser.data) {
             const idUser = dataUser.data.data.find((user) => user.email === email);
             setUserId(idUser?._id);
         }
-    }, [dataUser, lessonIndex, chapterIndex]);
+    }, [dataUser, lessonIndex, chapterIndex, cmtData]);
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -43,11 +82,11 @@ const Learning = () => {
             user_id: userId,
             lesson_id: idLesson,
         };
-
-        handleAddCmt(newCmt).then(() => {
+        handleAddCmt(newCmt).then((response) => {
+            refCmtInput.current.value = '';
             setCmtInput('');
+            refetch();
         });
-        cmtData.refetch();
     };
     useEffect(() => {
         if (data && data.courses && data.courses.chapters && data.courses.chapters.length > 0) {
@@ -62,7 +101,7 @@ const Learning = () => {
                 }
             }
         }
-    }, [data, chapterIndex, lessonIndex]);
+    }, [data, chapterIndex, lessonIndex, cmtData]);
     const handleNext = () => {
         const chapter = data?.courses?.chapters[chapterIndex];
         if (lessonIndex < chapter?.lessons.length - 1) {
@@ -149,7 +188,7 @@ const Learning = () => {
             <div className={cx('content')}>
                 <Container fluid>
                     <div className={cx('learning__wrapper')}>
-                        <div className={cx('learning__video')}>
+                        <div className={cx('learning__video')} ref={mainView}>
                             <div id="player">
                                 <iframe
                                     width="100%"
@@ -163,11 +202,12 @@ const Learning = () => {
                             </div>
 
                             <div className={cx('comment__wrapper')}>
-                                <div className={cx('commment__option')}>
+                                <div className={cx('commment__option')} ref={ref}>
                                     <button
                                         className="commment__option-btn active"
                                         onClick={() => {
                                             setCommment(true);
+                                            handleClickScroll();
                                         }}
                                     >
                                         Bình luận
@@ -176,6 +216,7 @@ const Learning = () => {
                                         className="note__option-btn "
                                         onClick={() => {
                                             setCommment(false);
+                                            handleClickScroll();
                                         }}
                                     >
                                         Ghi chú
@@ -193,30 +234,33 @@ const Learning = () => {
 
                                             <form className={cx('form__comment')} onSubmit={handleSubmit}>
                                                 <label>Bình luận của bạn : </label>
-
                                                 <textarea
                                                     required
                                                     className={cx('commentBox--ipt')}
                                                     name="cmt_content"
                                                     id=""
                                                     placeholder="Gửi bình luận của bạn"
-                                                    value={cmtInput}
+                                                    ref={refCmtInput}
                                                     onChange={(e) => {
                                                         setCmtInput(e.target.value);
                                                     }}
-                                                ></textarea>
+                                                >
+                                                    {cmtInput}
+                                                </textarea>
                                                 <button className={cx('send__comment')}>Gửi bình luận</button>
                                             </form>
                                         </div>
 
                                         <div className={cx('comment_wrapper-content')}>
-                                            {cmtData?.data?.data.map((cmt) => {
-                                                const user = dataUser?.data?.data?.findIndex((data) => {
-                                                    return data._id === cmt.user_id;
-                                                });
+                                            {cmtLoading & cmtFetching ? (
+                                                <>Loading...</>
+                                            ) : cmtData && cmtData.data ? (
+                                                cmtData.data.map((cmt) => {
+                                                    const user = dataUser?.data?.data?.findIndex((data) => {
+                                                        return data._id === cmt.user_id;
+                                                    });
 
-                                                return (
-                                                    <>
+                                                    return (
                                                         <div className={cx('commentBox', 'noMt')} key={cmt._id}>
                                                             <img
                                                                 className={cx('commentBox--img')}
@@ -232,13 +276,13 @@ const Learning = () => {
                                                                         hidden
                                                                         type="text"
                                                                         name="cmt_idUser"
-                                                                        value=""
+                                                                        defaultValue=""
                                                                     />
 
                                                                     <input
                                                                         className="contentUpdateIpt"
                                                                         type="text"
-                                                                        value=""
+                                                                        defaultValue=""
                                                                         name="contentUpdateIpt"
                                                                     />
                                                                     <button>Cập nhật</button>
@@ -254,12 +298,7 @@ const Learning = () => {
                                                                             />
                                                                         </p>
 
-                                                                        <p
-                                                                            data-idCourse="<?= $id_course ?>"
-                                                                            data-idLesson="<?= $id_lesson ?>"
-                                                                            data-idCmt=""
-                                                                            className={cx('btn_option-cmt')}
-                                                                        >
+                                                                        <p className={cx('btn_option-cmt')}>
                                                                             Xóa&emsp;
                                                                             <FontAwesomeIcon
                                                                                 className={cx('icon')}
@@ -270,33 +309,39 @@ const Learning = () => {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </>
-                                                );
-                                            })}
+                                                    );
+                                                })
+                                            ) : (
+                                                <>No data available</>
+                                            )}
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="noteZone">
-                                        <form className="noteForm">
-                                            <h2 className="note--title">
-                                                Thêm ghi chú tại <span className="note--time">bài học này</span>
+                                    <div className={cx('noteZone')}>
+                                        <form className={cx('noteForm')} onSubmit={handleSubmitNote}>
+                                            <h2 className={cx('note--title')}>
+                                                Thêm ghi chú tại <span className={cx('note--time')}>bài học này</span>
                                             </h2>
-                                            <input hidden type="text" value="<?= $id_lesson ?>" name="id_lesson" />
 
                                             <div className="form__group">
-                                                <label>Nội dung ghi chú:</label>
                                                 <textarea
                                                     required
                                                     placeholder="Nội dung ghi chú..."
-                                                    className="note--ipt"
+                                                    className={cx('note--ipt')}
                                                     name="note_content"
                                                     id=""
                                                     cols="30"
                                                     rows="10"
-                                                ></textarea>
+                                                    ref={refNoteInput}
+                                                    onChange={(e) => {
+                                                        setNoteInput(e.target.value);
+                                                    }}
+                                                >
+                                                    {noteInput}
+                                                </textarea>
                                             </div>
 
-                                            <button className="send__comment">Thêm ghi chú</button>
+                                            <button className={cx('send__comment')}>Thêm ghi chú</button>
                                         </form>
                                     </div>
                                 )}
@@ -305,11 +350,11 @@ const Learning = () => {
                         <div className={cx('learning__bar')}>
                             <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
                             <div className={cx('course_topic')}>
-                                {data?.courses?.chapters.map((item, index) => {
+                                {data?.courses?.chapters.map((item, indexChapter) => {
                                     return (
                                         <div className={cx('learning__chapter')} key={item.id}>
                                             <h3 className={cx('learning__chapter--txt')}>
-                                                {++index}.{item.name}
+                                                {++indexChapter}.{item.name}
                                             </h3>
 
                                             {item?.lessons.map((lesson, indexLesson) => {
@@ -318,8 +363,8 @@ const Learning = () => {
                                                         <div
                                                             onClick={() => {
                                                                 setPath(lesson.path_video);
-                                                                setLessonIndex(indexLesson);
-                                                                setChapterIndex(index - 1);
+                                                                setLessonIndex(indexLesson - 1);
+                                                                setChapterIndex(indexChapter - 1);
                                                             }}
                                                         >
                                                             <p
@@ -329,6 +374,7 @@ const Learning = () => {
                                                                         : 'learning__chapter--lesson_name',
                                                                 )}
                                                             >
+                                                                <strong>{indexChapter + '.' + ++indexLesson}</strong>{' '}
                                                                 {lesson.name}
                                                             </p>
                                                         </div>
@@ -345,7 +391,12 @@ const Learning = () => {
             </div>
 
             <div className={cx('actionBar')}>
-                <button className={cx('note-storage')}>
+                <button
+                    className={cx('note-storage')}
+                    onClick={() => {
+                        setOpenStorage(true);
+                    }}
+                >
                     <FontAwesomeIcon className={cx('icon')} icon={faNoteSticky} />
                     <span>Ghi chú</span>
                 </button>
@@ -361,6 +412,59 @@ const Learning = () => {
                     <FontAwesomeIcon className={cx('icon')} icon={faBars} />
                 </button>
             </div>
+            {openStorage ? (
+                <>
+                    <div className={cx('modal')}>
+                        <div className={cx('note_wrapper')}>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '10px' }}>
+                                <span className={cx('note-close')} onClick={() => setOpenStorage(false)}>
+                                    <button className={cx('btn__bar')}>
+                                        <FontAwesomeIcon className={cx('icon')} icon={faTimes} />
+                                    </button>
+                                </span>
+                            </div>
+                            <div className={cx('note_heading')}>
+                                <h2>Ghi chú của tôi</h2>
+                                <select name="" id="note-wrapper-select">
+                                    <option value="all" data-note="all" className={cx('note-option')}>
+                                        -----Tất cả-----
+                                    </option>
+                                    <option value="only" data-note="only" className={cx('note-option')}>
+                                        -----Trong bài học này-----
+                                    </option>
+                                </select>
+                            </div>
+                            <div className={cx('note_list')}>
+                                {noteData.data.map((item) => {
+                                    const { lessons } = allLesson;
+                                    const lessonName = lessons.find((l) => l._id === item.lesson_id);
+                                    return (
+                                        <div className={cx('note_item')}>
+                                            <div className={cx('note_item-heading')}>
+                                                <p>Bài: {lessonName.name}</p>
+                                                <span style={{ fontSize: '14px' }}>Nội dung:</span>
+                                            </div>
+                                            <div className={cx('note_item-content')}>
+                                                <p className={cx('content_note')}>{item.text}</p>
+                                            </div>
+                                            <div className={cx('comments-options')}>
+                                                <FontAwesomeIcon className={cx('icon')} icon={faCaretDown} />
+                                                <div className={cx('options-sub')}>
+                                                    <p className={cx('btn_option-cmt updateCmt-btn')}>Sửa</p>
+
+                                                    <p className={cx('btn_option-cmt deleteNote-btn')}>Xóa</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </div>
+                </>
+            ) : (
+                ''
+            )}
         </div>
     );
 };

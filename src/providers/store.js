@@ -7,9 +7,10 @@ import userReducer from './slices/userSlice';
 import { sttCourseApi } from './apis/sttCourseApi';
 import { courseApi } from './apis/courseApi';
 import { userApi } from './apis/userApi';
-import { setupListeners } from '@reduxjs/toolkit/dist/query';
-import { sttCourseApi } from './apis/sttCourseApi';
+
 import { cmtApi } from './apis/cmtApi';
+import { noteApi } from './apis/noteApi';
+import { lessonApi } from './apis/lessonApi';
 
 export const store = configureStore({
     reducer: {
@@ -19,6 +20,8 @@ export const store = configureStore({
         [userApi.reducerPath]: userApi.reducer,
         [sttCourseApi.reducerPath]: sttCourseApi.reducer,
         [cmtApi.reducerPath]: cmtApi.reducer,
+        [noteApi.reducerPath]: noteApi.reducer,
+        [lessonApi.reducerPath]: lessonApi.reducer,
     },
 
     middleware: (getDefaultMiddleware) =>
@@ -27,6 +30,8 @@ export const store = configureStore({
             userApi.middleware,
             sttCourseApi.middleware,
             cmtApi.middleware,
+            noteApi.middleware,
+            lessonApi.middleware,
         ),
 });
 

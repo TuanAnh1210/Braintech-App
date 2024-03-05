@@ -192,6 +192,8 @@
     width: 100%;
     padding: 8px 12px;
     margin-left: 12px;
+    resize: none;
+    border: none;
 }
 .send__comment {
     background-color: var(--primary-color);
@@ -326,7 +328,21 @@
         font-size: 16px;
     }
 }
-
+.noteZone{
+    display: flex;
+    margin: 20px;
+}
+.note--ipt{
+    width: 100%;
+    padding: 8px 12px;
+    margin-left: 12px;
+    resize: none;
+    border: none;
+}
+.noteForm{
+    flex: 1;
+    margin-bottom: 24px;
+}
 /* actionBar */
 .actionBar {
     position: fixed;
@@ -438,4 +454,79 @@
 .learning__chapter--lesson_name:hover {
     background-color: #f76b1c;
     color: #ffffff;
+}
+.modal {
+    
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, .4);
+}
+.note_wrapper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 60%;
+    padding: 32px 32px 48px 32px;
+    animation: showIn ease-in .3s;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+}
+
+.note_heading {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.note_heading h2 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.note_list {
+    margin-top: 48px;
+    padding-left: 24px;
+    padding-right: 12px;
+    height: calc(100vh - 50px);
+    padding-bottom: 142px;
+    overflow-y: scroll;
+}
+
+.note_item {
+    position: relative;
+    margin-top: 24px;
+}
+
+.note-close {
+    padding: 6px;
+    font-size: 22px;
+}
+
+.note-close:hover {
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+.note_item-heading {}
+
+.note_item-heading p {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.note_item-content {
+    height: 56px;
+    line-height: 56px;
+    background-color: #f0f0f0;
+}
+
+.note_item-content p {
+    margin-bottom: 0;
+    margin-left: 12px;
 }
