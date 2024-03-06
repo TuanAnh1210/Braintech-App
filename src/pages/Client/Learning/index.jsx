@@ -256,10 +256,10 @@ const Learning = () => {
                                                 <>Loading...</>
                                             ) : cmtData && cmtData.data ? (
                                                 cmtData.data.map((cmt) => {
-                                                    const user = dataUser?.data?.data?.findIndex((data) => {
+                                                    const user = dataUser?.data?.data?.find((data) => {
                                                         return data._id === cmt.user_id;
                                                     });
-
+                                                    console.log(user);
                                                     return (
                                                         <div className={cx('commentBox', 'noMt')} key={cmt._id}>
                                                             <img
@@ -269,7 +269,7 @@ const Learning = () => {
                                                             />
 
                                                             <div className={cx('commentBox--right')}>
-                                                                <h5>Người dùng {user}</h5>
+                                                                <h5>{user?.name ? user?.name : user?.email}</h5>
                                                                 <p className={cx('commentBox--text')}>{cmt.text}</p>
                                                                 <form className={cx('update_cmt_form')}>
                                                                     <input
@@ -435,7 +435,7 @@ const Learning = () => {
                                 </select>
                             </div>
                             <div className={cx('note_list')}>
-                                {noteData.data.map((item) => {
+                                {noteData?.data?.map((item) => {
                                     const { lessons } = allLesson;
                                     const lessonName = lessons.find((l) => l._id === item.lesson_id);
                                     return (
