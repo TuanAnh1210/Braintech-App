@@ -1,6 +1,6 @@
 import classNames from 'classnames/bind';
 import styles from './Learning.module.scss';
-import { Button, Container } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faBars,
@@ -12,9 +12,11 @@ import {
     faTimes,
     faTrash,
 } from '@fortawesome/free-solid-svg-icons';
+import YouTube from 'react-youtube';
 import images from '@/assets/images';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { useGetCoursesQuery, useGetDetailQuery } from '@/providers/apis/courseApi';
+import { jwtDecode } from 'jwt-decode';
+import { useGetDetailQuery } from '@/providers/apis/courseApi';
 import { useEffect, useRef, useState } from 'react';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
@@ -29,7 +31,7 @@ const Learning = () => {
     const refCmtInput = useRef(null);
     const refNoteInput = useRef(null);
     const mainView = useRef(null);
-    const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
+    const { data } = useGetDetailQuery(id);
     const { data: allLesson } = useGetLessonQuery();
     const [chapterIndex, setChapterIndex] = useState(0);
     const [lessonIndex, setLessonIndex] = useState(0);
@@ -40,6 +42,15 @@ const Learning = () => {
     const [idLesson, setIdLesson] = useState(null);
     const [noteInput, setNoteInput] = useState('');
     const [openStorage, setOpenStorage] = useState(false);
+    const [countLesson, setCountLesson] = useState(0);
+    const opts = {
+        height: '515',
+        width: '100%',
+        playerVars: {
+            // https://developers.google.com/youtube/player_parameters
+            autoplay: 1,
+        },
+    };
 
     const dataUser = useGetUsersQuery();
     const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(idLesson);
@@ -57,7 +68,7 @@ const Learning = () => {
             user_id: userId,
             lesson_id: idLesson,
         };
-        handleAddNote(newNote).then((res) => {
+        handleAddNote(newNote).then(() => {
             refNoteInput.current.value = '';
 
             setNoteInput('');
@@ -68,11 +79,11 @@ const Learning = () => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' });
         const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id;
         setIdLesson(lesson);
-        const { email } = JSON.parse(localStorage.getItem('access_token'));
-        if (dataUser.data) {
-            const idUser = dataUser.data.data.find((user) => user.email === email);
-            setUserId(idUser?._id);
-        }
+        const { token } = JSON.parse(localStorage.getItem('access_token'));
+        const decode = jwtDecode(token);
+        const idLog = decode.data._id;
+        const idUser = dataUser?.data?.data?.find((user) => user._id === idLog);
+        setUserId(idUser);
     }, [dataUser, lessonIndex, chapterIndex, cmtData]);
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -82,12 +93,21 @@ const Learning = () => {
             user_id: userId,
             lesson_id: idLesson,
         };
-        handleAddCmt(newCmt).then((response) => {
+        handleAddCmt(newCmt).then(() => {
             refCmtInput.current.value = '';
             setCmtInput('');
             refetch();
         });
     };
+    useEffect(() => {
+        let count = 0;
+        data?.courses?.chapters.forEach((chap) => {
+            chap.lessons.forEach(() => {
+                count += 1;
+            });
+        });
+        setCountLesson(count);
+    }, [data]);
     useEffect(() => {
         if (data && data.courses && data.courses.chapters && data.courses.chapters.length > 0) {
             const chapter = data.courses.chapters[chapterIndex];
@@ -152,7 +172,7 @@ const Learning = () => {
                             <div className={cx('header__progress')}>
                                 <p className={cx('header__progress--txt')}>
                                     Tiến độ: &emsp;<span className="progress_learned">2</span>/
-                                    <span className="progress_lesson">8</span>
+                                    <span className="progress_lesson">{countLesson}</span>
                                 </p>
                                 <div className="progress">
                                     <div
@@ -190,15 +210,11 @@ const Learning = () => {
                     <div className={cx('learning__wrapper')}>
                         <div className={cx('learning__video')} ref={mainView}>
                             <div id="player">
-                                <iframe
-                                    width="100%"
-                                    height="515"
-                                    src={`https://www.youtube.com/embed/${path}`}
-                                    title="YouTube video player"
-                                    frameBorder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    allowfullscreen
-                                ></iframe>
+                                <YouTube
+                                    opts={opts}
+                                    style={{ width: '100%', height: '515px', maxWidth: 'none', maxHeight: 'none' }}
+                                    videoId={`${path}`}
+                                />
                             </div>
 
                             <div className={cx('comment__wrapper')}>
@@ -259,7 +275,6 @@ const Learning = () => {
                                                     const user = dataUser?.data?.data?.find((data) => {
                                                         return data._id === cmt.user_id;
                                                     });
-                                                    console.log(user);
                                                     return (
                                                         <div className={cx('commentBox', 'noMt')} key={cmt._id}>
                                                             <img
@@ -269,7 +284,9 @@ const Learning = () => {
                                                             />
 
                                                             <div className={cx('commentBox--right')}>
-                                                                <h5>{user?.name ? user?.name : user?.email}</h5>
+                                                                <h5>
+                                                                    {user?.full_name ? user?.full_name : user?.email}
+                                                                </h5>
                                                                 <p className={cx('commentBox--text')}>{cmt.text}</p>
                                                                 <form className={cx('update_cmt_form')}>
                                                                     <input

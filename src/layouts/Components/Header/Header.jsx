@@ -27,6 +27,7 @@ const Header = () => {
 
     const dispatch = useDispatch();
     const user = useSelector((state) => state.user);
+    console.log(user);
     const naviagte = useNavigate();
 
     // handle active navbar
@@ -170,7 +171,7 @@ const Header = () => {
                                 <div className={cx('acc_wrapper')}>
                                     <div className={cx('info')}>
                                         <img src={user?.avatar} alt="" />
-                                        <strong>{user?.fullname}</strong>
+                                        <strong>{user?.fullName}</strong>
                                     </div>
                                 </div>
                             </Tooltip>
