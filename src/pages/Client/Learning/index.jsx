@@ -83,7 +83,7 @@ const Learning = () => {
         const decode = jwtDecode(token);
         const idLog = decode.data._id;
         const idUser = dataUser?.data?.data?.find((user) => user._id === idLog);
-        setUserId(idUser);
+        setUserId(idUser?._id);
     }, [dataUser, lessonIndex, chapterIndex, cmtData]);
     const handleSubmit = (e) => {
         e.preventDefault();
