@@ -15,16 +15,19 @@ const DetailCourse = () => {
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
     const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
     const [handleAddSttCourse] = useAddSttCourseMutation();
-
+    const isLog = JSON.parse(localStorage.getItem('access_token'));
+    console.log(isLog == null);
     const navigate = useNavigate();
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
 
     const handleLearnCourse = () => {
-        // if (!_accessToken) {
-        //     return navigate('/login');
-        // }
+        if (isLog == null) {
+            return navigate('/login');
+        } else {
+            return navigate(`/learning/${id}`);
+        }
         // handleAddSttCourse();
     };
     return (
@@ -80,11 +83,9 @@ const DetailCourse = () => {
                                     <>
                                         <h4 className={cx('course_free')}>Miễn phí</h4>
                                         <div className={cx('firstLessonBtn')}>
-                                            <Link to={`/learning/${id}`}>
-                                                <button onClick={handleLearnCourse} className={cx('course_btn-learn')}>
-                                                    Học ngay
-                                                </button>
-                                            </Link>
+                                            <button onClick={handleLearnCourse} className={cx('course_btn-learn')}>
+                                                Học ngay
+                                            </button>
                                         </div>
                                     </>
                                 )}
