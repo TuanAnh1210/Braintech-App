@@ -393,6 +393,14 @@ const Learning = () => {
                                                             >
                                                                 <strong>{indexChapter + '.' + ++indexLesson}</strong>{' '}
                                                                 {lesson.name}
+                                                                <div className="">
+                                                                    <a
+                                                                        href={`/quizz/${lesson._id}`}
+                                                                        className={cx('learning__chapter--lesson-btn')}
+                                                                    >
+                                                                        Bài tập
+                                                                    </a>
+                                                                </div>
                                                             </p>
                                                         </div>
                                                     </div>
