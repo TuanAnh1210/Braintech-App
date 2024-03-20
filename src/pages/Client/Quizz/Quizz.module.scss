@@ -27,7 +27,7 @@
 
 
 .quizz-answer {
-    background-color: gray;
+    background-color: #934242;
     padding: 10px;
     border-radius: 8px;
     margin: 8px 16px;
@@ -36,7 +36,7 @@
     color: #fff;
 }
 .quizz-answer-active {
-    background-color: rgb(151, 123, 123);
+    background-color: rgb(183, 180, 15);
     padding: 10px;
     border-radius: 8px;
     margin: 8px 16px;
@@ -46,7 +46,7 @@
 }
 
 .quizz-answer:hover {
-    background-color: rgb(151, 123, 123);
+    background-color: rgb(183, 180, 15);
 }
 .quizz-btn {
     border-radius: 4px;

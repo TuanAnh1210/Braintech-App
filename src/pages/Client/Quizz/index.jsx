@@ -1,7 +1,9 @@
 import classNames from 'classnames/bind';
 import styles from './Quizz.module.scss';
 import { useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const cx = classNames.bind(styles);
 
@@ -16,15 +18,26 @@ const quiz1 = {
 
 const Quizz = () => {
     const [isChose, setChoose] = useState(null);
+    const [answer, setAnswer] = useState(null);
     const { id } = useParams();
+    const navigate = useNavigate();
 
-    const handleClick = (id) => {
-        setChoose(id);
+    const handleClick = (q) => {
+        setChoose(q.id);
+        setAnswer(q);
     };
 
-    const handleSubmit = () => {
-        console.log(id);
+    const handleSubmit = async (question) => {
+        if (question.isTrue === true) {
+            toast.success('Đáp án đúng rồi', {});
+            setTimeout(() => {
+                navigate('/learning/111');
+            }, 3000);
+        } else {
+            toast.error('Đáp án sai rồi');
+        }
     };
+
     return (
         <div className={cx('quizz-container')}>
             <div className={cx('quizz-box')}>
@@ -32,17 +45,18 @@ const Quizz = () => {
                 <ul className={cx('quizz-body')}>
                     {quiz1.answers.map((an) => (
                         <p
-                            onClick={() => handleClick(an.id, isChose)}
+                            onClick={() => handleClick(an)}
                             className={cx(isChose === an.id ? 'quizz-answer-active' : 'quizz-answer')}
                         >
                             {an.name}
                         </p>
                     ))}
                 </ul>
-                <button onClick={handleSubmit} className={cx('quizz-btn')}>
+                <button onClick={() => handleSubmit(answer)} className={cx('quizz-btn')}>
                     Submit
                 </button>
             </div>
+            <ToastContainer theme="colored" autoClose={2000} />
         </div>
     );
 };
