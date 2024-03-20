@@ -28,7 +28,7 @@ const Info = () => {
                                     />
                                     <div className={cx('profile__user--body')}>
                                         <h3>
-                                            Tuian ANh
+                                            Tuan Anh
                                             <span>
                                                 <FontAwesomeIcon
                                                     style={{ color: 'var(--primary-color)' }}
