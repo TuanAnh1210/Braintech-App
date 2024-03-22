@@ -464,6 +464,25 @@
     right: 0;
     background-color: rgba(0, 0, 0, .4);
 }
+.modal__next-lesson{
+    position: fixed;
+    top: 30%;
+    bottom: 0;
+    left: 70%;
+    right: 0;
+    width: 200px;
+    height: 100px;
+    padding: 10px;
+    background-color: rgb(131, 23, 23);
+    transform-origin: right;
+    transition: all 0.5s linear;
+}
+.modal__header{
+    color: #ffffff;
+}
+.modal__content{
+    color: #ffffff;
+}
 .note_wrapper {
     position: absolute;
     top: 0;

@@ -2,6 +2,8 @@ import classNames from 'classnames/bind';
 import styles from './Learning.module.scss';
 import { Container } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { debounce } from 'lodash';
+
 import {
     faBars,
     faCaretDown,
@@ -22,6 +24,7 @@ import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
 import { useCreateNoteMutation, useGetNotebyIdClientQuery } from '@/providers/apis/noteApi';
 import { useGetLessonQuery } from '@/providers/apis/lessonApi';
+import { useCallback } from 'react';
 
 const cx = classNames.bind(styles);
 const Learning = () => {
@@ -31,36 +34,61 @@ const Learning = () => {
     const refCmtInput = useRef(null);
     const refNoteInput = useRef(null);
     const mainView = useRef(null);
-    const { data } = useGetDetailQuery(id);
-    const { data: allLesson } = useGetLessonQuery();
-    const [chapterIndex, setChapterIndex] = useState(0);
-    const [lessonIndex, setLessonIndex] = useState(0);
-    const [cmtInput, setCmtInput] = useState('');
-    const [path, setPath] = useState('');
-    const [isComment, setCommment] = useState(true);
-    const [userId, setUserId] = useState(null);
-    const [idLesson, setIdLesson] = useState(null);
-    const [noteInput, setNoteInput] = useState('');
+    const { data } = useGetDetailQuery(id); // các bài học của khóa học
+    const { data: allLesson } = useGetLessonQuery(); // lấy ra tất cả các khóa học để thực hiện lọc
+    const [chapterIndex, setChapterIndex] = useState(0); //chỉ mục của từng phần trong khóa học
+    const [lessonIndex, setLessonIndex] = useState(0); // chỉ mục của từng bài học trong từng phần
+    const [cmtInput, setCmtInput] = useState(''); // nội dung của cmt
+    const [path, setPath] = useState(''); // path của video
+    const [isComment, setCommment] = useState(true); // đang là bình luận hay ghi chú (true false)
+    const [userId, setUserId] = useState(null); // lưu id người dùng
+    const [idLesson, setIdLesson] = useState(null); // lưu id khóa học
+    const [noteInput, setNoteInput] = useState(''); //nội dung của ghi chú
+    const [progressVideo, setProgessVideo] = useState(0); // tiến độ video [0-100]
     const [openStorage, setOpenStorage] = useState(false);
-    const [countLesson, setCountLesson] = useState(0);
+    const [countLesson, setCountLesson] = useState(0); //đếm khóa học
+    const [isModalShown, setIsModalShown] = useState(false);
+
+    const intervalRef = useRef();
+
+    const handleGetTime = (event) => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
+
+        const player = event.target;
+        const totalDuration = player.getDuration();
+        intervalRef.current = setInterval(() => {
+            const currentTime = player.getCurrentTime();
+            const timeCatched = Math.floor((currentTime / totalDuration) * 100);
+            setProgessVideo(timeCatched);
+        }, 1000);
+    };
     const opts = {
+        //cấu hình thẻ Youtube
         height: '515',
         width: '100%',
         playerVars: {
             // https://developers.google.com/youtube/player_parameters
-            autoplay: 1,
+            autoplay: 0,
         },
     };
 
-    const dataUser = useGetUsersQuery();
-    const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(idLesson);
-    const [handleAddCmt] = useCreateCmtMutation();
-    const [handleAddNote] = useCreateNoteMutation();
-    const { data: noteData, refetch: refetchNote } = useGetNotebyIdClientQuery(userId);
+    const dataUser = useGetUsersQuery(); //dữ liệu người dùng
+    const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(idLesson); //lấy bình luận dựa trên id bài học
+    const [handleAddCmt] = useCreateCmtMutation(); //thêm bình luận
+    const [handleAddNote] = useCreateNoteMutation(); //thêm ghi chú
+    const { data: noteData, refetch: refetchNote } = useGetNotebyIdClientQuery(userId); // lấy tất cả các ghi chú của người dùng
     const handleClickScroll = () => {
+        // thực hiện scroll
         ref.current?.scrollIntoView({ behavior: 'smooth' });
     };
-
+    const handleClickLesson = (path, indexLesson, chapterLeson) => {
+        setPath(path);
+        setLessonIndex(indexLesson - 1);
+        setChapterIndex(chapterLeson - 1);
+        setIsModalShown(false);
+    };
     const handleSubmitNote = (e) => {
         e.preventDefault();
         const newNote = {
@@ -69,6 +97,7 @@ const Learning = () => {
             lesson_id: idLesson,
         };
         handleAddNote(newNote).then(() => {
+            // gửi dữ liêu được nhập về backend
             refNoteInput.current.value = '';
 
             setNoteInput('');
@@ -76,15 +105,25 @@ const Learning = () => {
         });
     };
     useEffect(() => {
-        mainView.current?.scrollIntoView({ behavior: 'smooth' });
-        const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id;
+        setIsModalShown(false);
+        if (progressVideo >= 90) {
+            setIsModalShown(true);
+        } else if (isModalShown) {
+            setIsModalShown(false);
+        }
+    }, [progressVideo, isModalShown]);
+    useEffect(() => {
+        mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
+        const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id; // lấy id của bài học dựa theo index của các chapters?
         setIdLesson(lesson);
-        const { token } = JSON.parse(localStorage.getItem('access_token'));
-        const decode = jwtDecode(token);
-        const idLog = decode.data._id;
+        setIsModalShown(false);
+        const { token } = JSON.parse(localStorage.getItem('access_token')); //lấy token được lưu khi người dùng đăng nhập
+        const decode = jwtDecode(token); // dịch ngược mã jwt
+        const idLog = decode.data._id; // lấy id người dùng
         const idUser = dataUser?.data?.data?.find((user) => user._id === idLog);
         setUserId(idUser?._id);
-    }, [dataUser, lessonIndex, chapterIndex, cmtData]);
+    }, [dataUser, path, lessonIndex, chapterIndex, cmtData]);
+    const debouncedHandleAddCmt = useCallback(debounce(handleAddCmt, 1000), []); //thực hiện debounce để giảm tải cho server
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -93,35 +132,36 @@ const Learning = () => {
             user_id: userId,
             lesson_id: idLesson,
         };
-        handleAddCmt(newCmt).then(() => {
+        debouncedHandleAddCmt(newCmt).then(() => {
             refCmtInput.current.value = '';
             setCmtInput('');
             refetch();
         });
     };
     useEffect(() => {
-        let count = 0;
-        data?.courses?.chapters.forEach((chap) => {
-            chap.lessons.forEach(() => {
-                count += 1;
-            });
-        });
-        setCountLesson(count);
+        const count = data?.courses?.chapters?.reduce((total, chap) => total + chap.lessons.length, 0);
+        setCountLesson(count); //đếm số bài học
     }, [data]);
+    const getLesson = (data, chapterIndex, lessonIndex) => {
+        const chapter = data.courses.chapters[chapterIndex]; // lấy chapter với index đã đặt
+
+        return chapter?.lessons[lessonIndex]; // lấy bài học trong đó
+    };
     useEffect(() => {
         if (data && data.courses && data.courses.chapters && data.courses.chapters.length > 0) {
-            const chapter = data.courses.chapters[chapterIndex];
-            const lesson = chapter?.lessons[lessonIndex];
+            //kiểm tra nếu có dữ liệu
+            const lesson = getLesson(data, chapterIndex, lessonIndex);
             if (lesson) {
-                setPath(lesson.path_video);
+                setPath(lesson.path_video); //set path_video của bài học đó
             } else {
                 if (chapterIndex < data.courses.chapters.length - 1) {
-                    setChapterIndex(chapterIndex + 1);
-                    setLessonIndex(0);
+                    //nếu không tồn tại lesson thì kiểm tra xem còn bài học không
+                    setChapterIndex(chapterIndex + 1); // tăng chapterIndex lên 1
+                    setLessonIndex(0); // đặt lesson id về 0
                 }
             }
         }
-    }, [data, chapterIndex, lessonIndex, cmtData]);
+    }, [data, path, chapterIndex, lessonIndex, cmtData]);
     const handleNext = () => {
         const chapter = data?.courses?.chapters[chapterIndex];
         if (lessonIndex < chapter?.lessons.length - 1) {
@@ -150,6 +190,15 @@ const Learning = () => {
     return (
         <div className="main">
             <header className={cx('header')}>
+                {isModalShown && (
+                    <>
+                        <div className={cx('modal__next-lesson')}>
+                            <p className={cx('modal__header')}>Thông báo</p>
+                            <p className={cx('modal__content')}>Bạn đã hoàn thành bài học</p>
+                        </div>
+                    </>
+                )}
+
                 <Container fluid style={{ height: '100%' }}>
                     <div className={cx('header__wrapper')}>
                         <div className={cx('header--left')}>
@@ -210,11 +259,14 @@ const Learning = () => {
                     <div className={cx('learning__wrapper')}>
                         <div className={cx('learning__video')} ref={mainView}>
                             <div id="player">
-                                <YouTube
-                                    opts={opts}
-                                    style={{ width: '100%', height: '515px', maxWidth: 'none', maxHeight: 'none' }}
-                                    videoId={`${path}`}
-                                />
+                                {path && (
+                                    <YouTube
+                                        opts={opts}
+                                        style={{ width: '100%', height: '515px', maxWidth: 'none', maxHeight: 'none' }}
+                                        videoId={`${path}`}
+                                        onReady={handleGetTime}
+                                    />
+                                )}
                             </div>
 
                             <div className={cx('comment__wrapper')}>
@@ -379,9 +431,11 @@ const Learning = () => {
                                                     <div className={cx('learning__chapter--lesson')} key={lesson.id}>
                                                         <div
                                                             onClick={() => {
-                                                                setPath(lesson.path_video);
-                                                                setLessonIndex(indexLesson - 1);
-                                                                setChapterIndex(indexChapter - 1);
+                                                                handleClickLesson(
+                                                                    lesson.path_video,
+                                                                    indexLesson,
+                                                                    indexChapter,
+                                                                );
                                                             }}
                                                         >
                                                             <p
