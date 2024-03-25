@@ -3,19 +3,19 @@ import { Modal } from 'antd';
 
 import Register from '@/pages/Client/Register';
 import Login from '@/pages/Client/Login';
-
+import { useDispatch } from 'react-redux';
 import images from '@/assets/images';
-
-const AuthLayout = ({ isOpen, page, setOpen }) => {
+import { useSelector } from 'react-redux';
+import { closeModal, openModal } from '@/providers/slices/modalSlice';
+const AuthLayout = () => {
+    const dispatch = useDispatch();
+    const { isOpen, page } = useSelector((state) => state.modal);
     const handleSwitchForm = () => {
-        setOpen({
-            isOpen: true,
-            page: page === 'login' ? 'register' : 'login',
-        });
+        dispatch(openModal(page === 'login' ? 'register' : 'login'));
     };
 
     const onCancel = () => {
-        setOpen(false);
+        dispatch(closeModal());
     };
 
     return (
@@ -36,7 +36,7 @@ const AuthLayout = ({ isOpen, page, setOpen }) => {
                     </p>
                 </div>
 
-                {page === 'login' ? <Login setOpen={setOpen} /> : <Register setOpen={setOpen} />}
+                {page === 'login' ? <Login /> : <Register />}
 
                 <p className="text-center mt-4" style={{ fontWeight: 500 }}>
                     Bạn chưa có tài khoản?{' '}

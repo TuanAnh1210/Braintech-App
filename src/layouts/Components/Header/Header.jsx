@@ -9,6 +9,7 @@ import classNames from 'classnames/bind';
 import { Divider, Tooltip } from 'antd';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { openModal } from '@/providers/slices/modalSlice';
 
 import AuthLayout from '@/layouts/AuthLayout';
 import Button from '@/components/Button/Button';
@@ -20,12 +21,10 @@ import styles from './Header.module.scss';
 const cx = classNames.bind(styles);
 
 const Header = () => {
-    const [isOpenModal, setIsOpenModal] = useState({
-        isOpen: false,
-        page: 'login',
-    });
-
     const dispatch = useDispatch();
+    const handleOpenModal = (page) => {
+        dispatch(openModal(page));
+    };
     const user = useSelector((state) => state.user);
     const naviagte = useNavigate();
 
@@ -176,16 +175,12 @@ const Header = () => {
                             </Tooltip>
                         ) : (
                             <div className="d-flex">
-                                <Button
-                                    outline
-                                    onClick={() => setIsOpenModal({ isOpen: true, page: 'login' })}
-                                    className={cx('btn-login')}
-                                >
+                                <Button outline onClick={() => handleOpenModal('login')} className={cx('btn-login')}>
                                     Đăng nhập
                                 </Button>
                                 <Button
                                     outline
-                                    onClick={() => setIsOpenModal({ isOpen: true, page: 'register' })}
+                                    onClick={() => handleOpenModal('register')}
                                     className={cx('btn-register')}
                                 >
                                     Đăng ký
@@ -199,7 +194,7 @@ const Header = () => {
                     </div>
                 </div>
             </Container>
-            <AuthLayout isOpen={isOpenModal.isOpen} page={isOpenModal.page} setOpen={setIsOpenModal} />
+            <AuthLayout />
         </header>
     );
 };

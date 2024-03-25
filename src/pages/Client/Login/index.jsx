@@ -4,10 +4,10 @@ import { useDispatch } from 'react-redux';
 
 import { useLoginMutation } from '@/providers/apis/userApi';
 import useLocalStorage from '@/hooks/useLocalStorage';
-
 import { login } from '@/providers/slices/userSlice';
+import { closeModal } from '@/providers/slices/modalSlice';
 
-const Login = ({ setOpen }) => {
+const Login = () => {
     const [, setAccessToken] = useLocalStorage('access_token', null);
     const [handleLogin, { isLoading }] = useLoginMutation();
 
@@ -43,7 +43,7 @@ const Login = ({ setOpen }) => {
         setAccessToken(user);
         dispatch(login(user));
 
-        setOpen(false);
+        dispatch(closeModal());
     };
 
     return (
