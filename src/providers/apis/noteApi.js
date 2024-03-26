@@ -9,7 +9,6 @@ export const noteApi = createApi({
         }),
         createNote: build.mutation({
             query: (payload) => {
-                console.log(payload);
                 return { url: '/notes/', method: 'POST', body: payload };
             },
         }),

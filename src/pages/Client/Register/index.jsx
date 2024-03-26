@@ -3,11 +3,13 @@ import { Button, Form, Input, Spin, notification } from 'antd';
 
 import { useRegisterMutation } from '@/providers/apis/userApi';
 import useLocalStorage from '@/hooks/useLocalStorage';
+import { closeModal } from '@/providers/slices/modalSlice';
+import { useDispatch } from 'react-redux';
 
-const Register = ({ setOpen }) => {
+const Register = () => {
     const [, setAccessToken] = useLocalStorage('access_token', null);
     const [handleRegister, { isLoading }] = useRegisterMutation();
-
+    const dispatch = useDispatch();
     const onFinish = async (value) => {
         const { data, error } = await handleRegister({
             ...value,
@@ -35,7 +37,7 @@ const Register = ({ setOpen }) => {
             avatar: data.user.avatar,
         });
 
-        setOpen(false);
+        dispatch(closeModal());
     };
 
     return (
