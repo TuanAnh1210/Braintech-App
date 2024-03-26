@@ -8,45 +8,53 @@ import 'react-toastify/dist/ReactToastify.css';
 const cx = classNames.bind(styles);
 
 const quiz1 = {
-    question: 'Cau hoi 1',
+    question: 'Ai là thủ tướng đầu tiên của Việt Nam',
     answers: [
-        { id: 1, name: 'Cau tra loi so 1', isTrue: true },
-        { id: 2, name: 'Cau tra loi so 2', isTrue: false },
-        { id: 3, name: 'Cau tra loi so 3', isTrue: false },
+        { id: 1, name: 'Nguyễn Tấn Dũng', isTrue: false },
+        { id: 2, name: 'Phạm Minh Chính', isTrue: false },
+        { id: 3, name: 'Hồ Chí Minh', isTrue: true },
+        { id: 4, name: 'Phạm Văn Đồng', isTrue: false },
     ],
 };
 
 const Quizz = () => {
     const [isChose, setChoose] = useState(null);
     const [answer, setAnswer] = useState(null);
+    const [falseAnswer, setFalseAnswer] = useState(false);
     const { id } = useParams();
     const navigate = useNavigate();
 
     const handleClick = (q) => {
         setChoose(q.id);
         setAnswer(q);
+        setFalseAnswer(null);
     };
 
     const handleSubmit = async (question) => {
+        if (!isChose) return toast.warning('Bạn chưa chọn đáp án nào !!');
         if (question.isTrue === true) {
-            toast.success('Đáp án đúng rồi', {});
-            setTimeout(() => {
-                navigate('/learning/111');
-            }, 3000);
+            toast.success('Đáp án đúng rồi, chúc mừng bạn !!', {});
         } else {
-            toast.error('Đáp án sai rồi');
+            toast.error('Đáp án sai rồi, hãy suy nghĩ lại đi :))');
+            setFalseAnswer(true);
         }
     };
 
     return (
         <div className={cx('quizz-container')}>
+            <h2 className={cx('quizz-title')}>Bài tập</h2>
             <div className={cx('quizz-box')}>
                 <h3 className={cx('quizz-heading')}>{quiz1.question}</h3>
                 <ul className={cx('quizz-body')}>
                     {quiz1.answers.map((an) => (
                         <p
+                            key={an.id}
                             onClick={() => handleClick(an)}
-                            className={cx(isChose === an.id ? 'quizz-answer-active' : 'quizz-answer')}
+                            className={cx({
+                                'quizz-answer-active': isChose === an.id && !falseAnswer,
+                                'quizz-answer': isChose !== an.id || falseAnswer,
+                                'quizz-answer-active-false': isChose === an.id && falseAnswer === true,
+                            })}
                         >
                             {an.name}
                         </p>
