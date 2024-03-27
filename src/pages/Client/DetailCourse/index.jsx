@@ -11,6 +11,7 @@ import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { openModal } from '@/providers/slices/modalSlice';
 import { jwtDecode } from 'jwt-decode';
+import { useAddFinishLessonMutation, useGetFinishLessonQuery } from '@/providers/apis/lessonApi';
 
 const cx = classNames.bind(styles);
 const DetailCourse = () => {
@@ -18,13 +19,14 @@ const DetailCourse = () => {
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
     const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
     const [handleAddSttCourse] = useAddSttCourseMutation();
+    const [handleAddFinishLesson] = useAddFinishLessonMutation();
     const isLog = JSON.parse(localStorage.getItem('access_token'));
     const navigate = useNavigate();
-    const dispatch = useDispatch();
     const [isLogin, setIsLogin] = useState(false);
     const user = useSelector((state) => state.user);
-    const decode = jwtDecode(user.token);
-    const idUser = decode.data._id;
+
+    const lessonStart = data?.courses?.chapters[0]?.lessons[0]?._id;
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -36,6 +38,8 @@ const DetailCourse = () => {
         }
     }, [user]);
     const handleLearnCourse = () => {
+        const decode = jwtDecode(user.token);
+        const idUser = decode.data._id;
         const data = {
             user_id: idUser,
             course_id: id,

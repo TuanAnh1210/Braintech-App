@@ -9,7 +9,18 @@ export const lessonApi = createApi({
                 return '/lessons';
             },
         }),
+        getFinishLesson: build.query({
+            query: (id) => {
+                return `/finishLesson/${id}`;
+            },
+        }),
+
+        addFinishLesson: build.mutation({
+            query: (payload) => {
+                return { url: '/finishLesson/add', method: 'POST', body: payload };
+            },
+        }),
     }),
 });
 
-export const { useGetLessonQuery } = lessonApi;
+export const { useGetLessonQuery, useGetFinishLessonQuery, useAddFinishLessonMutation } = lessonApi;
