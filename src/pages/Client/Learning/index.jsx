@@ -49,8 +49,10 @@ const Learning = () => {
     const [openStorage, setOpenStorage] = useState(false);
     const [countLesson, setCountLesson] = useState(0); //đếm khóa học
     const [isModalShown, setIsModalShown] = useState(false);
+    const [progressCourse, setProgessCourse] = useState(0);
     const intervalRef = useRef();
     const { data: dataFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
+    const countFinishLesson = dataFinish?.data.length;
 
     const completedLesson = allLesson?.lessons?.filter((lesson) => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
@@ -150,8 +152,10 @@ const Learning = () => {
     };
     useEffect(() => {
         const count = data?.courses?.chapters?.reduce((total, chap) => total + chap.lessons.length, 0);
-        setCountLesson(count); //đếm số bài học
-    }, [data]);
+        const progressDone = Math.floor((countFinishLesson / count) * 100);
+        setProgessCourse(progressDone);
+        setCountLesson(count);
+    }, [data, dataFinish]);
     const getLesson = (data, chapterIndex, lessonIndex) => {
         const chapter = data.courses.chapters[chapterIndex]; // lấy chapter với index đã đặt
 
@@ -248,19 +252,19 @@ const Learning = () => {
                         <div className={cx('header__actions')}>
                             <div className={cx('header__progress')}>
                                 <p className={cx('header__progress--txt')}>
-                                    Tiến độ: &emsp;<span className="progress_learned">2</span>/
+                                    Tiến độ: &emsp;<span className="progress_learned">{countFinishLesson}</span>/
                                     <span className="progress_lesson">{countLesson}</span>
                                 </p>
                                 <div className="progress">
                                     <div
                                         className="progress-bar"
                                         role="progressbar"
-                                        style={{ width: '100%' }}
-                                        aria-valuenow="100"
+                                        style={{ width: progressCourse + '%' }}
+                                        aria-valuenow={progressCourse}
                                         aria-valuemin="0"
-                                        aria-valuemax="100"
+                                        aria-valuemax={progressCourse}
                                     >
-                                        100%
+                                        {progressCourse}%
                                     </div>
                                 </div>
                             </div>
@@ -526,7 +530,6 @@ const Learning = () => {
                                                                     {lesson.name}
                                                                     <div className="">
                                                                         <p
-                                                                            
                                                                             className={cx(
                                                                                 'learning__chapter--lesson-btn',
                                                                             )}
