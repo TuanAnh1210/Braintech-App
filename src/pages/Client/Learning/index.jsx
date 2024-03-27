@@ -501,6 +501,16 @@ const Learning = () => {
                                                                     ) : (
                                                                         ''
                                                                     )}
+                                                                    <div className="">
+                                                                        <Link
+                                                                            to={`/quizz/${lesson._id}`}
+                                                                            className={cx(
+                                                                                'learning__chapter--lesson-btn',
+                                                                            )}
+                                                                        >
+                                                                            Bài tập
+                                                                        </Link>
+                                                                    </div>
                                                                 </p>
                                                             </div>
                                                         ) : (
@@ -509,22 +519,24 @@ const Learning = () => {
                                                                     <strong>
                                                                         {indexChapter + '.' + ++indexLesson}
                                                                     </strong>{' '}
-                                                                    {lesson.name}{' '}
+                                                                    {lesson.name}
+                                                                    <strong>
+                                                                        {indexChapter + '.' + ++indexLesson}
+                                                                    </strong>{' '}
+                                                                    {lesson.name}
+                                                                    <div className="">
+                                                                        <p
+                                                                            
+                                                                            className={cx(
+                                                                                'learning__chapter--lesson-btn',
+                                                                            )}
+                                                                        >
+                                                                            Bài tập
+                                                                        </p>
+                                                                    </div>
                                                                 </p>
                                                             </div>
                                                         )}
-                                                                <strong>{indexChapter + '.' + ++indexLesson}</strong>{' '}
-                                                                {lesson.name}
-                                                                <div className="">
-                                                                    <a
-                                                                        href={`/quizz/${lesson._id}`}
-                                                                        className={cx('learning__chapter--lesson-btn')}
-                                                                    >
-                                                                        Bài tập
-                                                                    </a>
-                                                                </div>
-                                                            </p>
-                                                        </div>
                                                     </div>
                                                 );
                                             })}
