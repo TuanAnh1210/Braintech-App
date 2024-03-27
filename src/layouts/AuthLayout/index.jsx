@@ -13,7 +13,7 @@ const AuthLayout = () => {
     const handleSwitchForm = () => {
         dispatch(openModal(page === 'login' ? 'register' : 'login'));
     };
-
+    console.log(isOpen, page);
     const onCancel = () => {
         dispatch(closeModal());
     };

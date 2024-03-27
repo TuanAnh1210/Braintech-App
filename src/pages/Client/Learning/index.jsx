@@ -23,8 +23,9 @@ import { useEffect, useRef, useState } from 'react';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
 import { useCreateNoteMutation, useGetNotebyIdClientQuery } from '@/providers/apis/noteApi';
-import { useGetLessonQuery } from '@/providers/apis/lessonApi';
+import { useAddFinishLessonMutation, useGetFinishLessonQuery, useGetLessonQuery } from '@/providers/apis/lessonApi';
 import { useCallback } from 'react';
+import Draggable from 'react-draggable';
 
 const cx = classNames.bind(styles);
 const Learning = () => {
@@ -48,9 +49,13 @@ const Learning = () => {
     const [openStorage, setOpenStorage] = useState(false);
     const [countLesson, setCountLesson] = useState(0); //đếm khóa học
     const [isModalShown, setIsModalShown] = useState(false);
-
     const intervalRef = useRef();
+    const { data: dataFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
 
+    const completedLesson = allLesson?.lessons?.filter((lesson) => {
+        return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
+    });
+    const isReachedLesson = completedLesson?.some((lesson) => lesson._id === idLesson);
     const handleGetTime = (event) => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -78,10 +83,14 @@ const Learning = () => {
     const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(idLesson); //lấy bình luận dựa trên id bài học
     const [handleAddCmt] = useCreateCmtMutation(); //thêm bình luận
     const [handleAddNote] = useCreateNoteMutation(); //thêm ghi chú
+    const [handleAddFinishLesson] = useAddFinishLessonMutation();
     const { data: noteData, refetch: refetchNote } = useGetNotebyIdClientQuery(userId); // lấy tất cả các ghi chú của người dùng
     const handleClickScroll = () => {
         // thực hiện scroll
         ref.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+    const handleIsCompleted = (lesson) => {
+        return completedLesson?.some((lessonCompleted) => lessonCompleted._id === lesson._id);
     };
     const handleClickLesson = (path, indexLesson, chapterLeson) => {
         setPath(path);
@@ -104,6 +113,7 @@ const Learning = () => {
             refetchNote();
         });
     };
+
     useEffect(() => {
         setIsModalShown(false);
         if (progressVideo >= 90) {
@@ -122,7 +132,7 @@ const Learning = () => {
         const idLog = decode.data._id; // lấy id người dùng
         const idUser = dataUser?.data?.data?.find((user) => user._id === idLog);
         setUserId(idUser?._id);
-    }, [dataUser, path, lessonIndex, chapterIndex, cmtData]);
+    }, [dataUser, path, lessonIndex, chapterIndex, cmtData, isReachedLesson]);
     const debouncedHandleAddCmt = useCallback(debounce(handleAddCmt, 1000), []); //thực hiện debounce để giảm tải cho server
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -161,7 +171,7 @@ const Learning = () => {
                 }
             }
         }
-    }, [data, path, chapterIndex, lessonIndex, cmtData]);
+    }, [data, path, chapterIndex, lessonIndex, cmtData, isReachedLesson]);
     const handleNext = () => {
         const chapter = data?.courses?.chapters[chapterIndex];
         if (lessonIndex < chapter?.lessons.length - 1) {
@@ -186,16 +196,34 @@ const Learning = () => {
         }
     };
     const { logo } = images;
+    const handleSetFinish = () => {
+        const dataToSend = {
+            lesson_id: idLesson,
+            user_id: userId,
+        };
 
+        handleAddFinishLesson(dataToSend).then(() => {
+            handleNext();
+            setIsModalShown(false);
+            refetchDataFinish();
+        });
+    };
     return (
         <div className="main">
             <header className={cx('header')}>
                 {isModalShown && (
                     <>
-                        <div className={cx('modal__next-lesson')}>
-                            <p className={cx('modal__header')}>Thông báo</p>
-                            <p className={cx('modal__content')}>Bạn đã hoàn thành bài học</p>
-                        </div>
+                        <Draggable>
+                            <div className={cx('message__delete')}>
+                                <h2>Bạn đã hoàn thành bài học này!!</h2>
+                                <h4>Nhấn yes để {isReachedLesson ? 'chuyển bài' : 'mở khóa'} nhé</h4>
+                                <div className={cx('btn__delete-container')}>
+                                    <button onClick={handleSetFinish} className={cx('yes')}>
+                                        Yes
+                                    </button>
+                                </div>
+                            </div>
+                        </Draggable>
                     </>
                 )}
 
@@ -427,36 +455,88 @@ const Learning = () => {
                                             </h3>
 
                                             {item?.lessons.map((lesson, indexLesson) => {
+                                                const checkDone = handleIsCompleted(lesson);
+
                                                 return (
                                                     <div className={cx('learning__chapter--lesson')} key={lesson.id}>
-                                                        <div
-                                                            onClick={() => {
-                                                                handleClickLesson(
-                                                                    lesson.path_video,
-                                                                    indexLesson,
-                                                                    indexChapter,
-                                                                );
-                                                            }}
-                                                        >
-                                                            <p
-                                                                className={cx(
-                                                                    path === lesson.path_video
-                                                                        ? 'learning__chapter--lesson_name_active'
-                                                                        : 'learning__chapter--lesson_name',
-                                                                )}
+                                                        {checkDone || path === lesson.path_video ? (
+                                                            <div
+                                                                onClick={() => {
+                                                                    handleClickLesson(
+                                                                        lesson.path_video,
+                                                                        indexLesson,
+                                                                        indexChapter,
+                                                                    );
+                                                                }}
                                                             >
-                                                                <strong>{indexChapter + '.' + ++indexLesson}</strong>{' '}
-                                                                {lesson.name}
-                                                                <div className="">
-                                                                    <a
-                                                                        href={`/quizz/${lesson._id}`}
-                                                                        className={cx('learning__chapter--lesson-btn')}
-                                                                    >
-                                                                        Bài tập
-                                                                    </a>
-                                                                </div>
-                                                            </p>
-                                                        </div>
+                                                                <p
+                                                                    className={cx(
+                                                                        path === lesson.path_video
+                                                                            ? 'learning__chapter--lesson_name_active'
+                                                                            : 'learning__chapter--lesson_name',
+                                                                    )}
+                                                                >
+                                                                    <strong>
+                                                                        {indexChapter + '.' + ++indexLesson}
+                                                                    </strong>{' '}
+                                                                    {lesson.name}{' '}
+                                                                    {checkDone ? (
+                                                                        <svg
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            x="0px"
+                                                                            y="0px"
+                                                                            width="20"
+                                                                            height="20"
+                                                                            viewBox="0 0 48 48"
+                                                                        >
+                                                                            <path
+                                                                                fill="#c8e6c9"
+                                                                                d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"
+                                                                            ></path>
+                                                                            <path
+                                                                                fill="#4caf50"
+                                                                                d="M34.586,14.586l-13.57,13.586l-5.602-5.586l-2.828,2.828l8.434,8.414l16.395-16.414L34.586,14.586z"
+                                                                            ></path>
+                                                                        </svg>
+                                                                    ) : (
+                                                                        ''
+                                                                    )}
+                                                                    <div className="">
+                                                                        <Link
+                                                                            to={`/quizz/${lesson._id}`}
+                                                                            className={cx(
+                                                                                'learning__chapter--lesson-btn',
+                                                                            )}
+                                                                        >
+                                                                            Bài tập
+                                                                        </Link>
+                                                                    </div>
+                                                                </p>
+                                                            </div>
+                                                        ) : (
+                                                            <div>
+                                                                <p className={cx('lesson_lock')}>
+                                                                    <strong>
+                                                                        {indexChapter + '.' + ++indexLesson}
+                                                                    </strong>{' '}
+                                                                    {lesson.name}
+                                                                    <strong>
+                                                                        {indexChapter + '.' + ++indexLesson}
+                                                                    </strong>{' '}
+                                                                    {lesson.name}
+                                                                    <div className="">
+                                                                        <p
+                                                                            
+                                                                            className={cx(
+                                                                                'learning__chapter--lesson-btn',
+                                                                            )}
+                                                                        >
+                                                                            Bài tập
+                                                                        </p>
+                                                                    </div>
+                                                                </p>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 );
                                             })}
@@ -483,9 +563,13 @@ const Learning = () => {
                     <button className={cx('pre-lesson')} onClick={handlePrev}>
                         Bài trước
                     </button>
-                    <button className={cx('next-lesson')} onClick={handleNext}>
-                        Bài kế tiếp
-                    </button>
+                    {isReachedLesson ? (
+                        <button className={cx('next-lesson')} onClick={handleNext}>
+                            Bài kế tiếp
+                        </button>
+                    ) : (
+                        <button className={cx('block-lesson')}>Bài kế tiếp</button>
+                    )}
                 </div>
                 <button className={cx('btn__bar')}>
                     <FontAwesomeIcon className={cx('icon')} icon={faBars} />

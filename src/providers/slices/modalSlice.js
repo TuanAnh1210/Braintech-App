@@ -10,10 +10,11 @@ const modalSlice = createSlice({
     initialState,
     reducers: {
         openModal: (state, action) => {
-            return { ...state, isOpen: true, ...action.payload };
+            state.isOpen = true;
+            state.page = action.payload;
         },
         closeModal: (state, action) => {
-            return { ...state, isOpen: false };
+            state.isOpen = false;
         },
     },
 });

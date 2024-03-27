@@ -12,12 +12,14 @@ import { cmtApi } from './apis/cmtApi';
 import { noteApi } from './apis/noteApi';
 import { lessonApi } from './apis/lessonApi';
 import modalReducer from './slices/modalSlice';
+import lessonReducer from './slices/lessonSlice';
 
 export const store = configureStore({
     reducer: {
         course: courseReducer,
         user: userReducer,
         modal: modalReducer,
+        lesson: lessonReducer,
         [courseApi.reducerPath]: courseApi.reducer,
         [userApi.reducerPath]: userApi.reducer,
         [sttCourseApi.reducerPath]: sttCourseApi.reducer,
