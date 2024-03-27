@@ -471,6 +471,17 @@
     background-color: #f76b1c;
     color: #ffffff;
 }
+
+.learning__chapter--lesson-btn {
+    border-radius: 8px;
+    background-color: rgb(38, 237, 161);
+    color: #000;
+    border: none; 
+    padding: 2px 3px;
+    font-size: 14px;
+    margin-top: 8px;
+    display: inline-block;
+}
 .modal {
     
     position: fixed;

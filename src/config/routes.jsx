@@ -8,6 +8,7 @@ const routes = {
     login: '/login',
     register: '/register',
     info: '/info',
+    quizz: '/quizz/:id',
 };
 
 export default routes;
