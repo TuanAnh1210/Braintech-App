@@ -94,12 +94,15 @@ const Learning = () => {
     const handleIsCompleted = (lesson) => {
         return completedLesson?.some((lessonCompleted) => lessonCompleted._id === lesson._id);
     };
-    const handleClickLesson = (path, indexLesson, chapterLeson) => {
-        setPath(path);
-        setLessonIndex(indexLesson - 1);
-        setChapterIndex(chapterLeson - 1);
-        setIsModalShown(false);
-    };
+    const handleClickLesson = useCallback(
+        debounce((path, indexLesson, chapterLeson) => {
+            setPath(path);
+            setLessonIndex(indexLesson - 1);
+            setChapterIndex(chapterLeson - 1);
+            setIsModalShown(false);
+        }, 500),
+        [],
+    );
     const handleSubmitNote = (e) => {
         e.preventDefault();
         const newNote = {
@@ -176,29 +179,35 @@ const Learning = () => {
             }
         }
     }, [data, path, chapterIndex, lessonIndex, cmtData, isReachedLesson]);
-    const handleNext = () => {
-        const chapter = data?.courses?.chapters[chapterIndex];
-        if (lessonIndex < chapter?.lessons.length - 1) {
-            setLessonIndex(lessonIndex + 1);
-        } else {
-            if (chapterIndex < data?.courses?.chapters.length - 1) {
-                setChapterIndex(chapterIndex + 1);
-                setLessonIndex(0);
+    const handleNext = useCallback(
+        debounce(() => {
+            const chapter = data?.courses?.chapters[chapterIndex];
+            if (lessonIndex < chapter?.lessons.length - 1) {
+                setLessonIndex(lessonIndex + 1);
+            } else {
+                if (chapterIndex < data?.courses?.chapters.length - 1) {
+                    setChapterIndex(chapterIndex + 1);
+                    setLessonIndex(0);
+                }
             }
-        }
-    };
+        }, 500),
+        [chapterIndex, lessonIndex, data],
+    );
 
-    const handlePrev = () => {
-        if (lessonIndex > 0) {
-            setLessonIndex(lessonIndex - 1);
-        } else {
-            if (chapterIndex > 0) {
-                setChapterIndex(chapterIndex - 1);
-                const prevChapter = data?.courses?.chapters[chapterIndex];
-                setLessonIndex(prevChapter.lessons.length - 1);
+    const handlePrev = useCallback(
+        debounce(() => {
+            if (lessonIndex > 0) {
+                setLessonIndex(lessonIndex - 1);
+            } else {
+                if (chapterIndex > 0) {
+                    setChapterIndex(chapterIndex - 1);
+                    const prevChapter = data?.courses?.chapters[chapterIndex];
+                    setLessonIndex(prevChapter.lessons.length - 1);
+                }
             }
-        }
-    };
+        }, 500),
+        [chapterIndex, lessonIndex, data],
+    );
     const { logo } = images;
     const handleSetFinish = () => {
         const dataToSend = {
@@ -520,10 +529,6 @@ const Learning = () => {
                                                         ) : (
                                                             <div>
                                                                 <p className={cx('lesson_lock')}>
-                                                                    <strong>
-                                                                        {indexChapter + '.' + ++indexLesson}
-                                                                    </strong>{' '}
-                                                                    {lesson.name}
                                                                     <strong>
                                                                         {indexChapter + '.' + ++indexLesson}
                                                                     </strong>{' '}
