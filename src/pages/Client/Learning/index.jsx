@@ -19,7 +19,7 @@ import images from '@/assets/images';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
 import { useCreateNoteMutation, useGetNotebyIdClientQuery } from '@/providers/apis/noteApi';
@@ -50,6 +50,7 @@ const Learning = () => {
     const [countLesson, setCountLesson] = useState(0); //đếm khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     const intervalRef = useRef();
     const { data: dataFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
     const countFinishLesson = dataFinish?.data.length;
@@ -201,8 +202,8 @@ const Learning = () => {
             } else {
                 if (chapterIndex > 0) {
                     setChapterIndex(chapterIndex - 1);
-                    const prevChapter = data?.courses?.chapters[chapterIndex];
-                    setLessonIndex(prevChapter.lessons.length - 1);
+                    const prevChapter = data?.courses?.chapters[chapterIndex - 1];
+                    setLessonIndex(prevChapter.lessons.length - 1 || prevChapter.lessons.length);
                 }
             }
         }, 500),
@@ -300,14 +301,21 @@ const Learning = () => {
                     <div className={cx('learning__wrapper')}>
                         <div className={cx('learning__video')} ref={mainView}>
                             <div id="player">
-                                {path && (
-                                    <YouTube
-                                        opts={opts}
-                                        style={{ width: '100%', height: '515px', maxWidth: 'none', maxHeight: 'none' }}
-                                        videoId={`${path}`}
-                                        onReady={handleGetTime}
-                                    />
-                                )}
+                                <Suspense fallback={<div>Loading...</div>}>
+                                    {path && (
+                                        <YouTube
+                                            opts={opts}
+                                            style={{
+                                                width: '100%',
+                                                height: '515px',
+                                                maxWidth: 'none',
+                                                maxHeight: 'none',
+                                            }}
+                                            videoId={`${path}`}
+                                            onReady={handleGetTime}
+                                        />
+                                    )}
+                                </Suspense>
                             </div>
 
                             <div className={cx('comment__wrapper')}>
@@ -528,7 +536,7 @@ const Learning = () => {
                                                             </div>
                                                         ) : (
                                                             <div>
-                                                                <p className={cx('lesson_lock')}>
+                                                                <p className={cx('learning__chapter--lesson_name')}>
                                                                     <strong>
                                                                         {indexChapter + '.' + ++indexLesson}
                                                                     </strong>{' '}
