@@ -29,7 +29,7 @@ const DetailCourse = () => {
     const user = useSelector((state) => state.user);
 
     const lessonStart = data?.courses?.chapters[0]?.lessons[0]?._id;
-
+    const dispatch = useDispatch();
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
