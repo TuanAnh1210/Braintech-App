@@ -87,6 +87,7 @@ const Learning = () => {
     const [handleAddCmt] = useCreateCmtMutation(); //thêm bình luận
     const [handleAddNote] = useCreateNoteMutation(); //thêm ghi chú
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
+    console.log(dataFinish);
     const { data: noteData, refetch: refetchNote } = useGetNotebyIdClientQuery(userId); // lấy tất cả các ghi chú của người dùng
     const handleClickScroll = () => {
         // thực hiện scroll
