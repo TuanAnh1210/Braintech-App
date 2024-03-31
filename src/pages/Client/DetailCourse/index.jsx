@@ -20,9 +20,12 @@ const DetailCourse = () => {
     const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
     const [handleAddSttCourse] = useAddSttCourseMutation();
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
+
     const isLog = JSON.parse(localStorage.getItem('access_token'));
+
     const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(false);
+
     const user = useSelector((state) => state.user);
 
     const lessonStart = data?.courses?.chapters[0]?.lessons[0]?._id;
@@ -61,6 +64,7 @@ const DetailCourse = () => {
                                         {data?.courses?.chapters?.map((chapter) => (
                                             <div key={chapter._id} className={cx('learning__chapter')}>
                                                 <h3 className={cx('learning__chapter--txt')}>{chapter.name}</h3>
+
                                                 {chapter.lessons.map((lesson, index) => (
                                                     <div key={lesson._id} className={cx('trackItem')}>
                                                         <h3 className={cx('trackItem--title')}>
