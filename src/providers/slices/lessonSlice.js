@@ -1,20 +1,20 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    finishLesson: [],
+    nextLesson: '',
 };
 
 const lessonSlice = createSlice({
     name: 'lesson',
     initialState,
     reducers: {
-        add: (state, action) => {
-            state.finishLesson.push(action.payload);
+        addNextLesson: (state, action) => {
+            state.nextLesson = action.payload;
         },
     },
 });
 
-export const { add } = lessonSlice.actions;
+export const { addNextLesson } = lessonSlice.actions;
 const lessonReducer = lessonSlice.reducer;
 
 export default lessonReducer;

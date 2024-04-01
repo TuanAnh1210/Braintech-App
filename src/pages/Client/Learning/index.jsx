@@ -23,13 +23,21 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
 import { useCreateNoteMutation, useGetNotebyIdClientQuery } from '@/providers/apis/noteApi';
-import { useAddFinishLessonMutation, useGetFinishLessonQuery, useGetLessonQuery } from '@/providers/apis/lessonApi';
+import {
+    useAddFinishLessonMutation,
+    useGetFinishLessonQuery,
+    useGetLessonQuery,
+    useGetNextLessonQuery,
+} from '@/providers/apis/lessonApi';
 import { useCallback } from 'react';
 import Draggable from 'react-draggable';
+import { useDispatch, useSelector } from 'react-redux';
+import { addNextLesson } from '@/providers/slices/lessonSlice';
 
 const cx = classNames.bind(styles);
 const Learning = () => {
     const { id } = useParams();
+    const dispatch = useDispatch();
     const navigate = useNavigate();
     const ref = useRef(null);
     const refCmtInput = useRef(null);
@@ -54,11 +62,14 @@ const Learning = () => {
     const intervalRef = useRef();
     const { data: dataFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
     const countFinishLesson = dataFinish?.data.length;
-
     const completedLesson = allLesson?.lessons?.filter((lesson) => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
     });
-    const isReachedLesson = completedLesson?.some((lesson) => lesson._id === idLesson);
+    const nextLesson = useSelector((state) => state.lesson.nextLesson);
+    const openLesson = [...(completedLesson ?? []), nextLesson];
+
+    console.log(openLesson);
+    const isReachedLesson = completedLesson?.some((lesson) => lesson?._id === idLesson);
     const handleGetTime = (event) => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -87,14 +98,16 @@ const Learning = () => {
     const [handleAddCmt] = useCreateCmtMutation(); //thêm bình luận
     const [handleAddNote] = useCreateNoteMutation(); //thêm ghi chú
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
-    console.log(dataFinish);
     const { data: noteData, refetch: refetchNote } = useGetNotebyIdClientQuery(userId); // lấy tất cả các ghi chú của người dùng
     const handleClickScroll = () => {
         // thực hiện scroll
         ref.current?.scrollIntoView({ behavior: 'smooth' });
     };
     const handleIsCompleted = (lesson) => {
-        return completedLesson?.some((lessonCompleted) => lessonCompleted._id === lesson._id);
+        return completedLesson?.some((lessonCompleted) => lessonCompleted?._id === lesson?._id);
+    };
+    const handleIsOpen = (lesson) => {
+        return openLesson?.some((lessonCompleted) => lessonCompleted?._id === lesson?._id);
     };
     const handleClickLesson = useCallback(
         debounce((path, indexLesson, chapterLeson) => {
@@ -120,15 +133,30 @@ const Learning = () => {
             refetchNote();
         });
     };
+    useEffect(() => {
+        const lastIndex = dataFinish?.data.length > 0 ? dataFinish?.data[dataFinish?.data.length - 1] : null;
 
+        const finishedLessonIndex = data?.courses?.chapters[chapterIndex]?.lessons.findIndex(
+            (lesson) => lesson?._id === lastIndex?.lesson_id,
+        );
+        // Nếu tìm thấy bài học đã hoàn thành, lấy bài học tiếp theo
+        if (
+            finishedLessonIndex !== -1 &&
+            finishedLessonIndex < data?.courses?.chapters[chapterIndex]?.lessons.length - 1
+        ) {
+            const nextLesson = data?.courses?.chapters[chapterIndex]?.lessons[finishedLessonIndex + 1];
+            dispatch(addNextLesson(nextLesson));
+        }
+    }, [dataFinish]);
     useEffect(() => {
         setIsModalShown(false);
+
         if (progressVideo >= 90) {
             setIsModalShown(true);
         } else if (isModalShown) {
             setIsModalShown(false);
         }
-    }, [progressVideo, isModalShown]);
+    }, [progressVideo, isModalShown, dataFinish]);
     useEffect(() => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
         const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id; // lấy id của bài học dựa theo index của các chapters?
@@ -218,6 +246,8 @@ const Learning = () => {
         };
 
         handleAddFinishLesson(dataToSend).then(() => {
+            const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex + 1];
+            dispatch(addNextLesson(lesson));
             handleNext();
             setIsModalShown(false);
             refetchDataFinish();
@@ -478,10 +508,11 @@ const Learning = () => {
 
                                             {item?.lessons.map((lesson, indexLesson) => {
                                                 const checkDone = handleIsCompleted(lesson);
-
+                                                const isOpen = handleIsOpen(lesson);
+                                                console.log();
                                                 return (
                                                     <div className={cx('learning__chapter--lesson')} key={lesson.id}>
-                                                        {checkDone || path === lesson.path_video ? (
+                                                        {checkDone || isOpen || path === lesson.path_video ? (
                                                             <div
                                                                 onClick={() => {
                                                                     handleClickLesson(
@@ -537,7 +568,7 @@ const Learning = () => {
                                                             </div>
                                                         ) : (
                                                             <div>
-                                                                <p className={cx('learning__chapter--lesson_name')}>
+                                                                <p className={cx('lesson_lock')}>
                                                                     <strong>
                                                                         {indexChapter + '.' + ++indexLesson}
                                                                     </strong>{' '}

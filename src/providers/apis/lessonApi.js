@@ -9,6 +9,11 @@ export const lessonApi = createApi({
                 return '/lessons';
             },
         }),
+        getNextLesson: build.query({
+            query: () => {
+                return '/lessons/nextLesson';
+            },
+        }),
         getFinishLesson: build.query({
             query: (id) => {
                 return `/finishLesson/${id}`;
@@ -23,4 +28,5 @@ export const lessonApi = createApi({
     }),
 });
 
-export const { useGetLessonQuery, useGetFinishLessonQuery, useAddFinishLessonMutation } = lessonApi;
+export const { useGetLessonQuery, useGetFinishLessonQuery, useAddFinishLessonMutation, useGetNextLessonQuery } =
+    lessonApi;
