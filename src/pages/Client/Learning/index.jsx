@@ -139,8 +139,16 @@ const Learning = () => {
         const finishedLessonIndex = data?.courses?.chapters[chapterIndex]?.lessons.findIndex(
             (lesson) => lesson?._id === lastIndex?.lesson_id,
         );
-        // Nếu tìm thấy bài học đã hoàn thành, lấy bài học tiếp theo
         if (
+            finishedLessonIndex !== -1 &&
+            finishedLessonIndex === data?.courses?.chapters[chapterIndex]?.lessons.length - 1
+        ) {
+            if (chapterIndex < data?.courses?.chapters.length - 1) {
+                const nextChapter = data?.courses?.chapters[chapterIndex + 1];
+                const nextLesson = nextChapter?.lessons[0];
+                dispatch(addNextLesson(nextLesson));
+            }
+        } else if (
             finishedLessonIndex !== -1 &&
             finishedLessonIndex < data?.courses?.chapters[chapterIndex]?.lessons.length - 1
         ) {
