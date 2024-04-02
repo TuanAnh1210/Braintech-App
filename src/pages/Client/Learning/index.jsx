@@ -59,6 +59,7 @@ const Learning = () => {
     const [countLesson, setCountLesson] = useState(0); //đếm khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
+    const [isLoading, setIsLoading] = useState(false);
     const intervalRef = useRef();
     const { data: dataFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
     const { data: countLessonFinish, refetch: refetchCount } = useGetCountQuery(id);
@@ -67,7 +68,7 @@ const Learning = () => {
     });
     const nextLesson = useSelector((state) => state.lesson.nextLesson);
     const openLesson = [...(completedLesson ?? []), nextLesson];
-    console.log(nextLesson);
+
     const isReachedLesson = completedLesson?.some((lesson) => lesson?._id === idLesson);
     const handleGetTime = (event) => {
         if (intervalRef.current) {
@@ -134,11 +135,8 @@ const Learning = () => {
     };
 
     useEffect(() => {
-        const dispatchNextLesson = (lesson) => {
-            dispatch(addNextLesson(lesson));
-        };
-
         const lastIndex = dataFinish?.data.length > 0 ? dataFinish?.data[dataFinish?.data.length - 1] : null;
+
         const finishedLessonIndex = data?.courses?.chapters[chapterIndex]?.lessons.findIndex(
             (lesson) => lesson?._id === lastIndex?.lesson_id,
         );
@@ -150,27 +148,16 @@ const Learning = () => {
             if (chapterIndex < data?.courses?.chapters.length - 1) {
                 const nextChapter = data?.courses?.chapters[chapterIndex + 1];
                 const nextLesson = nextChapter?.lessons[0];
-                dispatchNextLesson(nextLesson);
-                // Lưu giá trị nextLesson vào local storage
-                localStorage.setItem('nextLesson', JSON.stringify(nextLesson));
+                dispatch(addNextLesson(nextLesson));
             }
         } else if (
             finishedLessonIndex !== -1 &&
             finishedLessonIndex < data?.courses?.chapters[chapterIndex]?.lessons.length - 1
         ) {
             const nextLesson = data?.courses?.chapters[chapterIndex]?.lessons[finishedLessonIndex + 1];
-            dispatchNextLesson(nextLesson);
-            localStorage.setItem('nextLesson', JSON.stringify(nextLesson));
+            dispatch(addNextLesson(nextLesson));
         }
-    }, [dataFinish, data, chapterIndex, dispatch]);
-
-    useEffect(() => {
-        // Lấy giá trị nextLesson từ local storage khi component được render
-        const storedNextLesson = localStorage.getItem('nextLesson');
-        if (storedNextLesson) {
-            dispatch(addNextLesson(JSON.parse(storedNextLesson)));
-        }
-    }, [dispatch]);
+    }, [dataFinish, data, nextLesson]);
     useEffect(() => {
         setIsModalShown(false);
 
@@ -178,12 +165,10 @@ const Learning = () => {
             setIsModalShown(true);
         } else if (isModalShown) {
             setIsModalShown(false);
-        }
-
-        if (!nextLesson && countLessonFinish?.count === countLesson) {
+        } else if (!nextLesson && countLessonFinish?.count === countLesson) {
             setIsModalShown(false);
         }
-    }, [progressVideo, isModalShown, dataFinish, nextLesson]);
+    }, [progressVideo, isModalShown, dataFinish]);
     useEffect(() => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
         const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id; // lấy id của bài học dựa theo index của các chapters?
@@ -227,11 +212,13 @@ const Learning = () => {
             const lesson = getLesson(data, chapterIndex, lessonIndex);
             if (lesson) {
                 setPath(lesson.path_video); //set path_video của bài học đó
+                setIsModalShown(false);
             } else {
                 if (chapterIndex < data.courses.chapters.length - 1) {
                     //nếu không tồn tại lesson thì kiểm tra xem còn bài học không
                     setChapterIndex(chapterIndex + 1); // tăng chapterIndex lên 1
                     setLessonIndex(0); // đặt lesson id về 0
+                    setIsModalShown(false);
                 }
             }
         }
@@ -276,16 +263,19 @@ const Learning = () => {
             user_id: userId,
             course_id: id,
         };
-        setIsModalShown(false);
         setProgessVideo(0);
         handleAddFinishLesson(dataToSend).then(() => {
             const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex + 1];
             dispatch(addNextLesson(lesson));
             handleNext();
+            setIsModalShown(false);
 
             refetchDataFinish();
             refetchCount();
         });
+    };
+    const handleStateChange = (event) => {
+        console.log(event);
     };
     return (
         <div className="main">
@@ -344,17 +334,21 @@ const Learning = () => {
                                 </div>
                             </div>
                             <div className={cx('header__cert')}>
-                                <a className={cx('header__cert--link')} href="">
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        data-toggle="tooltip"
-                                        data-placement="bottom"
-                                        title="Hoàn thành hết các bài học bạn sẽ nhận được chứng chỉ"
-                                    >
-                                        Nhận chứng chỉ
-                                    </button>
-                                </a>
+                                {countLessonFinish?.count === countLesson ? (
+                                    <Link className={cx('header__cert--link')} to={`/certificate/${id}`}>
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary"
+                                            data-toggle="tooltip"
+                                            data-placement="bottom"
+                                            title="Hoàn thành hết các bài học bạn sẽ nhận được chứng chỉ"
+                                        >
+                                            Nhận chứng chỉ
+                                        </button>
+                                    </Link>
+                                ) : (
+                                    <p className={cx('header__cert--lock')}>Nhận chứng chỉ</p>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -378,6 +372,8 @@ const Learning = () => {
                                             }}
                                             videoId={`${path}`}
                                             onReady={handleGetTime}
+                                            onStateChange={handleStateChange}
+                                            onEnd={handleSetFinish}
                                         />
                                     )}
                                 </Suspense>

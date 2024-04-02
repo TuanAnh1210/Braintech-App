@@ -14,6 +14,7 @@ import Register from '@/pages/Client/Register';
 import UserManager from '@/pages/Admin/UserManager';
 import CourseList from '@/pages/Admin/CoursesList';
 import Quizz from '@/pages/Client/Quizz';
+import Certificate from '@/pages/Client/Certificate';
 
 const publicRoutes = [
     { path: config.home, component: Home },
@@ -21,6 +22,7 @@ const publicRoutes = [
     { path: config.login, component: Login, layout: null },
     { path: config.register, component: Register, layout: null },
     { path: config.learning, component: Learning, layout: null },
+    { path: config.certificate, component: Certificate },
     { path: config.quizz, component: Quizz },
     { path: config.about, component: About },
     { path: config.detail, component: DetailCourse },
