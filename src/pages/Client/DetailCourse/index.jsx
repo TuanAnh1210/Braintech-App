@@ -4,10 +4,14 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
+import { useDispatch, useSelector } from 'react-redux';
+import { openModal } from '@/providers/slices/modalSlice';
+import { jwtDecode } from 'jwt-decode';
+import { useAddFinishLessonMutation, useGetFinishLessonQuery } from '@/providers/apis/lessonApi';
 
 const cx = classNames.bind(styles);
 const DetailCourse = () => {
@@ -15,18 +19,35 @@ const DetailCourse = () => {
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
     const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
     const [handleAddSttCourse] = useAddSttCourseMutation();
+    const [handleAddFinishLesson] = useAddFinishLessonMutation();
+
+    const isLog = JSON.parse(localStorage.getItem('access_token'));
 
     const navigate = useNavigate();
+    const [isLogin, setIsLogin] = useState(false);
+
+    const user = useSelector((state) => state.user);
+
+    const lessonStart = data?.courses?.chapters[0]?.lessons[0]?._id;
+    const dispatch = useDispatch();
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
-
-    const handleLearnCourse = () => {
-        if (!_accessToken) {
-            return navigate('/login');
+    useEffect(() => {
+        if (isLog != null) {
+            setIsLogin(true);
+        } else {
+            setIsLogin(false);
         }
-
-        handleAddSttCourse();
+    }, [user]);
+    const handleLearnCourse = () => {
+        const decode = jwtDecode(user.token);
+        const idUser = decode.data._id;
+        const data = {
+            user_id: idUser,
+            course_id: id,
+        };
+        handleAddSttCourse(data);
     };
     return (
         <>
@@ -43,6 +64,7 @@ const DetailCourse = () => {
                                         {data?.courses?.chapters?.map((chapter) => (
                                             <div key={chapter._id} className={cx('learning__chapter')}>
                                                 <h3 className={cx('learning__chapter--txt')}>{chapter.name}</h3>
+
                                                 {chapter.lessons.map((lesson, index) => (
                                                     <div key={lesson._id} className={cx('trackItem')}>
                                                         <h3 className={cx('trackItem--title')}>
@@ -81,9 +103,25 @@ const DetailCourse = () => {
                                     <>
                                         <h4 className={cx('course_free')}>Miễn phí</h4>
                                         <div className={cx('firstLessonBtn')}>
-                                            <button onClick={handleLearnCourse} className={cx('course_btn-learn')}>
-                                                Học ngay
-                                            </button>
+                                            {isLogin ? (
+                                                <Link to={`/learning/${id}`}>
+                                                    <button
+                                                        onClick={handleLearnCourse}
+                                                        className={cx('course_btn-learn')}
+                                                    >
+                                                        Học ngay
+                                                    </button>
+                                                </Link>
+                                            ) : (
+                                                <button
+                                                    onClick={() => {
+                                                        dispatch(openModal('login'));
+                                                    }}
+                                                    className={cx('course_btn-learn')}
+                                                >
+                                                    Học ngay
+                                                </button>
+                                            )}
                                         </div>
                                     </>
                                 )}

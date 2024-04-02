@@ -5,16 +5,19 @@ export const userApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
     endpoints: (build) => ({
         getUsers: build.query({
-            query: () => '/users',
+            query: () => '/user',
         }),
-
-        authUser: build.mutation({
+        login: build.mutation({
             query: (payload) => {
-                console.log(payload);
-                return { url: '/users/auth', method: 'POST', body: payload };
+                return { url: '/user/login', method: 'POST', body: payload };
+            },
+        }),
+        register: build.mutation({
+            query: (payload) => {
+                return { url: '/user/register', method: 'POST', body: payload };
             },
         }),
     }),
 });
 
-export const { useAuthUserMutation, useGetUsersQuery } = userApi;
+export const { useLoginMutation, useRegisterMutation, useGetUsersQuery } = userApi;

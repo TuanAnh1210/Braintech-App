@@ -192,6 +192,8 @@
     width: 100%;
     padding: 8px 12px;
     margin-left: 12px;
+    resize: none;
+    border: none;
 }
 .send__comment {
     background-color: var(--primary-color);
@@ -326,7 +328,21 @@
         font-size: 16px;
     }
 }
-
+.noteZone{
+    display: flex;
+    margin: 20px;
+}
+.note--ipt{
+    width: 100%;
+    padding: 8px 12px;
+    margin-left: 12px;
+    resize: none;
+    border: none;
+}
+.noteForm{
+    flex: 1;
+    margin-bottom: 24px;
+}
 /* actionBar */
 .actionBar {
     position: fixed;
@@ -398,11 +414,267 @@
         opacity: 1;
     }
 }
+.block-lesson{
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 20px;
+    border-radius: 8px;
+    background-color: rgb(235, 201, 201);
+    opacity: 0.5;
+    border: 2px solid #7e726a;
+    color: var(--text-color);
 
+    &:hover {
+        cursor: pointer;
+        opacity: 0.3;
+    }
+}
 .btn__bar {
     border: none;
     color: var(--primary-color);
     background-color: transparent;
     font-size: 24px;
     padding: 4px;
+}
+.learning__chapter {
+    margin-top: 16px;
+    padding-left: 24px;
+}
+.learning__chapter--txt{
+    font-size: 16px;
+    font-weight: 600;
+}
+.learning__chapter--lesson_name {
+    padding: 20px;
+    border-radius: 10px;
+    color: #000000;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 10px;
+    transition: all 0.3s ease;
+}
+
+.learning__chapter--lesson_name_active{
+    background-color: #f76b1c;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 10px;
+    transition: all 0.3s ease;
+}
+
+.learning__chapter--lesson_name:hover {
+    background-color: #f76b1c;
+    color: #ffffff;
+}
+
+.learning__chapter--lesson-btn {
+    border-radius: 8px;
+    background-color: rgb(38, 237, 161);
+    color: #000;
+    border: none; 
+    padding: 2px 3px;
+    font-size: 14px;
+    margin-top: 8px;
+    display: inline-block;
+}
+.modal {
+    
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: rgba(0, 0, 0, .4);
+}
+.modal__next-lesson{
+    position: fixed;
+    top: 30%;
+    bottom: 0;
+    left: 70%;
+    right: 0;
+    width: 200px;
+    height: 100px;
+    padding: 10px;
+    background-color: rgb(131, 23, 23);
+    transform-origin: right;
+    transition: all 0.5s linear;
+}
+.modal__header{
+    color: #ffffff;
+}
+.modal__content{
+    color: #ffffff;
+}
+.note_wrapper {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 60%;
+    padding: 32px 32px 48px 32px;
+    animation: showIn ease-in .3s;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+}
+
+.note_heading {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.note_heading h2 {
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.note_list {
+    margin-top: 48px;
+    padding-left: 24px;
+    padding-right: 12px;
+    height: calc(100vh - 50px);
+    padding-bottom: 142px;
+    overflow-y: scroll;
+}
+
+.note_item {
+    position: relative;
+    margin-top: 24px;
+}
+
+.note-close {
+    padding: 6px;
+    font-size: 22px;
+}
+
+.note-close:hover {
+    color: var(--primary-color);
+    cursor: pointer;
+}
+
+.note_item-heading {}
+
+.note_item-heading p {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.note_item-content {
+    height: 56px;
+    line-height: 56px;
+    background-color: #f0f0f0;
+}
+
+.note_item-content p {
+    margin-bottom: 0;
+    margin-left: 12px;
+}
+.youtubeContainer{
+    width: 100% !important;
+   
+    height: 515px !important;
+   
+}
+
+.message__delete {
+    z-index: 10;
+    
+    width: 400px;
+    height: 120px;
+    position: fixed;
+    right: 26px;
+    top: 20%;
+    background-color: #111;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
+    padding: 8px;
+    border-left: 6px solid orangered;
+    color: #fff;
+    animation: runIn linear .2s;
+}
+
+.message__delete {
+    display: block;
+}
+
+.message__delete h2 {
+    margin-left: 10px;
+    font-weight: 500;
+    font-size: 18px;
+}
+
+.message__delete h4 {
+    font-size: 14px;
+
+    margin-left: 28px;
+    font-weight: 500;
+    font-style: italic;
+    line-height: 32px;
+}
+.btn__delete-container {
+    margin-left: 18px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: end;
+}
+
+.yes {
+    border: none;
+    font-size: 18px;
+    font-weight: bold;
+    background-color: #fff;
+    color: #111;
+    padding: 4px 20px;
+
+}
+
+
+.yes:hover {
+    color: orangered;
+    cursor: pointer;
+}
+
+@keyframes runIn {
+    from {
+        transform: translateX(110%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes ani {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.lesson_lock {
+    opacity: 0.5;
+    padding: 20px;
+    border-radius: 10px; 
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    margin: 10px;
+    color: #999;
+    background-color: #eee;
+    transition: all 0.3s ease;
+}
+
+.lesson_lock:hover {
+    opacity: 0.6;
 }
