@@ -25,6 +25,7 @@ import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
 import { useCreateNoteMutation, useGetNotebyIdClientQuery } from '@/providers/apis/noteApi';
 import {
     useAddFinishLessonMutation,
+    useGetCountQuery,
     useGetFinishLessonQuery,
     useGetLessonQuery,
     useGetNextLessonQuery,
@@ -61,14 +62,14 @@ const Learning = () => {
     const [isLoading, setIsLoading] = useState(false);
     const intervalRef = useRef();
     const { data: dataFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
-    const countFinishLesson = dataFinish?.data.length;
+    const { data: countLessonFinish, refetch: refetchCount } = useGetCountQuery(id);
+    console.log(countLessonFinish);
     const completedLesson = allLesson?.lessons?.filter((lesson) => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
     });
     const nextLesson = useSelector((state) => state.lesson.nextLesson);
     const openLesson = [...(completedLesson ?? []), nextLesson];
 
-    console.log(openLesson);
     const isReachedLesson = completedLesson?.some((lesson) => lesson?._id === idLesson);
     const handleGetTime = (event) => {
         if (intervalRef.current) {
@@ -134,6 +135,9 @@ const Learning = () => {
         });
     };
     useEffect(() => {
+        console.log(dataFinish);
+    }, []);
+    useEffect(() => {
         const lastIndex = dataFinish?.data.length > 0 ? dataFinish?.data[dataFinish?.data.length - 1] : null;
 
         const finishedLessonIndex = data?.courses?.chapters[chapterIndex]?.lessons.findIndex(
@@ -193,10 +197,10 @@ const Learning = () => {
     };
     useEffect(() => {
         const count = data?.courses?.chapters?.reduce((total, chap) => total + chap.lessons.length, 0);
-        const progressDone = Math.floor((countFinishLesson / count) * 100);
+        const progressDone = Math.floor((countLessonFinish?.count / count) * 100);
         setProgessCourse(progressDone);
         setCountLesson(count);
-    }, [data, dataFinish]);
+    }, [data, dataFinish, countLessonFinish]);
     const getLesson = (data, chapterIndex, lessonIndex) => {
         const chapter = data.courses.chapters[chapterIndex]; // lấy chapter với index đã đặt
 
@@ -251,6 +255,7 @@ const Learning = () => {
         const dataToSend = {
             lesson_id: idLesson,
             user_id: userId,
+            course_id: id,
         };
 
         handleAddFinishLesson(dataToSend).then(() => {
@@ -259,6 +264,7 @@ const Learning = () => {
             handleNext();
             setIsModalShown(false);
             refetchDataFinish();
+            refetchCount();
         });
     };
     return (
@@ -301,7 +307,7 @@ const Learning = () => {
                         <div className={cx('header__actions')}>
                             <div className={cx('header__progress')}>
                                 <p className={cx('header__progress--txt')}>
-                                    Tiến độ: &emsp;<span className="progress_learned">{countFinishLesson}</span>/
+                                    Tiến độ: &emsp;<span className="progress_learned">{countLessonFinish?.count}</span>/
                                     <span className="progress_lesson">{countLesson}</span>
                                 </p>
                                 <div className="progress">
