@@ -179,7 +179,11 @@ const Learning = () => {
         } else if (isModalShown) {
             setIsModalShown(false);
         }
-    }, [progressVideo, isModalShown, dataFinish]);
+
+        if (!nextLesson && countLessonFinish?.count === countLesson) {
+            setIsModalShown(false);
+        }
+    }, [progressVideo, isModalShown, dataFinish, nextLesson]);
     useEffect(() => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
         const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id; // lấy id của bài học dựa theo index của các chapters?
