@@ -25,6 +25,7 @@ import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
 import { useCreateNoteMutation, useGetNotebyIdClientQuery } from '@/providers/apis/noteApi';
 import {
     useAddFinishLessonMutation,
+    useGetCountQuery,
     useGetFinishLessonQuery,
     useGetLessonQuery,
     useGetNextLessonQuery,
@@ -58,17 +59,15 @@ const Learning = () => {
     const [countLesson, setCountLesson] = useState(0); //đếm khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
     const intervalRef = useRef();
     const { data: dataFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
-    const countFinishLesson = dataFinish?.data.length;
+    const { data: countLessonFinish, refetch: refetchCount } = useGetCountQuery(id);
     const completedLesson = allLesson?.lessons?.filter((lesson) => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
     });
     const nextLesson = useSelector((state) => state.lesson.nextLesson);
     const openLesson = [...(completedLesson ?? []), nextLesson];
-
-    console.log(openLesson);
+    console.log(nextLesson);
     const isReachedLesson = completedLesson?.some((lesson) => lesson?._id === idLesson);
     const handleGetTime = (event) => {
         if (intervalRef.current) {
@@ -81,7 +80,7 @@ const Learning = () => {
             const currentTime = player.getCurrentTime();
             const timeCatched = Math.floor((currentTime / totalDuration) * 100);
             setProgessVideo(timeCatched);
-        }, 1000);
+        }, 5000);
     };
     const opts = {
         //cấu hình thẻ Youtube
@@ -111,10 +110,10 @@ const Learning = () => {
     };
     const handleClickLesson = useCallback(
         debounce((path, indexLesson, chapterLeson) => {
+            setIsModalShown(false);
             setPath(path);
             setLessonIndex(indexLesson - 1);
             setChapterIndex(chapterLeson - 1);
-            setIsModalShown(false);
         }, 500),
         [],
     );
@@ -133,12 +132,17 @@ const Learning = () => {
             refetchNote();
         });
     };
-    useEffect(() => {
-        const lastIndex = dataFinish?.data.length > 0 ? dataFinish?.data[dataFinish?.data.length - 1] : null;
 
+    useEffect(() => {
+        const dispatchNextLesson = (lesson) => {
+            dispatch(addNextLesson(lesson));
+        };
+
+        const lastIndex = dataFinish?.data.length > 0 ? dataFinish?.data[dataFinish?.data.length - 1] : null;
         const finishedLessonIndex = data?.courses?.chapters[chapterIndex]?.lessons.findIndex(
             (lesson) => lesson?._id === lastIndex?.lesson_id,
         );
+
         if (
             finishedLessonIndex !== -1 &&
             finishedLessonIndex === data?.courses?.chapters[chapterIndex]?.lessons.length - 1
@@ -146,16 +150,27 @@ const Learning = () => {
             if (chapterIndex < data?.courses?.chapters.length - 1) {
                 const nextChapter = data?.courses?.chapters[chapterIndex + 1];
                 const nextLesson = nextChapter?.lessons[0];
-                dispatch(addNextLesson(nextLesson));
+                dispatchNextLesson(nextLesson);
+                // Lưu giá trị nextLesson vào local storage
+                localStorage.setItem('nextLesson', JSON.stringify(nextLesson));
             }
         } else if (
             finishedLessonIndex !== -1 &&
             finishedLessonIndex < data?.courses?.chapters[chapterIndex]?.lessons.length - 1
         ) {
             const nextLesson = data?.courses?.chapters[chapterIndex]?.lessons[finishedLessonIndex + 1];
-            dispatch(addNextLesson(nextLesson));
+            dispatchNextLesson(nextLesson);
+            localStorage.setItem('nextLesson', JSON.stringify(nextLesson));
         }
-    }, [dataFinish]);
+    }, [dataFinish, data, chapterIndex, dispatch]);
+
+    useEffect(() => {
+        // Lấy giá trị nextLesson từ local storage khi component được render
+        const storedNextLesson = localStorage.getItem('nextLesson');
+        if (storedNextLesson) {
+            dispatch(addNextLesson(JSON.parse(storedNextLesson)));
+        }
+    }, [dispatch]);
     useEffect(() => {
         setIsModalShown(false);
 
@@ -164,7 +179,11 @@ const Learning = () => {
         } else if (isModalShown) {
             setIsModalShown(false);
         }
-    }, [progressVideo, isModalShown, dataFinish]);
+
+        if (!nextLesson && countLessonFinish?.count === countLesson) {
+            setIsModalShown(false);
+        }
+    }, [progressVideo, isModalShown, dataFinish, nextLesson]);
     useEffect(() => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
         const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id; // lấy id của bài học dựa theo index của các chapters?
@@ -193,10 +212,10 @@ const Learning = () => {
     };
     useEffect(() => {
         const count = data?.courses?.chapters?.reduce((total, chap) => total + chap.lessons.length, 0);
-        const progressDone = Math.floor((countFinishLesson / count) * 100);
+        const progressDone = Math.floor((countLessonFinish?.count / count) * 100);
         setProgessCourse(progressDone);
         setCountLesson(count);
-    }, [data, dataFinish]);
+    }, [data, dataFinish, countLessonFinish]);
     const getLesson = (data, chapterIndex, lessonIndex) => {
         const chapter = data.courses.chapters[chapterIndex]; // lấy chapter với index đã đặt
 
@@ -222,10 +241,12 @@ const Learning = () => {
             const chapter = data?.courses?.chapters[chapterIndex];
             if (lessonIndex < chapter?.lessons.length - 1) {
                 setLessonIndex(lessonIndex + 1);
+                setProgessVideo(0);
             } else {
                 if (chapterIndex < data?.courses?.chapters.length - 1) {
                     setChapterIndex(chapterIndex + 1);
                     setLessonIndex(0);
+                    setProgessVideo(0);
                 }
             }
         }, 500),
@@ -236,11 +257,13 @@ const Learning = () => {
         debounce(() => {
             if (lessonIndex > 0) {
                 setLessonIndex(lessonIndex - 1);
+                setProgessVideo(0);
             } else {
                 if (chapterIndex > 0) {
                     setChapterIndex(chapterIndex - 1);
                     const prevChapter = data?.courses?.chapters[chapterIndex - 1];
                     setLessonIndex(prevChapter.lessons.length - 1 || prevChapter.lessons.length);
+                    setProgessVideo(0);
                 }
             }
         }, 500),
@@ -251,14 +274,17 @@ const Learning = () => {
         const dataToSend = {
             lesson_id: idLesson,
             user_id: userId,
+            course_id: id,
         };
-
+        setIsModalShown(false);
+        setProgessVideo(0);
         handleAddFinishLesson(dataToSend).then(() => {
             const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex + 1];
             dispatch(addNextLesson(lesson));
             handleNext();
-            setIsModalShown(false);
+
             refetchDataFinish();
+            refetchCount();
         });
     };
     return (
@@ -301,7 +327,7 @@ const Learning = () => {
                         <div className={cx('header__actions')}>
                             <div className={cx('header__progress')}>
                                 <p className={cx('header__progress--txt')}>
-                                    Tiến độ: &emsp;<span className="progress_learned">{countFinishLesson}</span>/
+                                    Tiến độ: &emsp;<span className="progress_learned">{countLessonFinish?.count}</span>/
                                     <span className="progress_lesson">{countLesson}</span>
                                 </p>
                                 <div className="progress">
