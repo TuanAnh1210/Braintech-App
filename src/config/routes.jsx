@@ -9,6 +9,7 @@ const routes = {
     register: '/register',
     info: '/info',
     quizz: '/quizz/:id',
+    certificate: '/certificate/:id',
 };
 
 export default routes;

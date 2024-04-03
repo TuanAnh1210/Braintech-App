@@ -19,7 +19,9 @@ import about from './about.gif';
 import core from './core.gif';
 import ta from './tuananh.jpg';
 import bg_blue from './bg_blue.png';
+import cert from './cert.png';
 const images = {
+    cert,
     bg_blue,
     ta,
     core,
