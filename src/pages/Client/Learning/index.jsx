@@ -34,17 +34,17 @@ import { useCallback } from 'react';
 import Draggable from 'react-draggable';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNextLesson } from '@/providers/slices/lessonSlice';
-
+import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
+import { useDeleteNoteMutation } from '@/providers/apis/noteApi';
 const cx = classNames.bind(styles);
 const Learning = () => {
     const { id } = useParams();
-    const dispatch = useDispatch();
     const navigate = useNavigate();
     const ref = useRef(null);
     const refCmtInput = useRef(null);
     const refNoteInput = useRef(null);
     const mainView = useRef(null);
-    const { data } = useGetDetailQuery(id); // các bài học của khóa học
+    const { data, isLoading } = useGetDetailQuery(id); // các bài học của khóa học
     const { data: allLesson } = useGetLessonQuery(); // lấy ra tất cả các khóa học để thực hiện lọc
     const [chapterIndex, setChapterIndex] = useState(0); //chỉ mục của từng phần trong khóa học
     const [lessonIndex, setLessonIndex] = useState(0); // chỉ mục của từng bài học trong từng phần
@@ -59,14 +59,15 @@ const Learning = () => {
     const [countLesson, setCountLesson] = useState(0); //đếm khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
+    const [handleAddSttCourse] = useAddSttCourseMutation();
+    const [nextLesson, setNextLesson] = useState(null);
+    const [deleteNote] = useDeleteNoteMutation();
     const intervalRef = useRef();
     const { data: dataFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
     const { data: countLessonFinish, refetch: refetchCount } = useGetCountQuery(id);
     const completedLesson = allLesson?.lessons?.filter((lesson) => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
     });
-    const nextLesson = useSelector((state) => state.lesson.nextLesson);
     const openLesson = [...(completedLesson ?? []), nextLesson];
 
     const isReachedLesson = completedLesson?.some((lesson) => lesson?._id === idLesson);
@@ -89,7 +90,7 @@ const Learning = () => {
         width: '100%',
         playerVars: {
             // https://developers.google.com/youtube/player_parameters
-            autoplay: 0,
+            autoplay: 1,
         },
     };
 
@@ -133,31 +134,37 @@ const Learning = () => {
             refetchNote();
         });
     };
-
+    const handleLearnCourse = () => {
+        const data = {
+            user_id: userId,
+            course_id: id,
+        };
+        handleAddSttCourse(data);
+    };
     useEffect(() => {
         const lastIndex = dataFinish?.data.length > 0 ? dataFinish?.data[dataFinish?.data.length - 1] : null;
 
         const finishedLessonIndex = data?.courses?.chapters[chapterIndex]?.lessons.findIndex(
             (lesson) => lesson?._id === lastIndex?.lesson_id,
         );
-
         if (
             finishedLessonIndex !== -1 &&
             finishedLessonIndex === data?.courses?.chapters[chapterIndex]?.lessons.length - 1
         ) {
             if (chapterIndex < data?.courses?.chapters.length - 1) {
                 const nextChapter = data?.courses?.chapters[chapterIndex + 1];
-                const nextLesson = nextChapter?.lessons[0];
-                dispatch(addNextLesson(nextLesson));
+                const nextL = nextChapter?.lessons[0];
+                setNextLesson(nextL);
             }
         } else if (
             finishedLessonIndex !== -1 &&
             finishedLessonIndex < data?.courses?.chapters[chapterIndex]?.lessons.length - 1
         ) {
-            const nextLesson = data?.courses?.chapters[chapterIndex]?.lessons[finishedLessonIndex + 1];
-            dispatch(addNextLesson(nextLesson));
+            const nextL = data?.courses?.chapters[chapterIndex]?.lessons[finishedLessonIndex + 1];
+            setNextLesson(nextL);
         }
-    }, [dataFinish, data, nextLesson]);
+    }, [dataFinish, data, chapterIndex, lessonIndex]);
+
     useEffect(() => {
         setIsModalShown(false);
 
@@ -171,16 +178,24 @@ const Learning = () => {
     }, [progressVideo, isModalShown, dataFinish]);
     useEffect(() => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
-        const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id; // lấy id của bài học dựa theo index của các chapters?
+        const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id; // lấy id của bài học dựa theo index của các chapters?'
         setIdLesson(lesson);
         setIsModalShown(false);
-        const { token } = JSON.parse(localStorage.getItem('access_token')); //lấy token được lưu khi người dùng đăng nhập
-        const decode = jwtDecode(token); // dịch ngược mã jwt
-        const idLog = decode.data._id; // lấy id người dùng
-        const idUser = dataUser?.data?.data?.find((user) => user._id === idLog);
-        setUserId(idUser?._id);
-    }, [dataUser, path, lessonIndex, chapterIndex, cmtData, isReachedLesson]);
-    const debouncedHandleAddCmt = useCallback(debounce(handleAddCmt, 1000), []); //thực hiện debounce để giảm tải cho server
+        
+        const access_token = localStorage.getItem('access_token');
+        //lấy token được lưu khi người dùng đăng nhập
+        if (access_token !== 'null' && access_token) {
+            const token = JSON.parse(access_token);
+            if (token !== null) {
+                const decode = jwtDecode(token.token); // dịch ngược mã jwt
+                const idLog = decode.data._id; // lấy id người dùng
+                const idUser = dataUser?.data?.data?.find((user) => user._id === idLog);
+                setUserId(idUser?._id);
+            }
+        } else {
+            navigate(`/detail/${id}`);
+        }
+    }, [dataUser, path, lessonIndex, chapterIndex, cmtData, isReachedLesson, userId]);
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -189,12 +204,19 @@ const Learning = () => {
             user_id: userId,
             lesson_id: idLesson,
         };
-        debouncedHandleAddCmt(newCmt).then(() => {
-            refCmtInput.current.value = '';
-            setCmtInput('');
-            refetch();
-        });
+
+        handleAddCmt(newCmt)
+            .then(() => {
+                refCmtInput.current.value = '';
+                setCmtInput('');
+                refetch();
+            })
+            .catch((error) => {
+                console.error('Error adding comment:', error);
+                // Handle error if necessary
+            });
     };
+
     useEffect(() => {
         const count = data?.courses?.chapters?.reduce((total, chap) => total + chap.lessons.length, 0);
         const progressDone = Math.floor((countLessonFinish?.count / count) * 100);
@@ -266,7 +288,7 @@ const Learning = () => {
         setProgessVideo(0);
         handleAddFinishLesson(dataToSend).then(() => {
             const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex + 1];
-            dispatch(addNextLesson(lesson));
+            setNextLesson(lesson);
             handleNext();
             setIsModalShown(false);
 
@@ -334,8 +356,12 @@ const Learning = () => {
                                 </div>
                             </div>
                             <div className={cx('header__cert')}>
-                                {countLessonFinish?.count === countLesson ? (
-                                    <Link className={cx('header__cert--link')} to={`/certificate/${id}`}>
+                                {countLessonFinish?.count === countLesson && !isLoading ? (
+                                    <Link
+                                        onClick={handleLearnCourse}
+                                        className={cx('header__cert--link')}
+                                        to={`/certificate/${id}`}
+                                    >
                                         <button
                                             type="button"
                                             className="btn btn-secondary"
@@ -693,7 +719,16 @@ const Learning = () => {
                                                 <div className={cx('options-sub')}>
                                                     <p className={cx('btn_option-cmt updateCmt-btn')}>Sửa</p>
 
-                                                    <p className={cx('btn_option-cmt deleteNote-btn')}>Xóa</p>
+                                                    <p
+                                                        onClick={() => {
+                                                            deleteNote(item._id).then(() => {
+                                                                refetchNote();
+                                                            });
+                                                        }}
+                                                        className={cx('btn_option-cmt deleteNote-btn')}
+                                                    >
+                                                        Xóa
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>

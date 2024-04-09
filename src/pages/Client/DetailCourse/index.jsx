@@ -7,28 +7,22 @@ import { useGetDetailQuery } from '@/providers/apis/courseApi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { openModal } from '@/providers/slices/modalSlice';
 import { jwtDecode } from 'jwt-decode';
-import { useAddFinishLessonMutation, useGetFinishLessonQuery } from '@/providers/apis/lessonApi';
-
 const cx = classNames.bind(styles);
 const DetailCourse = () => {
     const { id } = useParams();
+
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
     const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
-    const [handleAddSttCourse] = useAddSttCourseMutation();
-    const [handleAddFinishLesson] = useAddFinishLessonMutation();
 
     const isLog = JSON.parse(localStorage.getItem('access_token'));
 
-    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(false);
 
     const user = useSelector((state) => state.user);
 
-    const lessonStart = data?.courses?.chapters[0]?.lessons[0]?._id;
     const dispatch = useDispatch();
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -40,15 +34,13 @@ const DetailCourse = () => {
             setIsLogin(false);
         }
     }, [user]);
-    const handleLearnCourse = () => {
-        const decode = jwtDecode(user.token);
-        const idUser = decode.data._id;
-        const data = {
-            user_id: idUser,
-            course_id: id,
-        };
-        handleAddSttCourse(data);
-    };
+    const access_token = localStorage.getItem('access_token');
+    useEffect(() => {
+        if (access_token === 'null' && access_token) {
+            dispatch(openModal('login'));
+        }
+    }, [access_token]);
+
     return (
         <>
             <div className={cx('detail-course')}>
@@ -105,12 +97,7 @@ const DetailCourse = () => {
                                         <div className={cx('firstLessonBtn')}>
                                             {isLogin ? (
                                                 <Link to={`/learning/${id}`}>
-                                                    <button
-                                                        onClick={handleLearnCourse}
-                                                        className={cx('course_btn-learn')}
-                                                    >
-                                                        Học ngay
-                                                    </button>
+                                                    <button className={cx('course_btn-learn')}>Học ngay</button>
                                                 </Link>
                                             ) : (
                                                 <button
