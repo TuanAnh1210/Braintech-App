@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { DefaultLayout } from './layouts';
-import { RoutesAdmin, publicRoutes } from './routes/routes';
+
+import { RoutesAdmin } from './routes/routes';
 import { AdminLayout, DefaultLayout } from './layouts';
 import { publicRoutes, privateRoutes } from './routes/routes';
 import { Fragment } from 'react';
-import AdminLayout from './layouts/Admin';
+
 
 function App() {
     return (

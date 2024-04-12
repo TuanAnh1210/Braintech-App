@@ -3,6 +3,12 @@ import styles from './Learning.module.scss';
 import { Container } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { debounce } from 'lodash';
+import { SearchOutlined } from '@ant-design/icons';
+import { Button, Input, Space, Table, Popconfirm, Col, DatePicker, Drawer, Form, Row, Select } from 'antd';
+import Highlighter from 'react-highlight-words';
+import { format } from 'date-fns';
+import { QuestionCircleOutlined } from '@ant-design/icons'
+import { PlusOutlined } from '@ant-design/icons';
 
 import {
     faBars,
@@ -19,10 +25,10 @@ import images from '@/assets/images';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { Suspense, useEffect, useRef, useState } from 'react';
+import { Suspense, useEffect, useId, useRef, useState } from 'react';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
-import { useCreateNoteMutation, useGetNotebyIdClientQuery } from '@/providers/apis/noteApi';
+import { useCreateNoteMutation, useGetNotebyIdClientQuery, useDeleteNoteMutation, useUpdatesNoteMutation } from '@/providers/apis/noteApi';
 import {
     useAddFinishLessonMutation,
     useGetCountQuery,
@@ -34,9 +40,14 @@ import { useCallback } from 'react';
 import Draggable from 'react-draggable';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNextLesson } from '@/providers/slices/lessonSlice';
+import { FaUpload } from 'react-icons/fa6';
+import { CgEditFade, CgEditMarkup, CgRepeat } from 'react-icons/cg';
+
 
 const cx = classNames.bind(styles);
 const Learning = () => {
+    const [valueNote, setValue] = useState('')
+    const [idNote, setIdValue] = useState('')
     const { id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -67,8 +78,10 @@ const Learning = () => {
     });
     const nextLesson = useSelector((state) => state.lesson.nextLesson);
     const openLesson = [...(completedLesson ?? []), nextLesson];
-    console.log(nextLesson);
+
     const isReachedLesson = completedLesson?.some((lesson) => lesson?._id === idLesson);
+    const [open, setOpen] = useState(false);
+
     const handleGetTime = (event) => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -96,6 +109,8 @@ const Learning = () => {
     const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(idLesson); //lấy bình luận dựa trên id bài học
     const [handleAddCmt] = useCreateCmtMutation(); //thêm bình luận
     const [handleAddNote] = useCreateNoteMutation(); //thêm ghi chú
+    const [handleDeleteNote] = useDeleteNoteMutation();// xóa ghi chú
+    const [handleUpdateNotes] = useUpdatesNoteMutation();// update ghi chú
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
     const { data: noteData, refetch: refetchNote } = useGetNotebyIdClientQuery(userId); // lấy tất cả các ghi chú của người dùng
     const handleClickScroll = () => {
@@ -196,6 +211,7 @@ const Learning = () => {
         setUserId(idUser?._id);
     }, [dataUser, path, lessonIndex, chapterIndex, cmtData, isReachedLesson]);
     const debouncedHandleAddCmt = useCallback(debounce(handleAddCmt, 1000), []); //thực hiện debounce để giảm tải cho server
+    const debouncedHandleUpdateNote = useCallback(debounce(handleUpdateNotes, 1000), []); //thực hiện debounce để giảm tải cho server
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -286,6 +302,264 @@ const Learning = () => {
             refetchDataFinish();
             refetchCount();
         });
+    };
+
+    const [searchText, setSearchText] = useState('');
+    const [searchedColumn, setSearchedColumn] = useState('');
+    const searchInput = useRef(null);
+    const handleSearch = (selectedKeys, confirm, dataIndex) => {
+        confirm();
+        setSearchText(selectedKeys[0]);
+        setSearchedColumn(dataIndex);
+    };
+    const handleReset = (clearFilters) => {
+        clearFilters();
+        setSearchText('');
+    };
+    const getColumnSearchProps = (dataIndex) => ({
+        filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
+            <div
+                style={{
+                    padding: 8,
+                }}
+                onKeyDown={(e) => e.stopPropagation()}
+            >
+                <Input
+                    ref={searchInput}
+                    placeholder={`Search ${dataIndex}`}
+                    value={selectedKeys[0]}
+                    onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                    onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                    style={{
+                        marginBottom: 8,
+                        display: 'block',
+                    }}
+                />
+                <Space>
+                    <Button
+                        type="primary"
+                        onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Search
+                    </Button>
+                    <Button
+                        onClick={() => clearFilters && handleReset(clearFilters)}
+                        size="small"
+                        style={{
+                            width: 90,
+                        }}
+                    >
+                        Reset
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            confirm({
+                                closeDropdown: false,
+                            });
+                            setSearchText(selectedKeys[0]);
+                            setSearchedColumn(dataIndex);
+                        }}
+                    >
+                        Filter
+                    </Button>
+                    <Button
+                        type="link"
+                        size="small"
+                        onClick={() => {
+                            close();
+                        }}
+                    >
+                        close
+                    </Button>
+                </Space>
+            </div>
+        ),
+        filterIcon: (filtered) => (
+            <SearchOutlined
+                style={{
+                    color: filtered ? '#1677ff' : undefined,
+                }}
+            />
+        ),
+        onFilter: (value, record) =>
+            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilterDropdownOpenChange: (visible) => {
+            if (visible) {
+                setTimeout(() => searchInput.current?.select(), 100);
+            }
+        },
+
+        render: (text) =>
+            searchedColumn === dataIndex ? (
+                <Highlighter
+                    highlightStyle={{
+                        backgroundColor: '#ffc069',
+                        padding: 0,
+                    }}
+                    searchWords={[searchText]}
+                    autoEscape
+                    textToHighlight={text ? text.toString() : ''}
+                />
+            ) : (
+                text
+            ),
+    });
+    const listNote = noteData?.data?.map(item => {
+        const { lessons } = allLesson;
+        const lessonName = lessons.find((l) => l._id === item.lesson_id);
+
+        const currentDate = item.updatedAt;
+        const formattedDate = format(currentDate, 'dd/MM/yyyy');
+        const formattedTime = format(currentDate, 'HH:mm:ss');
+        return { idTest: item._id, name: lessonName.name, note: item.text, createdate: formattedDate, createTime: formattedTime }
+    })
+
+    const onDelete = (x) => {
+        handleDeleteNote(x).then()
+    }
+    const showDrawer = (x) => {
+        const a = noteData?.data?.find(item => item._id === x)
+        setValue(a.text)
+        setIdValue(a._id)
+
+        setOpen(true);
+    };
+    const handleTextareaChange = (event) => {
+        setValue(event.target.value);
+    };
+    const columns = [
+        {
+            title: 'Tên bài học',
+            dataIndex: 'name',
+            key: 'name',
+            width: '35%',
+            ...getColumnSearchProps('name'),
+        },
+        {
+            title: 'Nội dung ghi chú',
+            dataIndex: 'note',
+            key: 'note',
+            width: '35%',
+            ...getColumnSearchProps('note'),
+        },
+        {
+            title: 'Ngày',
+            dataIndex: 'createdate',
+            key: 'createdate',
+            width: '15%',
+            ...getColumnSearchProps('createdate'),
+        },
+        {
+            title: 'Giờ',
+            dataIndex: 'createTime',
+            key: 'createTime',
+            width: '15%',
+            ...getColumnSearchProps('createTime'),
+        },
+        {
+            title: 'Action',
+            dataIndex: 'idTest',
+            width: '30%',
+            key: 'idTest',
+
+            render: (abc) => <div className='flex gap-[5px]'>
+                <>
+                    <Button type="primary" onClick={() => showDrawer(abc)} icon={<CgEditMarkup />}>
+                        Sửa
+                    </Button>
+                    <Drawer
+                        title=""
+                        width={500}
+                        onClose={onClose}
+                        open={open}
+                        styles={{
+                            body: {
+                                paddingBottom: 80,
+                            },
+                        }}
+                    // extra={
+                    //     // <Space>
+                    //     //     <Button onClick={onClose}>Cancel</Button>
+                    //     //     <Button onClick={onClose} type="primary">
+                    //     //         Submit
+                    //     //     </Button>
+                    //     // </Space>
+                    // }
+
+                    >
+
+
+                        <Form layout="vertical" hideRequiredMark >
+                            <Row gutter={16}>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name="text"
+                                        label="Nội dung"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: 'Please enter user name',
+                                            },
+                                        ]}
+                                    >
+                                        <Input.TextArea rows={4} value={valueNote} onChange={handleTextareaChange} ref={refNoteInput} />
+                                        <Button onClick={onNote} type="primary" className='mt-[10px]'>
+                                            Submit
+                                        </Button>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+
+                        </Form>
+                    </Drawer>
+                </>
+                <Popconfirm
+                    title="Xóa ghi chú"
+                    description="Bạn chắc chắn muốn xóa không?"
+                    onCancel={onClose}
+                    onConfirm={() => onDelete(abc)}
+                    icon={
+                        <QuestionCircleOutlined
+                            style={{
+                                color: 'red',
+                            }}
+                        />
+                    }
+                >
+                    <Button danger >Delete</Button>
+                </Popconfirm>
+            </div >,
+
+        },
+    ];
+
+    const onNote = () => {
+        const a = noteData?.data?.find(item => item._id === idNote)
+        const updateNote = {
+            ...a,
+            _id: idNote,
+            text: valueNote,
+            updatedAt: new Date()
+        }
+
+        handleUpdateNotes(updateNote).then(() => {
+            refNoteInput.current.value = '';
+            refetchNote();
+            setOpen(false);
+        })
+    };
+
+    const onClose = () => {
+        setOpen(false);
+
     };
     return (
         <div className="main">
@@ -670,17 +944,27 @@ const Learning = () => {
                             </div>
                             <div className={cx('note_heading')}>
                                 <h2>Ghi chú của tôi</h2>
-                                <select name="" id="note-wrapper-select">
+                                {/* <select name="" id="note-wrapper-select">
                                     <option value="all" data-note="all" className={cx('note-option')}>
                                         -----Tất cả-----
                                     </option>
-                                    <option value="only" data-note="only" className={cx('note-option')}>
+                                    <option value="only" data-note="only" className={cx('note-option')} onClick={onDelete}>
                                         -----Trong bài học này-----
                                     </option>
-                                </select>
+                                </select> */}
                             </div>
                             <div className={cx('note_list')}>
-                                {noteData?.data?.map((item) => {
+                                <Table
+                                    columns={columns}
+                                    dataSource={listNote}
+                                    pagination={{
+                                        pageSize: 50,
+                                    }}
+                                    scroll={{
+                                        y: 340,
+                                    }}
+                                />;
+                                {/* {noteData?.data?.map((item) => {
                                     const { lessons } = allLesson;
                                     const lessonName = lessons.find((l) => l._id === item.lesson_id);
                                     return (
@@ -702,7 +986,7 @@ const Learning = () => {
                                             </div>
                                         </div>
                                     );
-                                })}
+                                })} */}
                             </div>
                         </div>
                     </div>
