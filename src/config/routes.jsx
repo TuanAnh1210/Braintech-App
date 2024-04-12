@@ -4,6 +4,7 @@ const routes = {
     about: '/about',
     contact: '/contact',
     detail: '/detail/:id',
+    learning: '/learning/:id?id=:id',
     learning: '/learning/:id',
     login: '/login',
     register: '/register',

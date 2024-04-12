@@ -16,7 +16,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import YouTube from 'react-youtube';
 import images from '@/assets/images';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
 import { Suspense, useEffect, useRef, useState } from 'react';
@@ -39,25 +39,27 @@ import { useDeleteNoteMutation } from '@/providers/apis/noteApi';
 const cx = classNames.bind(styles);
 const Learning = () => {
     const { id } = useParams();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const idLesson = searchParams.get('id');
     const navigate = useNavigate();
     const ref = useRef(null);
     const refCmtInput = useRef(null);
     const refNoteInput = useRef(null);
     const mainView = useRef(null);
     const { data, isLoading } = useGetDetailQuery(id); // các bài học của khóa học
-    const { data: allLesson } = useGetLessonQuery(); // lấy ra tất cả các khóa học để thực hiện lọc
-    const [chapterIndex, setChapterIndex] = useState(0); //chỉ mục của từng phần trong khóa học
-    const [lessonIndex, setLessonIndex] = useState(0); // chỉ mục của từng bài học trong từng phần
+    const { data: allLesson, isLoading: loadingAllLesson } = useGetLessonQuery(); // lấy ra tất cả các khóa học để thực hiện lọc
+    const [chapterId, setChapterId] = useState(null); //chỉ mục của từng phần trong khóa học
     const [cmtInput, setCmtInput] = useState(''); // nội dung của cmt
     const [path, setPath] = useState(''); // path của video
     const [isComment, setCommment] = useState(true); // đang là bình luận hay ghi chú (true false)
     const [userId, setUserId] = useState(null); // lưu id người dùng
-    const [idLesson, setIdLesson] = useState(null); // lưu id khóa học
     const [noteInput, setNoteInput] = useState(''); //nội dung của ghi chú
     const [progressVideo, setProgessVideo] = useState(0); // tiến độ video [0-100]
     const [openStorage, setOpenStorage] = useState(false);
     const [countLesson, setCountLesson] = useState(0); //đếm khóa học
     const [isModalShown, setIsModalShown] = useState(false);
+    const [lessonIncome, setIncomeLesson] = useState(null);
+    const [preLesson, setPreLesson] = useState(null);
     const [progressCourse, setProgessCourse] = useState(0);
     const [handleAddSttCourse] = useAddSttCourseMutation();
     const [nextLesson, setNextLesson] = useState(null);
@@ -69,7 +71,6 @@ const Learning = () => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
     });
     const openLesson = [...(completedLesson ?? []), nextLesson];
-
     const isReachedLesson = completedLesson?.some((lesson) => lesson?._id === idLesson);
     const handleGetTime = (event) => {
         if (intervalRef.current) {
@@ -111,11 +112,9 @@ const Learning = () => {
         return openLesson?.some((lessonCompleted) => lessonCompleted?._id === lesson?._id);
     };
     const handleClickLesson = useCallback(
-        debounce((path, indexLesson, chapterLeson) => {
+        debounce((path) => {
             setIsModalShown(false);
             setPath(path);
-            setLessonIndex(indexLesson - 1);
-            setChapterIndex(chapterLeson - 1);
         }, 500),
         [],
     );
@@ -141,29 +140,6 @@ const Learning = () => {
         };
         handleAddSttCourse(data);
     };
-    useEffect(() => {
-        const lastIndex = dataFinish?.data.length > 0 ? dataFinish?.data[dataFinish?.data.length - 1] : null;
-
-        const finishedLessonIndex = data?.courses?.chapters[chapterIndex]?.lessons.findIndex(
-            (lesson) => lesson?._id === lastIndex?.lesson_id,
-        );
-        if (
-            finishedLessonIndex !== -1 &&
-            finishedLessonIndex === data?.courses?.chapters[chapterIndex]?.lessons.length - 1
-        ) {
-            if (chapterIndex < data?.courses?.chapters.length - 1) {
-                const nextChapter = data?.courses?.chapters[chapterIndex + 1];
-                const nextL = nextChapter?.lessons[0];
-                setNextLesson(nextL);
-            }
-        } else if (
-            finishedLessonIndex !== -1 &&
-            finishedLessonIndex < data?.courses?.chapters[chapterIndex]?.lessons.length - 1
-        ) {
-            const nextL = data?.courses?.chapters[chapterIndex]?.lessons[finishedLessonIndex + 1];
-            setNextLesson(nextL);
-        }
-    }, [dataFinish, data, chapterIndex, lessonIndex]);
 
     useEffect(() => {
         setIsModalShown(false);
@@ -178,10 +154,9 @@ const Learning = () => {
     }, [progressVideo, isModalShown, dataFinish]);
     useEffect(() => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
-        const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex]?._id; // lấy id của bài học dựa theo index của các chapters?'
-        setIdLesson(lesson);
+
         setIsModalShown(false);
-        
+
         const access_token = localStorage.getItem('access_token');
         //lấy token được lưu khi người dùng đăng nhập
         if (access_token !== 'null' && access_token) {
@@ -195,7 +170,7 @@ const Learning = () => {
         } else {
             navigate(`/detail/${id}`);
         }
-    }, [dataUser, path, lessonIndex, chapterIndex, cmtData, isReachedLesson, userId]);
+    }, [dataUser, path, cmtData, isReachedLesson, userId]);
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -223,61 +198,65 @@ const Learning = () => {
         setProgessCourse(progressDone);
         setCountLesson(count);
     }, [data, dataFinish, countLessonFinish]);
-    const getLesson = (data, chapterIndex, lessonIndex) => {
-        const chapter = data.courses.chapters[chapterIndex]; // lấy chapter với index đã đặt
-
-        return chapter?.lessons[lessonIndex]; // lấy bài học trong đó
-    };
     useEffect(() => {
-        if (data && data.courses && data.courses.chapters && data.courses.chapters.length > 0) {
-            //kiểm tra nếu có dữ liệu
-            const lesson = getLesson(data, chapterIndex, lessonIndex);
-            if (lesson) {
-                setPath(lesson.path_video); //set path_video của bài học đó
-                setIsModalShown(false);
+        if (!loadingAllLesson && allLesson && data && !isLoading) {
+            const pathVideo = allLesson?.lessons?.find((lesson) => lesson._id === idLesson)?.path_video;
+            const chapterId = data?.courses.chapters.find((chapter) => {
+                return chapter.lessons.some((lesson) => lesson._id === idLesson);
+            });
+            setChapterId(chapterId?._id);
+            setPath(pathVideo);
+        }
+    }, [idLesson, allLesson, loadingAllLesson, data, isLoading]);
+    useEffect(() => {
+        if (!isLoading && data && !loadingAllLesson) {
+            const chapter = data?.courses?.chapters?.find((chapter) => chapter?._id === chapterId);
+            const chapterIndex = data?.courses?.chapters?.findIndex((chapter) => chapter?._id === chapterId);
+
+            const lessonIndex = chapter?.lessons?.findIndex((lesson) => lesson?._id === idLesson);
+            if (lessonIndex !== chapter?.lessons?.length - 1) {
+                const lessonIncome = chapter?.lessons.find((lesson, index) => index === lessonIndex + 1);
+                setIncomeLesson(lessonIncome);
             } else {
-                if (chapterIndex < data.courses.chapters.length - 1) {
-                    //nếu không tồn tại lesson thì kiểm tra xem còn bài học không
-                    setChapterIndex(chapterIndex + 1); // tăng chapterIndex lên 1
-                    setLessonIndex(0); // đặt lesson id về 0
-                    setIsModalShown(false);
-                }
+                const lessonIncome = data?.courses?.chapters[chapterIndex + 1].lessons.find(
+                    (lesson, index) => index === 0,
+                );
+                setIncomeLesson(lessonIncome);
             }
         }
-    }, [data, path, chapterIndex, lessonIndex, cmtData, isReachedLesson]);
+    }, [data, chapterId, idLesson, isLoading, allLesson, loadingAllLesson]);
+    useEffect(() => {
+        if (!isLoading && data && !loadingAllLesson && chapterId) {
+            const chapter = data?.courses?.chapters?.find((chapter) => chapter?._id === chapterId);
+            const chapterIndex = data?.courses?.chapters?.findIndex((chapter) => chapter?._id === chapterId);
+            const lessonIndex = chapter?.lessons.findIndex((lesson) => lesson._id === idLesson);
+            if (lessonIndex > 0) {
+                const prevLesson = chapter?.lessons[lessonIndex - 1];
+                setPreLesson(prevLesson);
+            } else {
+                const prevLesson = data?.courses?.chapters[chapterIndex - 1]?.lessons[chapter.lessons.length - 1];
+                setPreLesson(prevLesson);
+            }
+        }
+    }, [data, chapterId, idLesson, isLoading, allLesson, loadingAllLesson]);
     const handleNext = useCallback(
         debounce(() => {
-            const chapter = data?.courses?.chapters[chapterIndex];
-            if (lessonIndex < chapter?.lessons.length - 1) {
-                setLessonIndex(lessonIndex + 1);
-                setProgessVideo(0);
-            } else {
-                if (chapterIndex < data?.courses?.chapters.length - 1) {
-                    setChapterIndex(chapterIndex + 1);
-                    setLessonIndex(0);
-                    setProgessVideo(0);
-                }
+            if (lessonIncome) {
+                navigate(`/learning/${id}?id=${lessonIncome._id}`);
             }
         }, 500),
-        [chapterIndex, lessonIndex, data],
+        [navigate, lessonIncome, id],
     );
 
     const handlePrev = useCallback(
         debounce(() => {
-            if (lessonIndex > 0) {
-                setLessonIndex(lessonIndex - 1);
-                setProgessVideo(0);
-            } else {
-                if (chapterIndex > 0) {
-                    setChapterIndex(chapterIndex - 1);
-                    const prevChapter = data?.courses?.chapters[chapterIndex - 1];
-                    setLessonIndex(prevChapter.lessons.length - 1 || prevChapter.lessons.length);
-                    setProgessVideo(0);
-                }
+            if (preLesson) {
+                navigate(`/learning/${id}?id=${preLesson._id}`);
             }
         }, 500),
-        [chapterIndex, lessonIndex, data],
+        [navigate, preLesson, id],
     );
+
     const { logo } = images;
     const handleSetFinish = () => {
         const dataToSend = {
@@ -287,8 +266,6 @@ const Learning = () => {
         };
         setProgessVideo(0);
         handleAddFinishLesson(dataToSend).then(() => {
-            const lesson = data?.courses?.chapters[chapterIndex]?.lessons[lessonIndex + 1];
-            setNextLesson(lesson);
             handleNext();
             setIsModalShown(false);
 
@@ -569,7 +546,8 @@ const Learning = () => {
                                                 return (
                                                     <div className={cx('learning__chapter--lesson')} key={lesson.id}>
                                                         {checkDone || isOpen || path === lesson.path_video ? (
-                                                            <div
+                                                            <NavLink
+                                                                to={`/learning/${id}?id=${lesson._id}`}
                                                                 onClick={() => {
                                                                     handleClickLesson(
                                                                         lesson.path_video,
@@ -621,7 +599,7 @@ const Learning = () => {
                                                                         </Link>
                                                                     </div>
                                                                 </p>
-                                                            </div>
+                                                            </NavLink>
                                                         ) : (
                                                             <div>
                                                                 <p className={cx('lesson_lock')}>
