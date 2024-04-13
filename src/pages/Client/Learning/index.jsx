@@ -212,6 +212,7 @@ const Learning = () => {
     }, [dataUser, path, lessonIndex, chapterIndex, cmtData, isReachedLesson]);
     const debouncedHandleAddCmt = useCallback(debounce(handleAddCmt, 1000), []); //thực hiện debounce để giảm tải cho server
     const debouncedHandleUpdateNote = useCallback(debounce(handleUpdateNotes, 1000), []); //thực hiện debounce để giảm tải cho server
+    const debouncedHandleDeleteNote = useCallback(debounce(handleDeleteNote, 1000), []); //thực hiện debounce để giảm tải cho server
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -422,7 +423,10 @@ const Learning = () => {
     })
 
     const onDelete = (x) => {
-        handleDeleteNote(x).then()
+        handleDeleteNote(x).then(() => {
+            refNoteInput.current.value = '';
+            refetchNote();
+        })
     }
     const showDrawer = (x) => {
         const a = noteData?.data?.find(item => item._id === x)
@@ -492,25 +496,23 @@ const Learning = () => {
                     //     //     </Button>
                     //     // </Space>
                     // }
-
                     >
 
-
-                        <Form layout="vertical" hideRequiredMark >
+                        <Form layout="vertical" onFinish={onNote} >
                             <Row gutter={16}>
                                 <Col span={24}>
                                     <Form.Item
                                         name="text"
                                         label="Nội dung"
-                                        rules={[
-                                            {
-                                                required: true,
-                                                message: 'Please enter user name',
-                                            },
-                                        ]}
+                                    // rules={[
+                                    //     {
+                                    //         required: true,
+                                    //         message: 'Vui lòng nhập ghi chú',
+                                    //     },
+                                    // ]}
                                     >
-                                        <Input.TextArea rows={4} value={valueNote} onChange={handleTextareaChange} ref={refNoteInput} />
-                                        <Button onClick={onNote} type="primary" className='mt-[10px]'>
+                                        <Input.TextArea required="true" value={valueNote} onChange={handleTextareaChange} ref={refNoteInput} />
+                                        <Button type="primary" htmlType="submit" className='mt-[10px]'>
                                             Submit
                                         </Button>
                                     </Form.Item>
@@ -526,6 +528,7 @@ const Learning = () => {
                     description="Bạn chắc chắn muốn xóa không?"
                     onCancel={onClose}
                     onConfirm={() => onDelete(abc)}
+                    ref={refNoteInput}
                     icon={
                         <QuestionCircleOutlined
                             style={{
@@ -553,8 +556,9 @@ const Learning = () => {
         handleUpdateNotes(updateNote).then(() => {
             refNoteInput.current.value = '';
             refetchNote();
-            setOpen(false);
         })
+        setValue('')
+        // setOpen(false);
     };
 
     const onClose = () => {
@@ -789,6 +793,7 @@ const Learning = () => {
                                                     id=""
                                                     cols="30"
                                                     rows="10"
+
                                                     ref={refNoteInput}
                                                     onChange={(e) => {
                                                         setNoteInput(e.target.value);
