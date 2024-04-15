@@ -35,7 +35,8 @@ import Draggable from 'react-draggable';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 import { useDeleteNoteMutation } from '@/providers/apis/noteApi';
 import { Spin } from 'antd';
-const cx = classNames.bind(styles);z``
+const cx = classNames.bind(styles);
+
 const Learning = () => {
     const { id } = useParams();
     const [searchParams, setSearchParams] = useSearchParams();
@@ -66,6 +67,7 @@ const Learning = () => {
     const intervalRef = useRef();
     const { data: dataFinish, isLoading: loadingFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
     const { data: countLessonFinish, refetch: refetchCount } = useGetCountQuery(id);
+    console.log(countLessonFinish);
     const completedLesson = allLesson?.lessons?.filter((lesson) => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
     });
@@ -93,7 +95,6 @@ const Learning = () => {
             autoplay: 1,
         },
     };
-
     const dataUser = useGetUsersQuery(); //dữ liệu người dùng
     const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(idLesson); //lấy bình luận dựa trên id bài học
     const [handleAddCmt] = useCreateCmtMutation(); //thêm bình luận
@@ -207,6 +208,7 @@ const Learning = () => {
             setPath(pathVideo);
         }
     }, [idLesson, allLesson, loadingAllLesson, data, isLoading]);
+
     useEffect(() => {
         if (!isLoading && data && !loadingAllLesson) {
             const chapter = data?.courses?.chapters?.find((chapter) => chapter?._id === chapterId);
@@ -217,13 +219,34 @@ const Learning = () => {
                 const lessonIncome = chapter?.lessons.find((lesson, index) => index === lessonIndex + 1);
                 setIncomeLesson(lessonIncome);
             } else {
-                const lessonIncome = data?.courses?.chapters[chapterIndex + 1].lessons.find(
+                const lessonIncome = data?.courses?.chapters[chapterIndex + 1]?.lessons.find(
                     (lesson, index) => index === 0,
                 );
                 setIncomeLesson(lessonIncome);
             }
         }
     }, [data, chapterId, idLesson, isLoading, allLesson, loadingAllLesson]);
+    useEffect(() => {
+        if (!isLoading && data && !loadingAllLesson && !loadingFinish) {
+            const chapter = data?.courses?.chapters?.find((chapter) => chapter?._id === chapterId);
+            const chapterIndex = data?.courses?.chapters?.findIndex((chapter) => chapter?._id === chapterId);
+
+            const lessonFinishLast = dataFinish?.data[dataFinish?.data?.length - 1];
+            const lessonIndex = chapter?.lessons?.findIndex(
+                (lesson, index) => lesson?._id === lessonFinishLast?.lesson_id,
+            );
+
+            if (lessonIndex !== chapter?.lessons?.length - 1) {
+                const lessonNext = chapter?.lessons?.find((lesson, index) => index === lessonIndex + 1);
+                setNextLesson(lessonNext);
+            } else {
+                const lessonNext = data?.courses?.chapters[chapterIndex + 1]?.lessons?.find(
+                    (lesson, index) => index === 0,
+                );
+                setNextLesson(lessonNext);
+            }
+        }
+    }, [data, chapterId, idLesson, isLoading, allLesson, loadingAllLesson, dataFinish]);
     useEffect(() => {
         if (!isLoading && data && !loadingAllLesson && chapterId) {
             const chapter = data?.courses?.chapters?.find((chapter) => chapter?._id === chapterId);
@@ -264,9 +287,9 @@ const Learning = () => {
             course_id: id,
         };
         setProgessVideo(0);
+        setIsModalShown(false);
         handleAddFinishLesson(dataToSend).then(() => {
             handleNext();
-            setIsModalShown(false);
 
             refetchDataFinish();
             refetchCount();
