@@ -1,3 +1,4 @@
+
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const cmtApi = createApi({
@@ -10,6 +11,11 @@ export const cmtApi = createApi({
         createCmt: build.mutation({
             query: (payload) => {
                 return { url: `/comments`, method: 'POST', body: payload };
+            },
+        }),
+        deleteCmt: build.mutation({
+            query: (id) => {
+                return { url: `/comments/delete/${id}`, method: 'DELETE' };
             },
         }),
     }),
