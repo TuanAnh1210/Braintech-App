@@ -46,6 +46,7 @@ const Learning = () => {
     const [open, setOpen] = useState(false);
     const [valueNote, setValue] = useState('')
     const [idNote, setIdValue] = useState('')
+    const [err, setErrNote] = useState('')
     const [searchParams, setSearchParams] = useSearchParams();
     const idLesson = searchParams.get('id');
     const navigate = useNavigate();
@@ -429,16 +430,16 @@ const Learning = () => {
             refetchNote();
         })
     }
-    const showDrawer = (x) => {
-        const a = noteData?.data?.find(item => item._id === x)
+    const showDrawer = async (x) => {
+        const a = await noteData?.data?.find(item => item._id === x)
         setValue(a.text)
         setIdValue(a._id)
-
+        setErrNote('')
         setOpen(true);
     };
-    const handleTextareaChange = (event) => {
-        setValue(event.target.value);
-
+    const handleTextareaChange = async (event) => {
+        const textChange = await (event.target.value);
+        setValue(textChange);
     };
 
     const columns = [
@@ -501,7 +502,7 @@ const Learning = () => {
                     // }
                     >
 
-                        <Form layout="vertical" onFinish={onNote} >
+                        <Form layout="vertical" onFinish={onNote} autoComplete="off" >
                             <Row gutter={16}>
                                 <Col span={24}>
                                     <Form.Item
@@ -512,13 +513,15 @@ const Learning = () => {
                                     //         required: true,
                                     //         message: 'Vui lòng nhập ghi chú',
                                     //     },
+                                    //     { whitespace: true, message: 'Vui lòng nhập họ và tên!' }
                                     // ]}
                                     >
-                                        <Input.TextArea required value={valueNote} onChange={handleTextareaChange} ref={refNoteInput} />
+                                        <Input.TextArea value={valueNote} onChange={handleTextareaChange} ref={refNoteInput} />
                                         <Button type="primary" htmlType="submit" className='mt-[10px]'>
                                             Submit
                                         </Button>
                                     </Form.Item>
+                                    <span className='text-red-500' ref={refNoteInput}>{err}</span>
                                 </Col>
                             </Row>
 
@@ -549,6 +552,10 @@ const Learning = () => {
 
     const onNote = () => {
         const a = noteData?.data?.find(item => item._id === idNote)
+        if (valueNote.trim() === '') {
+            setErrNote('Vui lòng nhập nội dung ghi chú');
+            return;
+        }
         const updateNote = {
             ...a,
             _id: idNote,
@@ -839,7 +846,7 @@ const Learning = () => {
                                                 {item?.lessons.map((lesson, indexLesson) => {
                                                     const checkDone = handleIsCompleted(lesson);
                                                     const isOpen = handleIsOpen(lesson);
-                                                    console.log();
+
                                                     return (
                                                         <div
                                                             className={cx('learning__chapter--lesson')}
