@@ -60,6 +60,7 @@ const Account = () => {
                 body: JSON.stringify(data),
             }).then((res) => res.json())
                 .then((data) => {
+                    console.log(data)
                     updateLocalStorage(token, data.result.email, data.result.phone, data.result.full_name, data.result.avatar)
                     setShowModal(false)
                     notification.success({
