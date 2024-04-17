@@ -801,6 +801,7 @@ const Learning = () => {
                                                 </h2>
 
                                                 <div className="form__group">
+
                                                     <textarea
                                                         required
                                                         placeholder="Nội dung ghi chú..."
@@ -808,7 +809,7 @@ const Learning = () => {
                                                         name="note_content"
                                                         id=""
                                                         cols="30"
-                                                        rows="10"
+                                                        rows="8"
                                                         ref={refNoteInput}
                                                         onChange={(e) => {
                                                             setNoteInput(e.target.value);
@@ -816,6 +817,7 @@ const Learning = () => {
                                                     >
                                                         {noteInput}
                                                     </textarea>
+
                                                 </div>
 
                                                 <button className={cx('send__comment')}>Thêm ghi chú</button>
