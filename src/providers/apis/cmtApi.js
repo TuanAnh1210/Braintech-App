@@ -12,6 +12,11 @@ export const cmtApi = createApi({
                 return { url: `/comments`, method: 'POST', body: payload };
             },
         }),
+        deleteCmt: build.mutation({
+            query: (id) => {
+                return { url: `/comments/delete/${id}`, method: 'DELETE' };
+            },
+        }),
     }),
 });
 
