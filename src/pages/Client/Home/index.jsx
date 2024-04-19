@@ -17,7 +17,7 @@ import {
 import BannerCard from './components/BannerCard';
 import images from '@/assets/images';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import CourseItem from '@/components/CourseItem/CourseItem';
 import { useGetCoursesQuery } from '@/providers/apis/courseApi';
 

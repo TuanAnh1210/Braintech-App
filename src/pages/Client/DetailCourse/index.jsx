@@ -36,10 +36,14 @@ const DetailCourse = () => {
         } else {
             setSearchParams(data?.courses?.chapters[0].lessons[0]?._id);
         }
-        const decode = jwtDecode(user.token);
-        const idLog = decode.data._id;
-        const idUser = dataUser?.data?.find((user) => user._id === idLog)._id;
-        setUserId(idUser);
+        const token = JSON.parse(access_token);
+
+        if (token !== null) {
+            const decode = jwtDecode(user?.token);
+            const idLog = decode.data._id;
+            const idUser = dataUser?.data?.find((user) => user._id === idLog)._id;
+            setUserId(idUser);
+        }
     }, [loadingFinish, dataUser, data]);
     const dispatch = useDispatch();
     useEffect(() => {
