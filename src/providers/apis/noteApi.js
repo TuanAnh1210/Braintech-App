@@ -17,7 +17,12 @@ export const noteApi = createApi({
                 return { url: `/notes/delete/${id}`, method: 'DELETE' };
             },
         }),
+        updateNote: build.mutation({
+            query: (payload) => {
+                return { url: `/notes/update/${payload._id}`, method: 'PUT', body: payload };
+            },
+        }),
     }),
 });
 
-export const { useGetNotebyIdClientQuery, useCreateNoteMutation, useDeleteNoteMutation } = noteApi;
+export const { useGetNotebyIdClientQuery, useCreateNoteMutation, useDeleteNoteMutation, useUpdateNoteMutation } = noteApi;

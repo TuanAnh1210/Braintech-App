@@ -8,6 +8,7 @@ const routes = {
     learning: '/learning/:id',
     login: '/login',
     register: '/register',
+    forgetPassword: '/forgetPassword',
     info: '/info',
     quizz: '/quizz/:id',
     certificate: '/certificate/:id',

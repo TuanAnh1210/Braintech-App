@@ -13,7 +13,7 @@ const Register = () => {
     const onFinish = async (value) => {
         const { data, error } = await handleRegister({
             ...value,
-            auth_type: 'phone',
+            auth_type: 'email',
         });
 
         if (error) {
@@ -55,15 +55,15 @@ const Register = () => {
                 </Form.Item>
             </div>
             <div className="mb-4">
-                <p className="mb-1">Số điện thoại</p>
+                <p className="mb-1">Email</p>
                 <Form.Item
                     name="account"
                     rules={[
-                        { whitespace: true, message: 'Vui lòng nhập số điện thoại!' },
-                        { required: true, message: 'Vui lòng nhập số điện thoại!' },
+                        { whitespace: true, message: 'Vui lòng nhập email!' },
+                        { required: true, message: 'Vui lòng nhập email!' },
                     ]}
                 >
-                    <Input className="w-100 p-2 rounded" placeholder="Số điện thoại" />
+                    <Input type='email' className="w-100 p-2 rounded" placeholder="Email" />
                 </Form.Item>
             </div>
             <div className="mb-4">
