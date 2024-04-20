@@ -1,22 +1,25 @@
 /* eslint-disable react/prop-types */
 import { Button, Form, Input, Spin, notification } from 'antd';
 import { useDispatch } from 'react-redux';
-
+import { GoogleLogin } from '@react-oauth/google';
 import { useLoginMutation } from '@/providers/apis/userApi';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { login } from '@/providers/slices/userSlice';
 import { closeModal } from '@/providers/slices/modalSlice';
+import { openModal } from '@/providers/slices/modalSlice';
 
 const Login = () => {
+    const dispatch = useDispatch();
+    const handleOpenModal = (page) => {
+        dispatch(openModal(page));
+    };
     const [, setAccessToken] = useLocalStorage('access_token', null);
     const [handleLogin, { isLoading }] = useLoginMutation();
-
-    const dispatch = useDispatch();
 
     const onFinish = async (value) => {
         const { data, error } = await handleLogin({
             ...value,
-            auth_type: 'phone',
+            auth_type: 'email',
         });
 
         if (error) {
@@ -36,6 +39,7 @@ const Login = () => {
         const user = {
             token: data.user.accessToken,
             email: data.user.email,
+            phone: data.user.phone,
             fullName: data.user.fullName,
             avatar: data.user.avatar,
         };
@@ -49,15 +53,15 @@ const Login = () => {
     return (
         <Form onFinish={onFinish} autoComplete="off">
             <div className="mb-4">
-                <p className="mb-1">Số điện thoại</p>
+                <p className="mb-1">Email</p>
                 <Form.Item
                     name="account"
                     rules={[
-                        { whitespace: true, message: 'Vui lòng nhập số điện thoại!' },
-                        { required: true, message: 'Vui lòng nhập số điện thoại!' },
+                        { whitespace: true, message: 'Vui lòng nhập email!' },
+                        { required: true, message: 'Vui lòng nhập email!' },
                     ]}
                 >
-                    <Input className="w-100 p-2 rounded" placeholder="Số điện thoại" />
+                    <Input type='email' className="w-100 p-2 rounded" placeholder="Email" />
                 </Form.Item>
             </div>
             <div className="mb-4">
@@ -75,6 +79,12 @@ const Login = () => {
 
             <Button htmlType="submit" className="w-100 mt-4" type="primary" size={'large'}>
                 {isLoading ? <Spin /> : 'Đăng nhập'}
+            </Button>
+            <Button
+                outline
+                onClick={() => handleOpenModal('forgetPassword')}
+            >
+                Quên mật khẩu
             </Button>
 
             <div className="d-flex align-items-center gap-3 mt-5 mb-1">

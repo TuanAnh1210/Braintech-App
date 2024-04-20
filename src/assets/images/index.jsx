@@ -19,7 +19,10 @@ import about from './about.gif';
 import core from './core.gif';
 import ta from './tuananh.jpg';
 import bg_blue from './bg_blue.png';
+import cert from './cert.png';
+import spin from './Spinner.gif';
 const images = {
+    cert,
     bg_blue,
     ta,
     core,
@@ -40,6 +43,7 @@ const images = {
     group,
     footer,
     bn_courses,
+    spin,
 };
 
 export default images;

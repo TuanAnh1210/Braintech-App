@@ -15,18 +15,27 @@ import Register from '@/pages/Client/Register';
 import UserManager from '@/pages/Admin/UserManager';
 import CourseList from '@/pages/Admin/CoursesList';
 import Quizz from '@/pages/Client/Quizz';
+import Certificate from '@/pages/Client/Certificate';
+<<<<<<< HEAD
+import ForgotPasswordForm from '@/pages/Client/ForgetPassword';
+=======
+import Account from '@/pages/Client/Account';
+>>>>>>> 055e53363dad865b36ac72c913b110e632303356
 
 const publicRoutes = [
     { path: config.home, component: Home },
     { path: config.courses, component: Courses },
     { path: config.login, component: Login, layout: null },
     { path: config.register, component: Register, layout: null },
+    { path: config.forgetPassword, component: ForgotPasswordForm, layout: null },
     { path: config.learning, component: Learning, layout: null },
+    { path: config.certificate, component: Certificate },
     { path: config.quizz, component: Quizz },
     { path: config.about, component: About },
     { path: config.detail, component: DetailCourse },
     { path: config.contact, component: Contact },
     { path: config.info, component: Info },
+    { path: config.account, component: Account}
 ];
 
 const RoutesAdmin = [{ path: config.admin_dashboard, component: Dashboard }];

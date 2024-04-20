@@ -4,31 +4,47 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useLocalStorage from '@/hooks/useLocalStorage';
-import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 import { useDispatch, useSelector } from 'react-redux';
 import { openModal } from '@/providers/slices/modalSlice';
 import { jwtDecode } from 'jwt-decode';
-import { useAddFinishLessonMutation, useGetFinishLessonQuery } from '@/providers/apis/lessonApi';
-
+import { useGetUsersQuery } from '@/providers/apis/userApi';
+import { useGetFinishLessonQuery } from '@/providers/apis/lessonApi';
 const cx = classNames.bind(styles);
 const DetailCourse = () => {
     const { id } = useParams();
+    const [param, setSearchParams] = useState();
+    const [userId, setUserId] = useState(null);
+    const { data: dataUser, isLoading: loadingUser } = useGetUsersQuery();
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
     const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
-    const [handleAddSttCourse] = useAddSttCourseMutation();
-    const [handleAddFinishLesson] = useAddFinishLessonMutation();
+    const { data: dataFinish, isLoading: loadingFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
 
     const isLog = JSON.parse(localStorage.getItem('access_token'));
+    const currentLesson = dataFinish?.data?.filter((dFinish) => {
+        return dFinish.course_id === id;
+    });
 
-    const navigate = useNavigate();
     const [isLogin, setIsLogin] = useState(false);
 
     const user = useSelector((state) => state.user);
+    useEffect(() => {
+        if (currentLesson?.length > 0 && !isLoading && !loadingFinish) {
+            setSearchParams(currentLesson[currentLesson.length - 1]?.lesson_id);
+        } else {
+            setSearchParams(data?.courses?.chapters[0].lessons[0]?._id);
+        }
+        const token = JSON.parse(access_token);
 
-    const lessonStart = data?.courses?.chapters[0]?.lessons[0]?._id;
+        if (token !== null) {
+            const decode = jwtDecode(user?.token);
+            const idLog = decode.data._id;
+            const idUser = dataUser?.data?.find((user) => user._id === idLog)._id;
+            setUserId(idUser);
+        }
+    }, [loadingFinish, dataUser, data]);
     const dispatch = useDispatch();
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -40,15 +56,13 @@ const DetailCourse = () => {
             setIsLogin(false);
         }
     }, [user]);
-    const handleLearnCourse = () => {
-        const decode = jwtDecode(user.token);
-        const idUser = decode.data._id;
-        const data = {
-            user_id: idUser,
-            course_id: id,
-        };
-        handleAddSttCourse(data);
-    };
+    const access_token = localStorage.getItem('access_token');
+    useEffect(() => {
+        if (access_token === 'null' && access_token) {
+            dispatch(openModal('login'));
+        }
+    }, [access_token]);
+
     return (
         <>
             <div className={cx('detail-course')}>
@@ -104,13 +118,8 @@ const DetailCourse = () => {
                                         <h4 className={cx('course_free')}>Miễn phí</h4>
                                         <div className={cx('firstLessonBtn')}>
                                             {isLogin ? (
-                                                <Link to={`/learning/${id}`}>
-                                                    <button
-                                                        onClick={handleLearnCourse}
-                                                        className={cx('course_btn-learn')}
-                                                    >
-                                                        Học ngay
-                                                    </button>
+                                                <Link to={`/learning/${id}?id=${param}`}>
+                                                    <button className={cx('course_btn-learn')}>Học ngay</button>
                                                 </Link>
                                             ) : (
                                                 <button

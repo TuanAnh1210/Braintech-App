@@ -88,7 +88,32 @@
         text-decoration: none !important;
     }
 }
+.header__cert--lock {
+    color: #ffffff;
+    margin-left: 20px;
+    text-decoration: none;
 
+    button {
+        background-color: white;
+        border: none;
+        color: var(--primary-color);
+        font-size: 14px;
+        font-weight: 700;
+
+        &:hover,
+        &:active,
+        &:visited {
+            background-color: transparent;
+            border: none;
+        }
+    }
+
+    &:hover {
+        color: red;
+        cursor: pointer;;
+        text-decoration: none !important;
+    }
+}
 /* content */
 .content {
     background-color: #f0f0f0;
