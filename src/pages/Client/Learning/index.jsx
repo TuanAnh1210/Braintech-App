@@ -20,16 +20,18 @@ import { Link, NavLink, useNavigate, useParams, useSearchParams } from 'react-ro
 import { jwtDecode } from 'jwt-decode';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
-import { useGetNotebyIdClientQuery, useCreateNoteMutation, useDeleteNoteMutation, useUpdateNoteMutation } from '@/providers/apis/noteApi';
-import { useGetUsersQuery } from '@/providers/apis/userApi';
+import {
+    useGetNotebyIdClientQuery,
+    useCreateNoteMutation,
+    useDeleteNoteMutation,
+    useUpdateNoteMutation,
+} from '@/providers/apis/noteApi';
 import {
     useCreateCmtMutation,
     useDeleteCmtMutation,
     useGetAllQuery,
     useUpdateCmtMutation,
 } from '@/providers/apis/cmtApi';
-import { useCreateNoteMutation, useGetNotebyIdClientQuery } from '@/providers/apis/noteApi';
 import {
     useAddFinishLessonMutation,
     useGetCountQuery,
@@ -43,8 +45,21 @@ import { useGetUsersQuery } from '@/providers/apis/userApi';
 import Highlighter from 'react-highlight-words';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 
-
-import { Button, Spin, Table, Col, DatePicker, message, Popconfirm, Drawer, Form, Input, Row, Select, Space } from 'antd';
+import {
+    Button,
+    Spin,
+    Table,
+    Col,
+    DatePicker,
+    message,
+    Popconfirm,
+    Drawer,
+    Form,
+    Input,
+    Row,
+    Select,
+    Space,
+} from 'antd';
 
 import { CgEditMarkup } from 'react-icons/cg';
 const cx = classNames.bind(styles);
@@ -52,9 +67,9 @@ const cx = classNames.bind(styles);
 const Learning = () => {
     const { id } = useParams();
     const [open, setOpen] = useState(false);
-    const [valueNote, setValue] = useState('')
-    const [idNote, setIdValue] = useState('')
-    const [err, setErrNote] = useState('')
+    const [valueNote, setValue] = useState('');
+    const [idNote, setIdValue] = useState('');
+    const [err, setErrNote] = useState('');
     const [searchParams, setSearchParams] = useSearchParams();
     const idLesson = searchParams.get('id');
     const navigate = useNavigate();
@@ -122,8 +137,8 @@ const Learning = () => {
     const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(idLesson); //lấy bình luận dựa trên id bài học
     const [handleAddCmt] = useCreateCmtMutation(); //thêm bình luận
     const [handleAddNote] = useCreateNoteMutation(); //thêm ghi chú
-    const [handleDeleteNote] = useDeleteNoteMutation();// xóa ghi chú
-    const [handleUpdateNotes] = useUpdateNoteMutation();// update ghi chú
+    const [handleDeleteNote] = useDeleteNoteMutation(); // xóa ghi chú
+    const [handleUpdateNotes] = useUpdateNoteMutation(); // update ghi chú
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
     const [handleUpdateCmt] = useUpdateCmtMutation();
     const { data: noteData, refetch: refetchNote } = useGetNotebyIdClientQuery(userId); // lấy tất cả các ghi chú của người dùng
@@ -174,7 +189,6 @@ const Learning = () => {
         clearFilters();
         setSearchText('');
     };
-
 
     useEffect(() => {
         setIsModalShown(false);
@@ -421,8 +435,7 @@ const Learning = () => {
                 }}
             />
         ),
-        onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -445,31 +458,37 @@ const Learning = () => {
             ),
     });
 
-    const listNote = noteData?.data?.map(item => {
+    const listNote = noteData?.data?.map((item) => {
         const { lessons } = allLesson;
         const lessonName = lessons.find((l) => l._id === item.lesson_id);
 
         const currentDate = item.updatedAt;
         const formattedDate = format(currentDate, 'dd/MM/yyyy');
         const formattedTime = format(currentDate, 'HH:mm:ss');
-        return { idTest: item._id, name: lessonName.name, note: item.text, createdate: formattedDate, createTime: formattedTime }
-    })
+        return {
+            idTest: item._id,
+            name: lessonName.name,
+            note: item.text,
+            createdate: formattedDate,
+            createTime: formattedTime,
+        };
+    });
 
     const onDelete = (x) => {
         handleDeleteNote(x).then(() => {
             refNoteInput.current.value = '';
             refetchNote();
-        })
-    }
+        });
+    };
     const showDrawer = async (x) => {
-        const a = await noteData?.data?.find(item => item._id === x)
-        setValue(a.text)
-        setIdValue(a._id)
-        setErrNote('')
+        const a = await noteData?.data?.find((item) => item._id === x);
+        setValue(a.text);
+        setIdValue(a._id);
+        setErrNote('');
         setOpen(true);
     };
     const handleTextareaChange = async (event) => {
-        const textChange = await (event.target.value);
+        const textChange = await event.target.value;
         setValue(textChange);
     };
 
@@ -508,81 +527,85 @@ const Learning = () => {
             width: '30%',
             key: 'idTest',
 
-            render: (abc) => <div className='flex gap-[5px]'>
-                <>
-                    <Button type="primary" onClick={() => showDrawer(abc)} icon={<CgEditMarkup />}>
-                        Sửa
-                    </Button>
-                    <Drawer
-                        title=""
-                        width={500}
-                        onClose={onClose}
-                        open={open}
-                        styles={{
-                            body: {
-                                paddingBottom: 80,
-                            },
-                        }}
-                    // extra={
-                    //     // <Space>
-                    //     //     <Button onClick={onClose}>Cancel</Button>
-                    //     //     <Button onClick={onClose} type="primary">
-                    //     //         Submit
-                    //     //     </Button>
-                    //     // </Space>
-                    // }
-                    >
-
-                        <Form layout="vertical" onFinish={onNote} autoComplete="off" >
-                            <Row gutter={16}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name="text"
-                                        label="Nội dung"
-                                    // rules={[
-                                    //     {
-                                    //         required: true,
-                                    //         message: 'Vui lòng nhập ghi chú',
-                                    //     },
-                                    //     { whitespace: true, message: 'Vui lòng nhập họ và tên!' }
-                                    // ]}
-                                    >
-                                        <Input.TextArea value={valueNote} onChange={handleTextareaChange} ref={refNoteInput} />
-                                        <Button type="primary" htmlType="submit" className='mt-[10px]'>
-                                            Submit
-                                        </Button>
-                                    </Form.Item>
-                                    <span className='text-red-500' ref={refNoteInput}>{err}</span>
-                                </Col>
-                            </Row>
-
-
-                        </Form>
-                    </Drawer>
-                </>
-                <Popconfirm
-                    title="Xóa ghi chú"
-                    description="Bạn chắc chắn muốn xóa không?"
-                    //onCancel={onClose}
-                    onConfirm={() => onDelete(abc)}
-                    ref={refNoteInput}
-                    icon={
-                        <QuestionCircleOutlined
-                            style={{
-                                color: 'red',
+            render: (abc) => (
+                <div className="flex gap-[5px]">
+                    <>
+                        <Button type="primary" onClick={() => showDrawer(abc)} icon={<CgEditMarkup />}>
+                            Sửa
+                        </Button>
+                        <Drawer
+                            title=""
+                            width={500}
+                            onClose={onClose}
+                            open={open}
+                            styles={{
+                                body: {
+                                    paddingBottom: 80,
+                                },
                             }}
-                        />
-                    }
-                >
-                    <Button danger >Delete</Button>
-                </Popconfirm>
-            </div >,
-
+                            // extra={
+                            //     // <Space>
+                            //     //     <Button onClick={onClose}>Cancel</Button>
+                            //     //     <Button onClick={onClose} type="primary">
+                            //     //         Submit
+                            //     //     </Button>
+                            //     // </Space>
+                            // }
+                        >
+                            <Form layout="vertical" onFinish={onNote} autoComplete="off">
+                                <Row gutter={16}>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            name="text"
+                                            label="Nội dung"
+                                            // rules={[
+                                            //     {
+                                            //         required: true,
+                                            //         message: 'Vui lòng nhập ghi chú',
+                                            //     },
+                                            //     { whitespace: true, message: 'Vui lòng nhập họ và tên!' }
+                                            // ]}
+                                        >
+                                            <Input.TextArea
+                                                value={valueNote}
+                                                onChange={handleTextareaChange}
+                                                ref={refNoteInput}
+                                            />
+                                            <Button type="primary" htmlType="submit" className="mt-[10px]">
+                                                Submit
+                                            </Button>
+                                        </Form.Item>
+                                        <span className="text-red-500" ref={refNoteInput}>
+                                            {err}
+                                        </span>
+                                    </Col>
+                                </Row>
+                            </Form>
+                        </Drawer>
+                    </>
+                    <Popconfirm
+                        title="Xóa ghi chú"
+                        description="Bạn chắc chắn muốn xóa không?"
+                        //onCancel={onClose}
+                        onConfirm={() => onDelete(abc)}
+                        ref={refNoteInput}
+                        icon={
+                            <QuestionCircleOutlined
+                                style={{
+                                    color: 'red',
+                                }}
+                            />
+                        }
+                    >
+                        <Button danger>Delete</Button>
+                    </Popconfirm>
+                </div>
+            ),
         },
     ];
 
     const onNote = () => {
-        const a = noteData?.data?.find(item => item._id === idNote)
+        const a = noteData?.data?.find((item) => item._id === idNote);
         if (valueNote.trim() === '') {
             setErrNote('Vui lòng nhập nội dung ghi chú');
             return;
@@ -591,19 +614,19 @@ const Learning = () => {
             ...a,
             _id: idNote,
             text: valueNote,
-            updatedAt: new Date()
-        }
+            updatedAt: new Date(),
+        };
 
         handleUpdateNotes(updateNote).then(() => {
             refNoteInput.current.value = '';
             refetchNote();
-        })
-        setValue('')
+        });
+        setValue('');
         setOpen(false);
     };
     const onClose = () => {
         setOpen(false);
-    }
+    };
 
     if (!isLoading && !loadingAllLesson && !cmtLoading && !loadingFinish) {
         return (
@@ -880,7 +903,6 @@ const Learning = () => {
                                                 </h2>
 
                                                 <div className="form__group">
-
                                                     <textarea
                                                         required
                                                         placeholder="Nội dung ghi chú..."
@@ -896,7 +918,6 @@ const Learning = () => {
                                                     >
                                                         {noteInput}
                                                     </textarea>
-
                                                 </div>
 
                                                 <button className={cx('send__comment')}>Thêm ghi chú</button>
