@@ -542,6 +542,7 @@ const Learning = () => {
                                                                     ) : (
                                                                         ''
                                                                     )}
+
                                                                     {user._id == userId && (
                                                                         <div className={cx('comments-options')}>
                                                                             <FontAwesomeIcon icon={faEllipsis} />
