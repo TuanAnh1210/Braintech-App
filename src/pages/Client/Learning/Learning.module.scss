@@ -230,7 +230,7 @@
     float: right;
     margin-top: 6px;
     opacity: 0.8;
-
+    margin-left: 10px;
     &:hover {
         opacity: 1;
         cursor: pointer;
@@ -264,7 +264,6 @@
 }
 
 .update_cmt_form {
-    display: none;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid #ccc;
@@ -656,7 +655,7 @@
     background-color: #fff;
     color: #111;
     padding: 4px 20px;
-
+    margin: 3px;
 }
 
 

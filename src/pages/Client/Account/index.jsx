@@ -82,7 +82,7 @@ const Account = () => {
         } catch (error) {
             return notification.error({
                 message: 'Thông báo',
-                description: error.data.message,
+                description: error.data?.message,
                 duration: 1.75,
             });
         }
@@ -197,9 +197,9 @@ const Account = () => {
                                 </div>
                                 {/*body*/}
                                 <div className="relative p-6 flex-auto">
-                                    <form action="#" class="grid grid-cols-6 gap-6" onSubmit={handleSubmit(onSubmit)}>
-                                        <div class="col-span-6 sm:col-span-3">
-                                            <label for="FirstName" class="block text-sm font-medium text-gray-700">
+                                    <form className="grid grid-cols-6 gap-6" onSubmit={handleSubmit(onSubmit)}>
+                                        <div className="col-span-6 sm:col-span-3">
+                                            <label for="FirstName" className="block text-sm font-medium text-gray-700">
                                                 Họ và tên
                                             </label>
 
@@ -208,8 +208,8 @@ const Account = () => {
                                                 id="FirstName"
                                                 name="full_name"
                                                 {...register('full_name')}
-                                                defaultValue={fullName}
-                                                class="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
+                                                defaultValue={access_token?.fullName}
+                                                className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.full_name && (
                                                 <span className="text-[#ff6969] italic">
@@ -218,17 +218,17 @@ const Account = () => {
                                             )}
                                         </div>
 
-                                        <div class="col-span-6 sm:col-span-3">
-                                            <label for="LastName" class="block text-sm font-medium text-gray-700">
+                                        <div className="col-span-6 sm:col-span-3">
+                                            <label for="LastName" className="block text-sm font-medium text-gray-700">
                                                 Số điện thoại
                                             </label>
 
                                             <input
                                                 type="text"
                                                 id="LastName"
-                                                name="last_name"
+                                                className="last_name"
                                                 {...register('phone')}
-                                                defaultValue={phone}
+                                                defaultValue={access_token?.phone}
                                                 class="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.phone && (
@@ -236,8 +236,8 @@ const Account = () => {
                                             )}
                                         </div>
 
-                                        <div class="col-span-6">
-                                            <label for="Email" class="block text-sm font-medium text-gray-700">
+                                        <div className="col-span-6">
+                                            <label for="Email" className="block text-sm font-medium text-gray-700">
                                                 {' '}
                                                 Email{' '}
                                             </label>
@@ -247,8 +247,8 @@ const Account = () => {
                                                 id="Email"
                                                 name="email"
                                                 {...register('email')}
-                                                defaultValue={email}
-                                                class="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
+                                                defaultValue={access_token?.email}
+                                                className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.email && (
                                                 <span className="text-[#ff6969] italic">{errors.email.message}</span>

@@ -20,8 +20,18 @@ import { Link, NavLink, useNavigate, useParams, useSearchParams } from 'react-ro
 import { jwtDecode } from 'jwt-decode';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
 import { Suspense, useEffect, useRef, useState } from 'react';
-import { useCreateCmtMutation, useGetAllQuery } from '@/providers/apis/cmtApi';
-import { useGetNotebyIdClientQuery, useCreateNoteMutation, useDeleteNoteMutation, useUpdateNoteMutation } from '@/providers/apis/noteApi';
+import {
+    useGetNotebyIdClientQuery,
+    useCreateNoteMutation,
+    useDeleteNoteMutation,
+    useUpdateNoteMutation,
+} from '@/providers/apis/noteApi';
+import {
+    useCreateCmtMutation,
+    useDeleteCmtMutation,
+    useGetAllQuery,
+    useUpdateCmtMutation,
+} from '@/providers/apis/cmtApi';
 import {
     useAddFinishLessonMutation,
     useGetCountQuery,
@@ -35,8 +45,21 @@ import { useGetUsersQuery } from '@/providers/apis/userApi';
 import Highlighter from 'react-highlight-words';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 
-
-import { Button, Spin, Table, Col, DatePicker, message, Popconfirm, Drawer, Form, Input, Row, Select, Space } from 'antd';
+import {
+    Button,
+    Spin,
+    Table,
+    Col,
+    DatePicker,
+    message,
+    Popconfirm,
+    Drawer,
+    Form,
+    Input,
+    Row,
+    Select,
+    Space,
+} from 'antd';
 
 import { CgEditMarkup } from 'react-icons/cg';
 const cx = classNames.bind(styles);
@@ -44,9 +67,9 @@ const cx = classNames.bind(styles);
 const Learning = () => {
     const { id } = useParams();
     const [open, setOpen] = useState(false);
-    const [valueNote, setValue] = useState('')
-    const [idNote, setIdValue] = useState('')
-    const [err, setErrNote] = useState('')
+    const [valueNote, setValue] = useState('');
+    const [idNote, setIdValue] = useState('');
+    const [err, setErrNote] = useState('');
     const [searchParams, setSearchParams] = useSearchParams();
     const idLesson = searchParams.get('id');
     const navigate = useNavigate();
@@ -70,12 +93,16 @@ const Learning = () => {
     const [countLesson, setCountLesson] = useState(0); //đếm khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [lessonIncome, setIncomeLesson] = useState(null);
+    const [isDelete, setDelete] = useState(false);
     const [preLesson, setPreLesson] = useState(null);
     const [progressCourse, setProgessCourse] = useState(0);
     const [handleAddSttCourse] = useAddSttCourseMutation();
     const [nextLesson, setNextLesson] = useState(null);
     const [deleteNote] = useDeleteNoteMutation();
+    const [deleteCmt] = useDeleteCmtMutation();
     const intervalRef = useRef();
+    const [isUpdateCmt, setUpdateCmt] = useState({ update: false });
+
     const { data: dataFinish, isLoading: loadingFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
     const { data: countLessonFinish, refetch: refetchCount } = useGetCountQuery(id);
     // console.log(countLessonFinish);
@@ -106,13 +133,14 @@ const Learning = () => {
             autoplay: 1,
         },
     };
-    const dataUser = useGetUsersQuery(); //dữ liệu người dùng
+    const { data: dataUser, refetch: refetchDataUser } = useGetUsersQuery(); //dữ liệu người dùng
     const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(idLesson); //lấy bình luận dựa trên id bài học
     const [handleAddCmt] = useCreateCmtMutation(); //thêm bình luận
     const [handleAddNote] = useCreateNoteMutation(); //thêm ghi chú
-    const [handleDeleteNote] = useDeleteNoteMutation();// xóa ghi chú
-    const [handleUpdateNotes] = useUpdateNoteMutation();// update ghi chú
+    const [handleDeleteNote] = useDeleteNoteMutation(); // xóa ghi chú
+    const [handleUpdateNotes] = useUpdateNoteMutation(); // update ghi chú
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
+    const [handleUpdateCmt] = useUpdateCmtMutation();
     const { data: noteData, refetch: refetchNote } = useGetNotebyIdClientQuery(userId); // lấy tất cả các ghi chú của người dùng
     const handleClickScroll = () => {
         // thực hiện scroll
@@ -126,7 +154,6 @@ const Learning = () => {
     };
     const handleClickLesson = useCallback(
         debounce((path) => {
-            setIsModalShown(false);
             setPath(path);
         }, 500),
         [],
@@ -163,21 +190,18 @@ const Learning = () => {
         setSearchText('');
     };
 
-
     useEffect(() => {
         setIsModalShown(false);
 
         if (progressVideo >= 90) {
             setIsModalShown(true);
-        } else if (isModalShown) {
-            setIsModalShown(false);
         } else if (!nextLesson && countLessonFinish?.count === countLesson) {
             setIsModalShown(false);
         }
     }, [progressVideo, isModalShown, dataFinish]);
     useEffect(() => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
-
+        setProgessVideo(0);
         setIsModalShown(false);
 
         const access_token = localStorage.getItem('access_token');
@@ -187,7 +211,7 @@ const Learning = () => {
             if (token !== null) {
                 const decode = jwtDecode(token.token); // dịch ngược mã jwt
                 const idLog = decode.data._id; // lấy id người dùng
-                const idUser = dataUser?.data?.data?.find((user) => user._id === idLog);
+                const idUser = dataUser?.data?.find((user) => user._id === idLog);
                 setUserId(idUser?._id);
             }
         } else {
@@ -214,17 +238,38 @@ const Learning = () => {
                 // Handle error if necessary
             });
     };
-
+    const handleDelete = (id) => {
+        setDelete({ isDeleteCmt: true, id: id });
+    };
+    const handleSubmitDeleteCmt = (id) => {
+        deleteCmt(id).then(() => {
+            refetch();
+        });
+        setDelete({ isDeleteCmt: false });
+    };
+    const handleSubmitUpdateCmt = (e) => {
+        e.preventDefault();
+        const updateData = {
+            content: cmtInput,
+            id: isUpdateCmt._id,
+        };
+        handleUpdateCmt(updateData).then(() => {
+            refetch();
+            setUpdateCmt({ update: false });
+            setCmtInput('');
+        });
+    };
     useEffect(() => {
-        const count = data?.courses?.chapters?.reduce((total, chap) => total + chap.lessons.length, 0);
+        const count = data?.course?.chapters?.reduce((total, chap) => total + chap.lessons.length, 0);
         const progressDone = Math.floor((countLessonFinish?.count / count) * 100);
         setProgessCourse(progressDone);
         setCountLesson(count);
+        refetchDataUser();
     }, [data, dataFinish, countLessonFinish]);
     useEffect(() => {
         if (!loadingAllLesson && allLesson && data && !isLoading) {
             const pathVideo = allLesson?.lessons?.find((lesson) => lesson._id === idLesson)?.path_video;
-            const chapterId = data?.courses.chapters.find((chapter) => {
+            const chapterId = data?.course.chapters.find((chapter) => {
                 return chapter.lessons.some((lesson) => lesson._id === idLesson);
             });
             setChapterId(chapterId?._id);
@@ -234,15 +279,15 @@ const Learning = () => {
 
     useEffect(() => {
         if (!isLoading && data && !loadingAllLesson) {
-            const chapter = data?.courses?.chapters?.find((chapter) => chapter?._id === chapterId);
-            const chapterIndex = data?.courses?.chapters?.findIndex((chapter) => chapter?._id === chapterId);
+            const chapter = data?.course?.chapters?.find((chapter) => chapter?._id === chapterId);
+            const chapterIndex = data?.course?.chapters?.findIndex((chapter) => chapter?._id === chapterId);
 
             const lessonIndex = chapter?.lessons?.findIndex((lesson) => lesson?._id === idLesson);
             if (lessonIndex !== chapter?.lessons?.length - 1) {
                 const lessonIncome = chapter?.lessons.find((lesson, index) => index === lessonIndex + 1);
                 setIncomeLesson(lessonIncome);
             } else {
-                const lessonIncome = data?.courses?.chapters[chapterIndex + 1]?.lessons.find(
+                const lessonIncome = data?.course?.chapters[chapterIndex + 1]?.lessons.find(
                     (lesson, index) => index === 0,
                 );
                 setIncomeLesson(lessonIncome);
@@ -251,8 +296,8 @@ const Learning = () => {
     }, [data, chapterId, idLesson, isLoading, allLesson, loadingAllLesson]);
     useEffect(() => {
         if (!isLoading && data && !loadingAllLesson && !loadingFinish) {
-            const chapter = data?.courses?.chapters?.find((chapter) => chapter?._id === chapterId);
-            const chapterIndex = data?.courses?.chapters?.findIndex((chapter) => chapter?._id === chapterId);
+            const chapter = data?.course?.chapters?.find((chapter) => chapter?._id === chapterId);
+            const chapterIndex = data?.course?.chapters?.findIndex((chapter) => chapter?._id === chapterId);
 
             const lessonFinishLast = dataFinish?.data[dataFinish?.data?.length - 1];
             const lessonIndex = chapter?.lessons?.findIndex(
@@ -263,7 +308,7 @@ const Learning = () => {
                 const lessonNext = chapter?.lessons?.find((lesson, index) => index === lessonIndex + 1);
                 setNextLesson(lessonNext);
             } else {
-                const lessonNext = data?.courses?.chapters[chapterIndex + 1]?.lessons?.find(
+                const lessonNext = data?.course?.chapters[chapterIndex + 1]?.lessons?.find(
                     (lesson, index) => index === 0,
                 );
                 setNextLesson(lessonNext);
@@ -272,14 +317,14 @@ const Learning = () => {
     }, [data, chapterId, idLesson, isLoading, allLesson, loadingAllLesson, dataFinish]);
     useEffect(() => {
         if (!isLoading && data && !loadingAllLesson && chapterId) {
-            const chapter = data?.courses?.chapters?.find((chapter) => chapter?._id === chapterId);
-            const chapterIndex = data?.courses?.chapters?.findIndex((chapter) => chapter?._id === chapterId);
+            const chapter = data?.course?.chapters?.find((chapter) => chapter?._id === chapterId);
+            const chapterIndex = data?.course?.chapters?.findIndex((chapter) => chapter?._id === chapterId);
             const lessonIndex = chapter?.lessons.findIndex((lesson) => lesson._id === idLesson);
             if (lessonIndex > 0) {
                 const prevLesson = chapter?.lessons[lessonIndex - 1];
                 setPreLesson(prevLesson);
             } else {
-                const prevLesson = data?.courses?.chapters[chapterIndex - 1]?.lessons[chapter.lessons.length - 1];
+                const prevLesson = data?.course?.chapters[chapterIndex - 1]?.lessons[chapter.lessons.length - 1];
                 setPreLesson(prevLesson);
             }
         }
@@ -310,7 +355,7 @@ const Learning = () => {
             course_id: id,
         };
         setProgessVideo(0);
-        setIsModalShown(false);
+        clearInterval(intervalRef.current);
         handleAddFinishLesson(dataToSend).then(() => {
             handleNext();
 
@@ -390,8 +435,7 @@ const Learning = () => {
                 }}
             />
         ),
-        onFilter: (value, record) =>
-            record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
+        onFilter: (value, record) => record[dataIndex].toString().toLowerCase().includes(value.toLowerCase()),
         onFilterDropdownOpenChange: (visible) => {
             if (visible) {
                 setTimeout(() => searchInput.current?.select(), 100);
@@ -414,31 +458,37 @@ const Learning = () => {
             ),
     });
 
-    const listNote = noteData?.data?.map(item => {
+    const listNote = noteData?.data?.map((item) => {
         const { lessons } = allLesson;
         const lessonName = lessons.find((l) => l._id === item.lesson_id);
 
         const currentDate = item.updatedAt;
         const formattedDate = format(currentDate, 'dd/MM/yyyy');
         const formattedTime = format(currentDate, 'HH:mm:ss');
-        return { idTest: item._id, name: lessonName.name, note: item.text, createdate: formattedDate, createTime: formattedTime }
-    })
+        return {
+            idTest: item._id,
+            name: lessonName.name,
+            note: item.text,
+            createdate: formattedDate,
+            createTime: formattedTime,
+        };
+    });
 
     const onDelete = (x) => {
         handleDeleteNote(x).then(() => {
             refNoteInput.current.value = '';
             refetchNote();
-        })
-    }
+        });
+    };
     const showDrawer = async (x) => {
-        const a = await noteData?.data?.find(item => item._id === x)
-        setValue(a.text)
-        setIdValue(a._id)
-        setErrNote('')
+        const a = await noteData?.data?.find((item) => item._id === x);
+        setValue(a.text);
+        setIdValue(a._id);
+        setErrNote('');
         setOpen(true);
     };
     const handleTextareaChange = async (event) => {
-        const textChange = await (event.target.value);
+        const textChange = await event.target.value;
         setValue(textChange);
     };
 
@@ -477,81 +527,85 @@ const Learning = () => {
             width: '30%',
             key: 'idTest',
 
-            render: (abc) => <div className='flex gap-[5px]'>
-                <>
-                    <Button type="primary" onClick={() => showDrawer(abc)} icon={<CgEditMarkup />}>
-                        Sửa
-                    </Button>
-                    <Drawer
-                        title=""
-                        width={500}
-                        onClose={onClose}
-                        open={open}
-                        styles={{
-                            body: {
-                                paddingBottom: 80,
-                            },
-                        }}
-                    // extra={
-                    //     // <Space>
-                    //     //     <Button onClick={onClose}>Cancel</Button>
-                    //     //     <Button onClick={onClose} type="primary">
-                    //     //         Submit
-                    //     //     </Button>
-                    //     // </Space>
-                    // }
-                    >
-
-                        <Form layout="vertical" onFinish={onNote} autoComplete="off" >
-                            <Row gutter={16}>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name="text"
-                                        label="Nội dung"
-                                    // rules={[
-                                    //     {
-                                    //         required: true,
-                                    //         message: 'Vui lòng nhập ghi chú',
-                                    //     },
-                                    //     { whitespace: true, message: 'Vui lòng nhập họ và tên!' }
-                                    // ]}
-                                    >
-                                        <Input.TextArea value={valueNote} onChange={handleTextareaChange} ref={refNoteInput} />
-                                        <Button type="primary" htmlType="submit" className='mt-[10px]'>
-                                            Submit
-                                        </Button>
-                                    </Form.Item>
-                                    <span className='text-red-500' ref={refNoteInput}>{err}</span>
-                                </Col>
-                            </Row>
-
-
-                        </Form>
-                    </Drawer>
-                </>
-                <Popconfirm
-                    title="Xóa ghi chú"
-                    description="Bạn chắc chắn muốn xóa không?"
-                    //onCancel={onClose}
-                    onConfirm={() => onDelete(abc)}
-                    ref={refNoteInput}
-                    icon={
-                        <QuestionCircleOutlined
-                            style={{
-                                color: 'red',
+            render: (abc) => (
+                <div className="flex gap-[5px]">
+                    <>
+                        <Button type="primary" onClick={() => showDrawer(abc)} icon={<CgEditMarkup />}>
+                            Sửa
+                        </Button>
+                        <Drawer
+                            title=""
+                            width={500}
+                            onClose={onClose}
+                            open={open}
+                            styles={{
+                                body: {
+                                    paddingBottom: 80,
+                                },
                             }}
-                        />
-                    }
-                >
-                    <Button danger >Delete</Button>
-                </Popconfirm>
-            </div >,
-
+                            // extra={
+                            //     // <Space>
+                            //     //     <Button onClick={onClose}>Cancel</Button>
+                            //     //     <Button onClick={onClose} type="primary">
+                            //     //         Submit
+                            //     //     </Button>
+                            //     // </Space>
+                            // }
+                        >
+                            <Form layout="vertical" onFinish={onNote} autoComplete="off">
+                                <Row gutter={16}>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            name="text"
+                                            label="Nội dung"
+                                            // rules={[
+                                            //     {
+                                            //         required: true,
+                                            //         message: 'Vui lòng nhập ghi chú',
+                                            //     },
+                                            //     { whitespace: true, message: 'Vui lòng nhập họ và tên!' }
+                                            // ]}
+                                        >
+                                            <Input.TextArea
+                                                value={valueNote}
+                                                onChange={handleTextareaChange}
+                                                ref={refNoteInput}
+                                            />
+                                            <Button type="primary" htmlType="submit" className="mt-[10px]">
+                                                Submit
+                                            </Button>
+                                        </Form.Item>
+                                        <span className="text-red-500" ref={refNoteInput}>
+                                            {err}
+                                        </span>
+                                    </Col>
+                                </Row>
+                            </Form>
+                        </Drawer>
+                    </>
+                    <Popconfirm
+                        title="Xóa ghi chú"
+                        description="Bạn chắc chắn muốn xóa không?"
+                        //onCancel={onClose}
+                        onConfirm={() => onDelete(abc)}
+                        ref={refNoteInput}
+                        icon={
+                            <QuestionCircleOutlined
+                                style={{
+                                    color: 'red',
+                                }}
+                            />
+                        }
+                    >
+                        <Button danger>Delete</Button>
+                    </Popconfirm>
+                </div>
+            ),
         },
     ];
 
     const onNote = () => {
-        const a = noteData?.data?.find(item => item._id === idNote)
+        const a = noteData?.data?.find((item) => item._id === idNote);
         if (valueNote.trim() === '') {
             setErrNote('Vui lòng nhập nội dung ghi chú');
             return;
@@ -560,19 +614,19 @@ const Learning = () => {
             ...a,
             _id: idNote,
             text: valueNote,
-            updatedAt: new Date()
-        }
+            updatedAt: new Date(),
+        };
 
         handleUpdateNotes(updateNote).then(() => {
             refNoteInput.current.value = '';
             refetchNote();
-        })
-        setValue('')
+        });
+        setValue('');
         setOpen(false);
     };
     const onClose = () => {
         setOpen(false);
-    }
+    };
 
     if (!isLoading && !loadingAllLesson && !cmtLoading && !loadingFinish) {
         return (
@@ -593,7 +647,24 @@ const Learning = () => {
                             </Draggable>
                         </>
                     )}
-
+                    {isDelete.isDeleteCmt === true ? (
+                        <Draggable>
+                            <div className={cx('message__delete')}>
+                                <h2>Bạn muốn xóa bình luận này chứ!!</h2>
+                                <h4>Nhấn yes để xóa nhé</h4>
+                                <div className={cx('btn__delete-container')}>
+                                    <button className={cx('yes')} onClick={() => handleSubmitDeleteCmt(isDelete.id)}>
+                                        Yes
+                                    </button>
+                                    <button className={cx('yes')} onClick={() => setDelete(false)}>
+                                        Hủy
+                                    </button>
+                                </div>
+                            </div>
+                        </Draggable>
+                    ) : (
+                        ''
+                    )}
                     <Container fluid style={{ height: '100%' }}>
                         <div className={cx('header__wrapper')}>
                             <div className={cx('header--left')}>
@@ -608,7 +679,7 @@ const Learning = () => {
                                 <div className={cx('header__logo')}>
                                     <Link to="/">
                                         <img src={logo} alt="" />
-                                        <p>{data?.courses?.name}</p>
+                                        <p>{data?.course?.name}</p>
                                     </Link>
                                 </div>
                             </div>
@@ -677,7 +748,9 @@ const Learning = () => {
                                             onEnd={handleSetFinish}
                                         />
                                     ) : (
-                                        <Spin fullscreen />
+                                        <>
+                                            <Spin fullscreen />
+                                        </>
                                     )}
                                 </div>
 
@@ -736,9 +809,10 @@ const Learning = () => {
                                                     <>Loading...</>
                                                 ) : cmtData && cmtData.data ? (
                                                     cmtData.data.map((cmt) => {
-                                                        const user = dataUser?.data?.data?.find((data) => {
+                                                        const user = dataUser?.data?.find((data) => {
                                                             return data._id === cmt.user_id;
                                                         });
+
                                                         return (
                                                             <div className={cx('commentBox', 'noMt')} key={cmt._id}>
                                                                 <img
@@ -754,42 +828,63 @@ const Learning = () => {
                                                                             : user?.email}
                                                                     </h5>
                                                                     <p className={cx('commentBox--text')}>{cmt.text}</p>
-                                                                    <form className={cx('update_cmt_form')}>
-                                                                        <input
-                                                                            hidden
-                                                                            type="text"
-                                                                            name="cmt_idUser"
-                                                                            defaultValue=""
-                                                                        />
+                                                                    {isUpdateCmt.update === true ? (
+                                                                        <form
+                                                                            className={cx('update_cmt_form')}
+                                                                            onSubmit={handleSubmitUpdateCmt}
+                                                                        >
+                                                                            <input
+                                                                                className={cx('contentUpdateIpt')}
+                                                                                type="text"
+                                                                                value={cmtInput}
+                                                                                name="contentUpdateIpt"
+                                                                                ref={refCmtInput}
+                                                                                onChange={(e) => {
+                                                                                    setCmtInput(e.target.value);
+                                                                                }}
+                                                                            />
+                                                                            <button>Cập nhật</button>
+                                                                        </form>
+                                                                    ) : (
+                                                                        ''
+                                                                    )}
 
-                                                                        <input
-                                                                            className="contentUpdateIpt"
-                                                                            type="text"
-                                                                            defaultValue=""
-                                                                            name="contentUpdateIpt"
-                                                                        />
-                                                                        <button>Cập nhật</button>
-                                                                    </form>
-                                                                    <div className={cx('comments-options')}>
-                                                                        <FontAwesomeIcon icon={faEllipsis} />
-                                                                        <div className={cx('options-sub')}>
-                                                                            <p className={cx('btn_option-cmt')}>
-                                                                                Sửa&emsp;
-                                                                                <FontAwesomeIcon
-                                                                                    className={cx('icon')}
-                                                                                    icon={faPen}
-                                                                                />
-                                                                            </p>
+                                                                    {user._id == userId && (
+                                                                        <div className={cx('comments-options')}>
+                                                                            <FontAwesomeIcon icon={faEllipsis} />
+                                                                            <div className={cx('options-sub')}>
+                                                                                <p
+                                                                                    className={cx('btn_option-cmt')}
+                                                                                    onClick={() => {
+                                                                                        setUpdateCmt({
+                                                                                            update: true,
+                                                                                            ...cmt,
+                                                                                        });
+                                                                                        setCmtInput(cmt.text);
+                                                                                    }}
+                                                                                >
+                                                                                    Sửa&emsp;
+                                                                                    <FontAwesomeIcon
+                                                                                        className={cx('icon')}
+                                                                                        icon={faPen}
+                                                                                    />
+                                                                                </p>
 
-                                                                            <p className={cx('btn_option-cmt')}>
-                                                                                Xóa&emsp;
-                                                                                <FontAwesomeIcon
-                                                                                    className={cx('icon')}
-                                                                                    icon={faTrash}
-                                                                                />
-                                                                            </p>
+                                                                                <p
+                                                                                    className={cx('btn_option-cmt')}
+                                                                                    onClick={() => {
+                                                                                        handleDelete(cmt._id);
+                                                                                    }}
+                                                                                >
+                                                                                    Xóa&emsp;
+                                                                                    <FontAwesomeIcon
+                                                                                        className={cx('icon')}
+                                                                                        icon={faTrash}
+                                                                                    />
+                                                                                </p>
+                                                                            </div>
                                                                         </div>
-                                                                    </div>
+                                                                    )}
                                                                 </div>
                                                             </div>
                                                         );
@@ -808,7 +903,6 @@ const Learning = () => {
                                                 </h2>
 
                                                 <div className="form__group">
-
                                                     <textarea
                                                         required
                                                         placeholder="Nội dung ghi chú..."
@@ -824,7 +918,6 @@ const Learning = () => {
                                                     >
                                                         {noteInput}
                                                     </textarea>
-
                                                 </div>
 
                                                 <button className={cx('send__comment')}>Thêm ghi chú</button>
@@ -836,7 +929,7 @@ const Learning = () => {
                             <div className={cx('learning__bar')}>
                                 <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
                                 <div className={cx('course_topic')}>
-                                    {data?.courses?.chapters.map((item, indexChapter) => {
+                                    {data?.course?.chapters.map((item, indexChapter) => {
                                         return (
                                             <div className={cx('learning__chapter')} key={item.id}>
                                                 <h3 className={cx('learning__chapter--txt')}>
@@ -856,45 +949,43 @@ const Learning = () => {
                                                                 <NavLink
                                                                     to={`/learning/${id}?id=${lesson._id}`}
                                                                     onClick={() => {
-                                                                        handleClickLesson(
-                                                                            lesson.path_video,
-                                                                            indexLesson,
-                                                                            indexChapter,
-                                                                        );
+                                                                        handleClickLesson(lesson.path_video);
                                                                     }}
                                                                 >
-                                                                    <p
+                                                                    <div
                                                                         className={cx(
                                                                             path === lesson.path_video
                                                                                 ? 'learning__chapter--lesson_name_active'
                                                                                 : 'learning__chapter--lesson_name',
                                                                         )}
                                                                     >
-                                                                        <strong>
-                                                                            {indexChapter + '.' + ++indexLesson}
-                                                                        </strong>{' '}
-                                                                        {lesson.name}{' '}
-                                                                        {checkDone ? (
-                                                                            <svg
-                                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                                x="0px"
-                                                                                y="0px"
-                                                                                width="20"
-                                                                                height="20"
-                                                                                viewBox="0 0 48 48"
-                                                                            >
-                                                                                <path
-                                                                                    fill="#c8e6c9"
-                                                                                    d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"
-                                                                                ></path>
-                                                                                <path
-                                                                                    fill="#4caf50"
-                                                                                    d="M34.586,14.586l-13.57,13.586l-5.602-5.586l-2.828,2.828l8.434,8.414l16.395-16.414L34.586,14.586z"
-                                                                                ></path>
-                                                                            </svg>
-                                                                        ) : (
-                                                                            ''
-                                                                        )}
+                                                                        <p style={{ display: 'flex', gap: '1%' }}>
+                                                                            <strong>
+                                                                                {indexChapter + '.' + ++indexLesson}
+                                                                            </strong>{' '}
+                                                                            {lesson.name}{' '}
+                                                                            {checkDone ? (
+                                                                                <svg
+                                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                                    x="0px"
+                                                                                    y="0px"
+                                                                                    width="20"
+                                                                                    height="20"
+                                                                                    viewBox="0 0 48 48"
+                                                                                >
+                                                                                    <path
+                                                                                        fill="#c8e6c9"
+                                                                                        d="M44,24c0,11.045-8.955,20-20,20S4,35.045,4,24S12.955,4,24,4S44,12.955,44,24z"
+                                                                                    ></path>
+                                                                                    <path
+                                                                                        fill="#4caf50"
+                                                                                        d="M34.586,14.586l-13.57,13.586l-5.602-5.586l-2.828,2.828l8.434,8.414l16.395-16.414L34.586,14.586z"
+                                                                                    ></path>
+                                                                                </svg>
+                                                                            ) : (
+                                                                                ' '
+                                                                            )}
+                                                                        </p>
                                                                         <div className="">
                                                                             <Link
                                                                                 to={`/quizz/${lesson._id}`}
@@ -905,7 +996,7 @@ const Learning = () => {
                                                                                 Bài tập
                                                                             </Link>
                                                                         </div>
-                                                                    </p>
+                                                                    </div>
                                                                 </NavLink>
                                                             ) : (
                                                                 <div>

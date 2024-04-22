@@ -10,12 +10,13 @@ import { openModal } from '@/providers/slices/modalSlice';
 import { Link } from 'react-router-dom';
 
 const Login = () => {
-    const dispatch = useDispatch();
     const handleOpenModal = (page) => {
         dispatch(openModal(page));
     };
     const [, setAccessToken] = useLocalStorage('access_token', null);
     const [handleLogin, { isLoading }] = useLoginMutation();
+    
+    const dispatch = useDispatch();
 
     const onFinish = async (value) => {
         const { data, error } = await handleLogin({

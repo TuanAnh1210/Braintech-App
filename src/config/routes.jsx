@@ -12,7 +12,7 @@ const routes = {
     info: '/info',
     quizz: '/quizz/:id',
     certificate: '/certificate/:id',
-    account: '/account'
+    account: '/account',
 };
 
 export default routes;

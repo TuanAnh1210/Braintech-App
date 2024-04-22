@@ -6,7 +6,7 @@ export const cmtApi = createApi({
     baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' }),
     endpoints: (build) => ({
         getAll: build.query({
-            query: (lesson_id) => `/comments/${lesson_id}`,
+            query: (lesson_id) => `/comments/lesson/${lesson_id}`,
         }),
         createCmt: build.mutation({
             query: (payload) => {
@@ -18,7 +18,12 @@ export const cmtApi = createApi({
                 return { url: `/comments/delete/${id}`, method: 'DELETE' };
             },
         }),
+        updateCmt: build.mutation({
+            query: (payload) => {
+                return { url: `/comments/${payload.id}`, method: 'PATCH', body: payload };
+            },
+        }),
     }),
 });
 
-export const { useGetAllQuery, useCreateCmtMutation } = cmtApi;
+export const { useGetAllQuery, useCreateCmtMutation, useDeleteCmtMutation, useUpdateCmtMutation } = cmtApi;
