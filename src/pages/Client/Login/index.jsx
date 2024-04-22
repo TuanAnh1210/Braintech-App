@@ -9,12 +9,13 @@ import { closeModal } from '@/providers/slices/modalSlice';
 import { openModal } from '@/providers/slices/modalSlice';
 
 const Login = () => {
-    const dispatch = useDispatch();
     const handleOpenModal = (page) => {
         dispatch(openModal(page));
     };
     const [, setAccessToken] = useLocalStorage('access_token', null);
     const [handleLogin, { isLoading }] = useLoginMutation();
+    
+    const dispatch = useDispatch();
 
     const onFinish = async (value) => {
         const { data, error } = await handleLogin({
