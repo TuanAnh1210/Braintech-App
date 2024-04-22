@@ -34,6 +34,7 @@
                 "react-bootstrap": "^2.7.4",
                 "react-dom": "^18.2.0",
                 "react-draggable": "^4.4.6",
+                "react-dropzone": "^14.2.3",
                 "react-google-login": "^5.2.2",
                 "react-highlight-words": "^0.20.0",
                 "react-hook-form": "^7.51.3",
