@@ -3,19 +3,19 @@ import { Button, Form, Input, Spin, notification } from 'antd';
 import { useDispatch } from 'react-redux';
 import { GoogleLogin } from '@react-oauth/google';
 import { useLoginMutation } from '@/providers/apis/userApi';
-import useLocalStorage from '@/hooks/useLocalStorage';
 import { login } from '@/providers/slices/userSlice';
 import { closeModal } from '@/providers/slices/modalSlice';
 import { openModal } from '@/providers/slices/modalSlice';
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const Login = () => {
     const handleOpenModal = (page) => {
         dispatch(openModal(page));
     };
-    const [, setAccessToken] = useLocalStorage('access_token', null);
+
     const [handleLogin, { isLoading }] = useLoginMutation();
-    
+
     const dispatch = useDispatch();
 
     const onFinish = async (value) => {
@@ -46,7 +46,7 @@ const Login = () => {
             avatar: data.user.avatar,
         };
 
-        setAccessToken(user);
+        Cookies.set('access_token', user.token);
         dispatch(login(user));
 
         dispatch(closeModal());
@@ -63,7 +63,7 @@ const Login = () => {
                         { required: true, message: 'Vui lòng nhập email!' },
                     ]}
                 >
-                    <Input type='email' className="w-100 p-2 rounded" placeholder="Email" />
+                    <Input type="email" className="w-100 p-2 rounded" placeholder="Email" />
                 </Form.Item>
             </div>
             <div className="mb-4">

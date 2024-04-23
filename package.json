@@ -27,6 +27,7 @@
         "emailjs-com": "^3.2.0",
         "html-to-image": "^1.11.11",
         "joi": "^17.12.3",
+        "js-cookie": "^3.0.5",
         "jwt-decode": "^4.0.0",
         "lodash": "^4.17.21",
         "normalize.css": "^8.0.1",
