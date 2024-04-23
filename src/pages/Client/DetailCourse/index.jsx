@@ -87,6 +87,7 @@ const DetailCourse = () => {
             bubbles: true,
             cancelable: true,
         });
+
         link.dispatchEvent(clickEvent);
     };
 
