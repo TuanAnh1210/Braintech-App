@@ -17,7 +17,13 @@ export const userApi = createApi({
                 return { url: '/user/register', method: 'POST', body: payload };
             },
         }),
+        forgetPassword: build.mutation({
+            query: (payload) => {
+                return { url: `/user/forgetPassword/${payload._id}`, method: 'PATCH', body: payload };
+            },
+        }),
+
     }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetUsersQuery } = userApi;
+export const { useLoginMutation, useRegisterMutation, useGetUsersQuery, useForgetPasswordMutation } = userApi;
