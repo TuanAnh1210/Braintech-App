@@ -45,6 +45,7 @@ const DetailCourse = () => {
             setUserId(idUser);
         }
     }, [loadingFinish, dataUser, data]);
+
     const dispatch = useDispatch();
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -56,13 +57,14 @@ const DetailCourse = () => {
             setIsLogin(false);
         }
     }, [user]);
+
     const access_token = localStorage.getItem('access_token');
     useEffect(() => {
         if (access_token === 'null' && access_token) {
             dispatch(openModal('login'));
         }
     }, [access_token]);
-    console.log(data);
+
     return (
         <>
             <div className={cx('detail-course')}>
@@ -101,13 +103,13 @@ const DetailCourse = () => {
                         <Col lg={4}>
                             <div className="course_img_wrapper">
                                 <img className={cx('course_img')} src={data?.course?.thumb} alt="" />
-                                {data?.courses?.price > 0 ? (
+                                {!data?.course?.price > 0 ? (
                                     <>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
-                                                {data?.courses?.old_price.toLocaleString()}đ
+                                                {data?.course?.old_price.toLocaleString()}đ
                                             </p>
-                                            <p className={cx('price_cur')}>{data?.courses?.price.toLocaleString()}đ</p>
+                                            <p className={cx('price_cur')}>{data?.course?.price.toLocaleString()}đ</p>
                                         </div>
                                         <a href="">
                                             <button className={cx('course_btn-learn')}>Mua ngay</button>
