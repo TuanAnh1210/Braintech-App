@@ -101,13 +101,13 @@ const DetailCourse = () => {
                         <Col lg={4}>
                             <div className="course_img_wrapper">
                                 <img className={cx('course_img')} src={data?.course?.thumb} alt="" />
-                                {data?.courses?.price > 0 ? (
+                                {data?.course?.price > 0 ? (
                                     <>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
-                                                {data?.courses?.old_price.toLocaleString()}đ
+                                                {data?.course?.old_price.toLocaleString()}đ
                                             </p>
-                                            <p className={cx('price_cur')}>{data?.courses?.price.toLocaleString()}đ</p>
+                                            <p className={cx('price_cur')}>{data?.course?.price.toLocaleString()}đ</p>
                                         </div>
                                         <a href="">
                                             <button className={cx('course_btn-learn')}>Mua ngay</button>

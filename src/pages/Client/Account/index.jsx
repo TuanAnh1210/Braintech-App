@@ -1,10 +1,9 @@
 import Joi from 'joi';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { notification } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDropzone } from 'react-dropzone';
 const Account = () => {
     const schema = Joi.object({
         full_name: Joi.string().required(),
@@ -39,32 +38,63 @@ const Account = () => {
         },
     ];
 
-    const access_token = JSON.parse(localStorage.getItem('access_token'));
+    const { avatar, fullName, phone, email, token } = JSON.parse(localStorage.getItem('access_token'));
+    const [uploadedImages, setUploadedImages] = useState();
+    const [uploadFile, setUploadFile] = useState();
+    const { getRootProps, getInputProps } = useDropzone({
+        accept: 'image/*',
+        maxFiles: 1,
+        onDrop: (acceptedFiles) => {
+            setUploadedImages(
+                acceptedFiles.map((file) =>
+                    Object.assign(file, {
+                        preview: URL.createObjectURL(file),
+                    }),
+                ),
+            );
+            setUploadFile(acceptedFiles[0]);
+        },
+    });
     const [showModal, setShowModal] = useState(false);
-    const navigate = useNavigate();
-    const updateLocalStorage = (access_token) => {
+    const updateLocalStorage = (token, email, phone, fullName, avatar) => {
         const newData = {
-            token: access_token?.token,
-            email: access_token?.email,
-            phone: access_token?.phone,
-            fullName: access_token?.fullName,
-            avatar: access_token?.avatar,
+            token: token,
+            email: email,
+            phone: phone,
+            fullName: fullName,
+            avatar: avatar,
         };
         localStorage.setItem('access_token', JSON.stringify(newData));
     };
-    const onSubmit = (data) => {
+    const onHandleUploadImg = async (file) => {
+        // Upload ảnh lên ImgBB
+        const formData = new FormData();
+        formData.append('image', file);
         try {
+            const response = await fetch('https://api.imgbb.com/1/upload?key=84f6d6a0f9728361a9fbfee270175801', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+            return data.data.display_url;
+        } catch (error) {
+            console.log(error);
+            return avatar;
+        }
+    };
+    const onSubmit = async (data) => {
+        try {
+            const newUrl = await onHandleUploadImg(uploadFile);
             fetch(`http://localhost:8080/api/user/update`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify({ ...data, avatar: newUrl }),
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log(data);
                     updateLocalStorage(
                         token,
                         data.result.email,
@@ -87,13 +117,6 @@ const Account = () => {
             });
         }
     };
-    const user = useSelector((state) => state.user);
-
-    useEffect(() => {
-        if (user === null) {
-            navigate('/');
-        }
-    }, [user]);
     return (
         <>
             <div class="">
@@ -103,10 +126,10 @@ const Account = () => {
                             <div class="bg-white shadow rounded-lg p-6">
                                 <div class="flex flex-col items-center">
                                     <img
-                                        src={access_token?.avatar}
-                                        class="w-32 h-32 bg-gray-300 rounded-full mb-4 shrink-0"
+                                        src={avatar}
+                                        class="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
                                     ></img>
-                                    <h1 class="text-2xl font-bold">{access_token?.fullName}</h1>
+                                    <h1 class="text-2xl font-bold">{fullName}</h1>
                                     <div
                                         onClick={() => setShowModal(true)}
                                         class="mt-6 flex flex-wrap gap-4 justify-center"
@@ -121,15 +144,15 @@ const Account = () => {
                                     <h1 class="text-2xl font-bold">Thông tin</h1>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Họ và tên</label>
-                                        <p className="text-lg font-[450]">{access_token?.fullName}</p>
+                                        <p className="text-lg font-[450]">{fullName}</p>
                                     </div>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Số điện thoại</label>
-                                        <p className="text-lg font-[450]">{access_token?.phone}</p>
+                                        <p className="text-lg font-[450]">{phone}</p>
                                     </div>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Email</label>
-                                        <p className="text-lg font-[450]  w-[50px]">{access_token?.email}</p>
+                                        <p className="text-lg font-[450]  w-[50px]">{email}</p>
                                     </div>
                                 </div>
                             </div>
@@ -192,14 +215,24 @@ const Account = () => {
                     <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
                         <div className="relative w-[80%] my-6 mx-auto max-w-3xl">
                             <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                                <div className="flex items-start mx-auto justify-between p-5 rounded-t">
+                                <div className="flex items-start mx-auto justify-between mt-5 rounded-t">
                                     <h3 className="text-3xl font-semibold">Chỉnh sửa thông tin</h3>
                                 </div>
                                 {/*body*/}
                                 <div className="relative p-6 flex-auto">
-                                    <form className="grid grid-cols-6 gap-6" onSubmit={handleSubmit(onSubmit)}>
-                                        <div className="col-span-6 sm:col-span-3">
-                                            <label for="FirstName" className="block text-sm font-medium text-gray-700">
+                                    <div>
+                                        <div {...getRootProps()} className="flex">
+                                            <input {...getInputProps()} />
+                                            <img
+                                                src={uploadedImages ? uploadedImages[0].preview : avatar}
+                                                class="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
+                                            ></img>
+                                        </div>
+                                        <div>{}</div>
+                                    </div>
+                                    <form action="#" class="grid grid-cols-6 gap-6" onSubmit={handleSubmit(onSubmit)}>
+                                        <div class="col-span-6 sm:col-span-3">
+                                            <label for="FirstName" class="block text-sm font-medium text-gray-700">
                                                 Họ và tên
                                             </label>
 
@@ -236,8 +269,8 @@ const Account = () => {
                                             )}
                                         </div>
 
-                                        <div className="col-span-6">
-                                            <label for="Email" className="block text-sm font-medium text-gray-700">
+                                        <div class="col-span-6">
+                                            <label for="Email" class="block text-sm font-medium text-gray-700">
                                                 {' '}
                                                 Email{' '}
                                             </label>
