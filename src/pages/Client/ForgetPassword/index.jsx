@@ -22,6 +22,7 @@ const ForgotPassword = () => {
 
     const sendOTPByEmail = async () => {
         try {
+            setOtp('')
             if (!emailUser) {
                 notification.error({
                     message: 'Error',
@@ -44,7 +45,6 @@ const ForgotPassword = () => {
                 '7rLlUinu9U6ZvF6Ey' // User ID from EmailJS dashboard
             ).then((response) => {
                 console.log('Email sent successfully:', response);
-                setOtp(otp);
                 const expiry = new Date().getTime() + 5 * 60 * 1000; // 5 minutes from now
                 setExpiryTime(expiry);
             });
@@ -65,6 +65,8 @@ const ForgotPassword = () => {
     const verifyOTP = () => {
         const currentTime = new Date().getTime();
         if (currentTime > expiryTime) {
+            console.log('quá');
+            setOtpSend('')
             setCheck(false)
             message.error('Mã OTP đã hết hạn , vui lòng nhấn nhận mã mới!');
             return;
@@ -91,7 +93,7 @@ const ForgotPassword = () => {
         if (newPassword !== confirmPassword) {
             notification.error({
                 message: 'Error',
-                description: 'Mật khẩu không khớp.',
+                description: 'Mật khẩu nhập lại không khớp!',
             });
             return;
         }
@@ -143,6 +145,7 @@ const ForgotPassword = () => {
                                 rules={[
                                     { whitespace: true, message: 'Vui lòng nhập mật khẩu!' },
                                     { required: true, message: 'Vui lòng nhập mật khẩu!' },
+                                    { min: 6, message: "Mật khẩu phải chứa ít nhất 6 ký tự" }
                                 ]}
                             >
                                 <Input type="password" className="w-100 p-2 rounded" placeholder="Mật khẩu" onChange={(e) => setNewPassword(e.target.value)} />
@@ -171,6 +174,7 @@ const ForgotPassword = () => {
                         <Input
                             className='w-[300px]'
                             placeholder="Nhập mã OTP"
+                            defaultValue={otp}
                             onChange={(e) => {
                                 setOtp(e.target.value)
                             }}

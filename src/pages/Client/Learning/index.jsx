@@ -165,6 +165,7 @@ const Learning = () => {
             user_id: userId,
             lesson_id: idLesson,
         };
+        console.log(newNote);
         handleAddNote(newNote).then(() => {
             // gửi dữ liêu được nhập về backend
             refNoteInput.current.value = '';
@@ -469,8 +470,8 @@ const Learning = () => {
             idTest: item._id,
             name: lessonName.name,
             note: item.text,
-            createdate: formattedDate,
-            createTime: formattedTime,
+            createdate: `${formattedDate}  - ${formattedTime}`,
+
         };
     });
 
@@ -497,40 +498,33 @@ const Learning = () => {
             title: 'Tên bài học',
             dataIndex: 'name',
             key: 'name',
-            width: '35%',
+            width: '30%',
             ...getColumnSearchProps('name'),
         },
         {
             title: 'Nội dung ghi chú',
             dataIndex: 'note',
             key: 'note',
-            width: '35%',
+            width: '30%',
             ...getColumnSearchProps('note'),
         },
         {
-            title: 'Ngày',
+            title: 'Ngày - Giờ',
             dataIndex: 'createdate',
             key: 'createdate',
-            width: '15%',
+            width: '30%',
             ...getColumnSearchProps('createdate'),
-        },
-        {
-            title: 'Giờ',
-            dataIndex: 'createTime',
-            key: 'createTime',
-            width: '15%',
-            ...getColumnSearchProps('createTime'),
         },
         {
             title: 'Action',
             dataIndex: 'idTest',
-            width: '30%',
+            width: '25%',
             key: 'idTest',
 
             render: (abc) => (
                 <div className="flex gap-[5px]">
                     <>
-                        <Button type="primary" onClick={() => showDrawer(abc)} icon={<CgEditMarkup />}>
+                        <Button type="primary" onClick={() => showDrawer(abc)}>
                             Sửa
                         </Button>
                         <Drawer
@@ -543,14 +537,14 @@ const Learning = () => {
                                     paddingBottom: 80,
                                 },
                             }}
-                            // extra={
-                            //     // <Space>
-                            //     //     <Button onClick={onClose}>Cancel</Button>
-                            //     //     <Button onClick={onClose} type="primary">
-                            //     //         Submit
-                            //     //     </Button>
-                            //     // </Space>
-                            // }
+                        // extra={
+                        //     // <Space>
+                        //     //     <Button onClick={onClose}>Cancel</Button>
+                        //     //     <Button onClick={onClose} type="primary">
+                        //     //         Submit
+                        //     //     </Button>
+                        //     // </Space>
+                        // }
                         >
                             <Form layout="vertical" onFinish={onNote} autoComplete="off">
                                 <Row gutter={16}>
@@ -558,13 +552,13 @@ const Learning = () => {
                                         <Form.Item
                                             name="text"
                                             label="Nội dung"
-                                            // rules={[
-                                            //     {
-                                            //         required: true,
-                                            //         message: 'Vui lòng nhập ghi chú',
-                                            //     },
-                                            //     { whitespace: true, message: 'Vui lòng nhập họ và tên!' }
-                                            // ]}
+                                        // rules={[
+                                        //     {
+                                        //         required: true,
+                                        //         message: 'Vui lòng nhập ghi chú',
+                                        //     },
+                                        //     { whitespace: true, message: 'Vui lòng nhập họ và tên!' }
+                                        // ]}
                                         >
                                             <Input.TextArea
                                                 value={valueNote}
@@ -909,8 +903,8 @@ const Learning = () => {
                                                         className={cx('note--ipt')}
                                                         name="note_content"
                                                         id=""
-                                                        cols="30"
-                                                        rows="8"
+                                                        cols="10"
+                                                        rows="3"
                                                         ref={refNoteInput}
                                                         onChange={(e) => {
                                                             setNoteInput(e.target.value);
