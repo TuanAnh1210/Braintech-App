@@ -98,6 +98,7 @@ const ForgotPassword = () => {
         }
         const userUpdate = {
             ...emailUser,
+            isAdmin: false,
             phone: 'Chưa cập nhật',
             password: newPassword,
             password_confirm: confirmPassword,
