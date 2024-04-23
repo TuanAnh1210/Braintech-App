@@ -7,6 +7,7 @@ import useLocalStorage from '@/hooks/useLocalStorage';
 import { login } from '@/providers/slices/userSlice';
 import { closeModal } from '@/providers/slices/modalSlice';
 import { openModal } from '@/providers/slices/modalSlice';
+import { Link } from 'react-router-dom';
 
 const Login = () => {
     const handleOpenModal = (page) => {
@@ -78,15 +79,12 @@ const Login = () => {
                 </Form.Item>
             </div>
 
-            <Button htmlType="submit" className="w-100 mt-4" type="primary" size={'large'}>
+            <Button htmlType="submit" className="w-100 mt-4 mb-[17px]" type="primary" size={'large'}>
                 {isLoading ? <Spin /> : 'Đăng nhập'}
             </Button>
-            <Button
-                outline
-                onClick={() => handleOpenModal('forgetPassword')}
-            >
+            <Link to={'/forgetPassword'} className="w-100 underline font-semibold" type="primary" size={'large'}>
                 Quên mật khẩu
-            </Button>
+            </Link>
 
             <div className="d-flex align-items-center gap-3 mt-5 mb-1">
                 <div

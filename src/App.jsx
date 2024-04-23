@@ -1,10 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-
-import { RoutesAdmin, publicRoutes } from './routes/routes';
 import { AdminLayout, DefaultLayout } from './layouts';
-import { privateRoutes } from './routes/routes';
+import { publicRoutes, privateRoutes } from './routes/routes';
 import { Fragment } from 'react';
-
 
 function App() {
     return (
@@ -53,26 +50,6 @@ function App() {
                         );
                     })}
                 </Route>
-            </Routes>
-            <Routes>
-                {RoutesAdmin.map((route, index) => {
-                    const Page = route.component;
-                    let Layout = AdminLayout;
-                    if (route.layout === null) {
-                        Layout = Fragment;
-                    }
-                    return (
-                        <Route
-                            key={index}
-                            path={route.path}
-                            element={
-                                <Layout>
-                                    <Page />
-                                </Layout>
-                            }
-                        />
-                    );
-                })}
             </Routes>
         </Router>
     );
