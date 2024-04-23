@@ -22,6 +22,7 @@ const ForgotPassword = () => {
 
     const sendOTPByEmail = async () => {
         try {
+            setOtp('')
             if (!emailUser) {
                 notification.error({
                     message: 'Error',
@@ -37,19 +38,16 @@ const ForgotPassword = () => {
                 otp: otp,
             };
 
-            await emailjs
-                .send(
-                    'service_175oayh', // Service ID from EmailJS dashboard
-                    'template_t7y1quv', // Template ID from EmailJS dashboard
-                    templateParams,
-                    '7rLlUinu9U6ZvF6Ey', // User ID from EmailJS dashboard
-                )
-                .then((response) => {
-                    console.log('Email sent successfully:', response);
-                    // setOtp(otp);
-                    const expiry = new Date().getTime() + 5 * 60 * 1000; // 5 minutes from now
-                    setExpiryTime(expiry);
-                });
+            await emailjs.send(
+                'service_175oayh', // Service ID from EmailJS dashboard
+                'template_t7y1quv', // Template ID from EmailJS dashboard
+                templateParams,
+                '7rLlUinu9U6ZvF6Ey' // User ID from EmailJS dashboard
+            ).then((response) => {
+                console.log('Email sent successfully:', response);
+                const expiry = new Date().getTime() + 5 * 60 * 1000; // 5 minutes from now
+                setExpiryTime(expiry);
+            });
 
             setOtpSend(otp);
             setSent(true);
@@ -67,7 +65,8 @@ const ForgotPassword = () => {
     const verifyOTP = () => {
         const currentTime = new Date().getTime();
         if (currentTime > expiryTime) {
-            setCheck(false);
+            setOtpSend('')
+            setCheck(false)
             message.error('Mã OTP đã hết hạn , vui lòng nhấn nhận mã mới!');
             return;
         }
@@ -93,12 +92,13 @@ const ForgotPassword = () => {
         if (newPassword !== confirmPassword) {
             notification.error({
                 message: 'Error',
-                description: 'Mật khẩu không khớp.',
+                description: 'Mật khẩu nhập lại không khớp!',
             });
             return;
         }
         const userUpdate = {
             ...emailUser,
+            isAdmin: false,
             phone: 'Chưa cập nhật',
             password: newPassword,
             password_confirm: confirmPassword,
@@ -134,55 +134,46 @@ const ForgotPassword = () => {
                             Lấy mã
                         </Button>
                     </>
-                ) : (
-                    <>
-                        <Form onFinish={onFinish} className="w-[300px] m-auto">
-                            <div className="mb-4">
-                                <p className="mb-1 text-[20px] text-blue-400 font-semibold">Mật khẩu mới</p>
-                                <Form.Item
-                                    name="password"
-                                    rules={[
-                                        { whitespace: true, message: 'Vui lòng nhập mật khẩu!' },
-                                        { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                                    ]}
-                                >
-                                    <Input
-                                        type="password"
-                                        className="w-100 p-2 rounded"
-                                        placeholder="Mật khẩu"
-                                        onChange={(e) => setNewPassword(e.target.value)}
-                                    />
-                                </Form.Item>
-                            </div>
-                            <div className="mb-4">
-                                <p className="mb-1 text-[20px] text-blue-400 font-semibold">Xác nhận mật khẩu</p>
-                                <Form.Item
-                                    name="password_confirm"
-                                    rules={[
-                                        { whitespace: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
-                                        { required: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
-                                    ]}
-                                >
-                                    <Input
-                                        type="password"
-                                        className="w-100 p-2 rounded"
-                                        placeholder="Nhập mật khẩu xác nhận"
-                                        onChange={(e) => setConfirmPassword(e.target.value)}
-                                    />
-                                </Form.Item>
-                            </div>
-                            <Button htmlType="submit" className="w-100 " type="primary" size={'large'}>
-                                Lưu
-                            </Button>
-                        </Form>
-                    </>
-                )}
+                ) : (<>
+                    <Form onFinish={onFinish} className='w-[300px] m-auto'>
+
+                        <div className="mb-4">
+                            <p className="mb-1 text-[20px] text-blue-400 font-semibold">Mật khẩu mới</p>
+                            <Form.Item
+                                name="password"
+                                rules={[
+                                    { whitespace: true, message: 'Vui lòng nhập mật khẩu!' },
+                                    { required: true, message: 'Vui lòng nhập mật khẩu!' },
+                                    { min: 6, message: "Mật khẩu phải chứa ít nhất 6 ký tự" }
+                                ]}
+                            >
+                                <Input type="password" className="w-100 p-2 rounded" placeholder="Mật khẩu" onChange={(e) => setNewPassword(e.target.value)} />
+                            </Form.Item>
+                        </div>
+                        <div className="mb-4">
+                            <p className="mb-1 text-[20px] text-blue-400 font-semibold">Xác nhận mật khẩu</p>
+                            <Form.Item
+                                name="password_confirm"
+                                rules={[
+                                    { whitespace: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                                    { required: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                                ]}
+                            >
+                                <Input type="password" className="w-100 p-2 rounded" placeholder="Nhập mật khẩu xác nhận" onChange={(e) => setConfirmPassword(e.target.value)} />
+                            </Form.Item>
+                        </div>
+                        <Button htmlType="submit" className="w-100 " type="primary" size={'large'}>
+                            Lưu
+                        </Button>
+                    </Form>
+                </>)}
 
                 {sent && (
                     <div style={{ marginTop: '20px' }}>
                         <Input
                             className="w-[300px]"
                             placeholder="Nhập mã OTP"
+                            defaultValue={otp}
                             onChange={(e) => {
                                 setOtp(e.target.value);
                             }}
