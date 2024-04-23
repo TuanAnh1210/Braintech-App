@@ -30,7 +30,7 @@ const publicRoutes = [
     { path: config.detail, component: DetailCourse },
     { path: config.contact, component: Contact },
     { path: config.info, component: Info },
-    { path: config.account, component: Account}
+    { path: config.account, component: Account },
 ];
 
 const RoutesAdmin = [{ path: config.admin_dashboard, component: Dashboard }];

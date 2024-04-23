@@ -1,9 +1,9 @@
-import Joi from "joi";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import Joi from 'joi';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
-import { notification } from 'antd'
-import { useDropzone } from "react-dropzone";
+import { notification } from 'antd';
+import { useDropzone } from 'react-dropzone';
 const Account = () => {
     const schema = Joi.object({
         full_name: Joi.string().required(),
@@ -19,28 +19,28 @@ const Account = () => {
     });
     const courses = [
         {
-            "_id": "64c232eeca36426de30f6426",
-            "name": "HTML CSS từ Zero đến Hero",
-            "thumb": "https://res.cloudinary.com/dpjieqbsk/image/upload/v1681393126/braintech/spmz7sjkfyo8lkchmyqx.png",
-            "time": "23/04/2024"
+            _id: '64c232eeca36426de30f6426',
+            name: 'HTML CSS từ Zero đến Hero',
+            thumb: 'https://res.cloudinary.com/dpjieqbsk/image/upload/v1681393126/braintech/spmz7sjkfyo8lkchmyqx.png',
+            time: '23/04/2024',
         },
         {
-            "_id": "64c232eeca36426de30f6427",
-            "name": "Kiến Thức Nhập Môn IT",
-            "thumb": "https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377227/braintech/cpge4lrnbot8fkkjgn7g.png",
-            "time": "20/01/2024"
+            _id: '64c232eeca36426de30f6427',
+            name: 'Kiến Thức Nhập Môn IT',
+            thumb: 'https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377227/braintech/cpge4lrnbot8fkkjgn7g.png',
+            time: '20/01/2024',
         },
         {
-            "_id": "64c232eeca36426de30f6428",
-            "name": "Node & ExpressJS",
-            "thumb": "https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377304/braintech/rl5psizy4vdmv9yk4nz8.png",
-            "time": "12/08/2023"
-        }
-    ]
+            _id: '64c232eeca36426de30f6428',
+            name: 'Node & ExpressJS',
+            thumb: 'https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377304/braintech/rl5psizy4vdmv9yk4nz8.png',
+            time: '12/08/2023',
+        },
+    ];
 
-    const { avatar, fullName, phone, email, token } = JSON.parse(localStorage.getItem('access_token'))
+    const { avatar, fullName, phone, email, token } = JSON.parse(localStorage.getItem('access_token'));
     const [uploadedImages, setUploadedImages] = useState();
-    const [uploadFile, setUploadFile] = useState()
+    const [uploadFile, setUploadFile] = useState();
     const { getRootProps, getInputProps } = useDropzone({
         accept: 'image/*',
         maxFiles: 1,
@@ -49,10 +49,10 @@ const Account = () => {
                 acceptedFiles.map((file) =>
                     Object.assign(file, {
                         preview: URL.createObjectURL(file),
-                    })
-                )
+                    }),
+                ),
             );
-            setUploadFile(acceptedFiles[0])
+            setUploadFile(acceptedFiles[0]);
         },
     });
     const [showModal, setShowModal] = useState(false);
@@ -63,9 +63,9 @@ const Account = () => {
             phone: phone,
             fullName: fullName,
             avatar: avatar,
-        }
-        localStorage.setItem('access_token', JSON.stringify(newData))
-    }
+        };
+        localStorage.setItem('access_token', JSON.stringify(newData));
+    };
     const onHandleUploadImg = async (file) => {
         // Upload ảnh lên ImgBB
         const formData = new FormData();
@@ -78,30 +78,37 @@ const Account = () => {
             const data = await response.json();
             return data.data.display_url;
         } catch (error) {
-            console.log(error)
-            return avatar
+            console.log(error);
+            return avatar;
         }
-    }
+    };
     const onSubmit = async (data) => {
         try {
-            const newUrl = await onHandleUploadImg(uploadFile)
+            const newUrl = await onHandleUploadImg(uploadFile);
             fetch(`http://localhost:8080/api/user/update`, {
-                method: "PATCH",
+                method: 'PATCH',
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ ...data, avatar: newUrl }),
-            }).then((res) => res.json())
+            })
+                .then((res) => res.json())
                 .then((data) => {
-                    updateLocalStorage(token, data.result.email, data.result.phone, data.result.full_name, data.result.avatar)
-                    setShowModal(false)
+                    updateLocalStorage(
+                        token,
+                        data.result.email,
+                        data.result.phone,
+                        data.result.full_name,
+                        data.result.avatar,
+                    );
+                    setShowModal(false);
                     notification.success({
                         message: 'Thông báo',
                         description: data.message,
                         duration: 1.75,
                     });
-                })
+                });
         } catch (error) {
             return notification.error({
                 message: 'Thông báo',
@@ -118,13 +125,18 @@ const Account = () => {
                         <div class="col-span-4 sm:col-span-3">
                             <div class="bg-white shadow rounded-lg p-6">
                                 <div class="flex flex-col items-center">
-                                    <img src={avatar} class="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0">
-
-                                    </img>
+                                    <img
+                                        src={avatar}
+                                        class="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
+                                    ></img>
                                     <h1 class="text-2xl font-bold">{fullName}</h1>
-                                    <div onClick={() => setShowModal(true)} class="mt-6 flex flex-wrap gap-4 justify-center">
-                                        <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">Chỉnh sửa thông tin</a>
-
+                                    <div
+                                        onClick={() => setShowModal(true)}
+                                        class="mt-6 flex flex-wrap gap-4 justify-center"
+                                    >
+                                        <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                                            Chỉnh sửa thông tin
+                                        </a>
                                     </div>
                                 </div>
                                 <hr class="my-6 border-t border-gray-300" />
@@ -148,57 +160,51 @@ const Account = () => {
                         <div class="col-span-4 sm:col-span-9">
                             <div class="bg-white shadow rounded-lg p-6">
                                 <h2 class="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
-                                {
-                                    courses.map((item, index) => {
-                                        return (
-                                            <>
-                                                <div key={index} className="flex mt-4">
-                                                    <img className="w-[25%]" src={item.thumb} />
-                                                    <div className="ml-4">
-                                                        <p className="font-bold mt-4">{item.name}</p>
-                                                        <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
-                                                    </div>
+                                {courses.map((item, index) => {
+                                    return (
+                                        <>
+                                            <div key={index} className="flex mt-4">
+                                                <img className="w-[25%]" src={item.thumb} />
+                                                <div className="ml-4">
+                                                    <p className="font-bold mt-4">{item.name}</p>
+                                                    <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
                                                 </div>
-                                            </>
-                                        )
-                                    })
-                                }
+                                            </div>
+                                        </>
+                                    );
+                                })}
                             </div>
                             <div class="bg-white shadow rounded-lg p-6 mt-4">
                                 <h2 class="text-xl font-bold mb-4">Các khóa học đã mua</h2>
-                                {
-                                    courses.map((item, index) => {
-                                        return (
-                                            <>
-                                                <div key={index} className="flex mt-4">
-                                                    <img className="w-[25%]" src={item.thumb} />
-                                                    <div className="ml-4">
-                                                        <p className="font-bold mt-4">{item.name}</p>
-                                                        <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
-                                                    </div>
+                                {courses.map((item, index) => {
+                                    return (
+                                        <>
+                                            <div key={index} className="flex mt-4">
+                                                <img className="w-[25%]" src={item.thumb} />
+                                                <div className="ml-4">
+                                                    <p className="font-bold mt-4">{item.name}</p>
+                                                    <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
                                                 </div>
-                                            </>
-                                        )
-                                    })
-                                }
+                                            </div>
+                                        </>
+                                    );
+                                })}
                             </div>
                             <div class="bg-white shadow rounded-lg p-6 mt-4">
                                 <h2 class="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
-                                {
-                                    courses.map((item, index) => {
-                                        return (
-                                            <>
-                                                <div key={index} className="flex mt-4">
-                                                    <img className="w-[25%]" src={item.thumb} />
-                                                    <div className="ml-4">
-                                                        <p className="font-bold mt-4">{item.name}</p>
-                                                        <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
-                                                    </div>
+                                {courses.map((item, index) => {
+                                    return (
+                                        <>
+                                            <div key={index} className="flex mt-4">
+                                                <img className="w-[25%]" src={item.thumb} />
+                                                <div className="ml-4">
+                                                    <p className="font-bold mt-4">{item.name}</p>
+                                                    <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
                                                 </div>
-                                            </>
-                                        )
-                                    })
-                                }
+                                            </div>
+                                        </>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -206,27 +212,23 @@ const Account = () => {
             </div>
             {showModal ? (
                 <>
-                    <div
-                        className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none"
-                    >
+                    <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
                         <div className="relative w-[80%] my-6 mx-auto max-w-3xl">
                             <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
                                 <div className="flex items-start mx-auto justify-between mt-5 rounded-t">
-                                    <h3 className="text-3xl font-semibold">
-                                        Chỉnh sửa thông tin
-                                    </h3>
+                                    <h3 className="text-3xl font-semibold">Chỉnh sửa thông tin</h3>
                                 </div>
                                 {/*body*/}
                                 <div className="relative p-6 flex-auto">
                                     <div>
                                         <div {...getRootProps()} className="flex">
                                             <input {...getInputProps()} />
-                                            <img src={uploadedImages ? uploadedImages[0].preview : avatar} class="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0">
-
-                                            </img>
-
+                                            <img
+                                                src={uploadedImages ? uploadedImages[0].preview : avatar}
+                                                class="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
+                                            ></img>
                                         </div>
-                                        <div>{ }</div>
+                                        <div>{}</div>
                                     </div>
                                     <form action="#" class="grid grid-cols-6 gap-6" onSubmit={handleSubmit(onSubmit)}>
                                         <div class="col-span-6 sm:col-span-3">
@@ -242,7 +244,11 @@ const Account = () => {
                                                 defaultValue={access_token?.fullName}
                                                 className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
-                                            {errors.full_name && <span className="text-[#ff6969] italic">{errors.full_name.message}</span>}
+                                            {errors.full_name && (
+                                                <span className="text-[#ff6969] italic">
+                                                    {errors.full_name.message}
+                                                </span>
+                                            )}
                                         </div>
 
                                         <div className="col-span-6 sm:col-span-3">
@@ -258,11 +264,16 @@ const Account = () => {
                                                 defaultValue={access_token?.phone}
                                                 class="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
-                                            {errors.phone && <span className="text-[#ff6969] italic">{errors.phone.message}</span>}
+                                            {errors.phone && (
+                                                <span className="text-[#ff6969] italic">{errors.phone.message}</span>
+                                            )}
                                         </div>
 
                                         <div class="col-span-6">
-                                            <label for="Email" class="block text-sm font-medium text-gray-700"> Email </label>
+                                            <label for="Email" class="block text-sm font-medium text-gray-700">
+                                                {' '}
+                                                Email{' '}
+                                            </label>
 
                                             <input
                                                 type="email"
@@ -272,7 +283,9 @@ const Account = () => {
                                                 defaultValue={access_token?.email}
                                                 className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
-                                            {errors.email && <span className="text-[#ff6969] italic">{errors.email.message}</span>}
+                                            {errors.email && (
+                                                <span className="text-[#ff6969] italic">{errors.email.message}</span>
+                                            )}
                                         </div>
                                         <div className="flex rounded-b h-[60px] w-[700px] justify-end">
                                             <button
@@ -298,6 +311,6 @@ const Account = () => {
                 </>
             ) : null}
         </>
-    )
-}
-export default Account
+    );
+};
+export default Account;
