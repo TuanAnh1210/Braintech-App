@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { notification } from 'antd';
 import { useDropzone } from 'react-dropzone';
+import Cookies from 'js-cookie';
+import { useUpdateProfileMutation } from '@/providers/apis/userApi';
 const Account = () => {
     const schema = Joi.object({
         full_name: Joi.string().required(),
@@ -38,9 +40,10 @@ const Account = () => {
         },
     ];
 
-    const { avatar, fullName, phone, email, token } = JSON.parse(localStorage.getItem('access_token'));
+    const { avatar, fullName, phone, email, token } = JSON.parse(Cookies.get('userData'));
     const [uploadedImages, setUploadedImages] = useState();
     const [uploadFile, setUploadFile] = useState();
+    const [handleUpdateProfile] = useUpdateProfileMutation()
     const { getRootProps, getInputProps } = useDropzone({
         accept: 'image/*',
         maxFiles: 1,
@@ -64,52 +67,52 @@ const Account = () => {
             fullName: fullName,
             avatar: avatar,
         };
-        localStorage.setItem('access_token', JSON.stringify(newData));
+        Cookies.set('userData', JSON.stringify(newData));
     };
     const onHandleUploadImg = async (file) => {
         // Upload ảnh lên ImgBB
         const formData = new FormData();
         formData.append('image', file);
         try {
-            const response = await fetch('https://api.imgbb.com/1/upload?key=84f6d6a0f9728361a9fbfee270175801', {
+            const response = await fetch('http://127.0.0.1:8080/upload/image', {
                 method: 'POST',
                 body: formData,
             });
             const data = await response.json();
-            return data.data.display_url;
+            return data.url;
         } catch (error) {
             console.log(error);
             return avatar;
         }
     };
-    const onSubmit = async (data) => {
+    const onSubmit = async (payload) => {
         try {
-            const newUrl = await onHandleUploadImg(uploadFile);
-            fetch(`http://localhost:8080/api/user/update`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ ...data, avatar: newUrl }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    updateLocalStorage(
-                        token,
-                        data.result.email,
-                        data.result.phone,
-                        data.result.full_name,
-                        data.result.avatar,
-                    );
-                    setShowModal(false);
-                    notification.success({
-                        message: 'Thông báo',
-                        description: data.message,
-                        duration: 1.75,
-                    });
+            let newUrl
+            uploadFile ? newUrl = await onHandleUploadImg(uploadFile) : newUrl = avatar
+            const { data, error } = await handleUpdateProfile({ ...payload, avatar: newUrl })
+            if (error) {
+                console.log(error)
+                return notification.error({
+                    message: 'Thông báo',
+                    description: error.data.message,
+                    duration: 1.75,
                 });
+            }
+            updateLocalStorage(
+                token,
+                data.result.email,
+                data.result.phone,
+                data.result.full_name,
+                data.result.avatar,
+            );
+            setShowModal(false);
+            notification.success({
+                message: 'Thông báo',
+                description: data.message,
+                duration: 1.75,
+            });
         } catch (error) {
+            console.log(error)
             return notification.error({
                 message: 'Thông báo',
                 description: error.data?.message,
@@ -231,7 +234,7 @@ const Account = () => {
                                                 className="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
                                             ></img>
                                         </div>
-                                        <div>{}</div>
+                                        <div>{ }</div>
                                     </div>
                                     <form
                                         action="#"
@@ -251,7 +254,7 @@ const Account = () => {
                                                 id="FirstName"
                                                 name="full_name"
                                                 {...register('full_name')}
-                                                defaultValue={access_token?.fullName}
+                                                defaultValue={fullName}
                                                 className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.full_name && (
@@ -269,10 +272,9 @@ const Account = () => {
                                             <input
                                                 type="text"
                                                 id="LastName"
-                                                className="last_name"
                                                 {...register('phone')}
-                                                defaultValue={access_token?.phone}
-                                                className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
+                                                defaultValue={phone}
+                                                className="mt-1 w-full last_name focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.phone && (
                                                 <span className="text-[#ff6969] italic">{errors.phone.message}</span>
@@ -290,7 +292,7 @@ const Account = () => {
                                                 id="Email"
                                                 name="email"
                                                 {...register('email')}
-                                                defaultValue={access_token?.email}
+                                                defaultValue={email}
                                                 className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.email && (

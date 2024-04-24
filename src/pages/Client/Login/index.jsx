@@ -47,6 +47,7 @@ const Login = () => {
         };
 
         Cookies.set('access_token', user.token);
+        Cookies.set('userData', JSON.stringify(user));
         dispatch(login(user));
 
         dispatch(closeModal());
