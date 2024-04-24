@@ -46,6 +46,7 @@ const Login = () => {
             avatar: data.user.avatar,
         };
 
+        Cookies.set('user', JSON.stringify(user), { expires: 7, secure: true, HttpOnly: true });
         Cookies.set('access_token', user.token);
         Cookies.set('userData', JSON.stringify(user));
         dispatch(login(user));
