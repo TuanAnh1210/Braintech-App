@@ -95,6 +95,7 @@ const Learning = () => {
     const [lessonIncome, setIncomeLesson] = useState(null);
     const [isDelete, setDelete] = useState(false);
     const [preLesson, setPreLesson] = useState(null);
+    const [isStreaming, setStreaming] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
     const [handleAddSttCourse] = useAddSttCourseMutation();
     const [nextLesson, setNextLesson] = useState(null);
@@ -105,7 +106,7 @@ const Learning = () => {
 
     const { data: dataFinish, isLoading: loadingFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
     const { data: countLessonFinish, refetch: refetchCount } = useGetCountQuery(id);
-    // console.log(countLessonFinish);
+
     const completedLesson = allLesson?.lessons?.filter((lesson) => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
     });
@@ -190,11 +191,10 @@ const Learning = () => {
         clearFilters();
         setSearchText('');
     };
-
     useEffect(() => {
         setIsModalShown(false);
 
-        if (progressVideo >= 90) {
+        if (progressVideo >= 95) {
             setIsModalShown(true);
         } else if (!nextLesson && countLessonFinish?.count === countLesson) {
             setIsModalShown(false);
@@ -471,7 +471,6 @@ const Learning = () => {
             name: lessonName.name,
             note: item.text,
             createdate: `${formattedDate}  - ${formattedTime}`,
-
         };
     });
 
@@ -537,14 +536,14 @@ const Learning = () => {
                                     paddingBottom: 80,
                                 },
                             }}
-                        // extra={
-                        //     // <Space>
-                        //     //     <Button onClick={onClose}>Cancel</Button>
-                        //     //     <Button onClick={onClose} type="primary">
-                        //     //         Submit
-                        //     //     </Button>
-                        //     // </Space>
-                        // }
+                            // extra={
+                            //     // <Space>
+                            //     //     <Button onClick={onClose}>Cancel</Button>
+                            //     //     <Button onClick={onClose} type="primary">
+                            //     //         Submit
+                            //     //     </Button>
+                            //     // </Space>
+                            // }
                         >
                             <Form layout="vertical" onFinish={onNote} autoComplete="off">
                                 <Row gutter={16}>
@@ -552,13 +551,13 @@ const Learning = () => {
                                         <Form.Item
                                             name="text"
                                             label="Nội dung"
-                                        // rules={[
-                                        //     {
-                                        //         required: true,
-                                        //         message: 'Vui lòng nhập ghi chú',
-                                        //     },
-                                        //     { whitespace: true, message: 'Vui lòng nhập họ và tên!' }
-                                        // ]}
+                                            // rules={[
+                                            //     {
+                                            //         required: true,
+                                            //         message: 'Vui lòng nhập ghi chú',
+                                            //     },
+                                            //     { whitespace: true, message: 'Vui lòng nhập họ và tên!' }
+                                            // ]}
                                         >
                                             <Input.TextArea
                                                 value={valueNote}
@@ -631,7 +630,7 @@ const Learning = () => {
                             <Draggable>
                                 <div className={cx('message__delete')}>
                                     <h2>Bạn đã hoàn thành bài học này!!</h2>
-                                    <h4>Nhấn yes để {isReachedLesson ? 'chuyển bài' : 'mở khóa'} nhé</h4>
+                                    <h4>Nhấn "Yes" để {isReachedLesson ? 'chuyển bài' : 'mở khóa'} nhé</h4>
                                     <div className={cx('btn__delete-container')}>
                                         <button onClick={handleSetFinish} className={cx('yes')}>
                                             Yes
@@ -927,7 +926,7 @@ const Learning = () => {
                                         return (
                                             <div className={cx('learning__chapter')} key={item.id}>
                                                 <h3 className={cx('learning__chapter--txt')}>
-                                                    {++indexChapter}.{item.name}
+                                                    {++indexChapter}. {item.name}
                                                 </h3>
 
                                                 {item?.lessons.map((lesson, indexLesson) => {

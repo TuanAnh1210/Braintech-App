@@ -31,6 +31,10 @@ const DetailCourse = () => {
 
     const user = useSelector((state) => state.user);
     useEffect(() => {
+        window.scrollTo(0, 0);
+    });
+
+    useEffect(() => {
         if (currentLesson?.length > 0 && !isLoading && !loadingFinish) {
             setSearchParams(currentLesson[currentLesson.length - 1]?.lesson_id);
         } else {
@@ -46,9 +50,7 @@ const DetailCourse = () => {
         }
     }, [loadingFinish, dataUser, data]);
     const dispatch = useDispatch();
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+
     useEffect(() => {
         if (isLog != null) {
             setIsLogin(true);
@@ -62,7 +64,6 @@ const DetailCourse = () => {
             dispatch(openModal('login'));
         }
     }, [access_token]);
-    console.log(data);
     return (
         <>
             <div className={cx('detail-course')}>
