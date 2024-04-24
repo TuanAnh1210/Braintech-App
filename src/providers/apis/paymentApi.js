@@ -29,6 +29,11 @@ export const paymentApi = createApi({
                 return { url: `/create_payment_url`, method: 'POST', body: payload };
             },
         }),
+        handleCheckPayment: build.mutation({
+            query: (payload) => {
+                return { url: `/create_payment_url`, method: 'POST', body: payload };
+            },
+        }),
     }),
 });
 
