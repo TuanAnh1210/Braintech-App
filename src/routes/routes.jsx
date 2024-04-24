@@ -17,11 +17,10 @@ import Quizz from '@/pages/Client/Quizz';
 import Certificate from '@/pages/Client/Certificate';
 import ForgotPassword from '@/pages/Client/Forgetpassword';
 import Account from '@/pages/Client/Account';
-import withAuth from '@/pages/Client/Login/withAuth';
 
 const publicRoutes = [
     { path: config.home, component: Home },
-    { path: config.courses, component: withAuth(Courses) },
+    { path: config.courses, component: Courses },
     { path: config.login, component: Login, layout: null },
     { path: config.register, component: Register, layout: null },
     { path: config.forgetPassword, component: ForgotPassword, layout: null },
