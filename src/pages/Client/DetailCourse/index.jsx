@@ -75,20 +75,22 @@ const DetailCourse = () => {
     const handleBuyCourse = async () => {
         const { data } = await createPaymentUrl({ courseId: id });
 
+        location.href = data.url;
+
         // Tạo một thẻ <a> ẩn
-        const link = document.createElement('a');
-        link.href = data.url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
+        // const link = document.createElement('a');
+        // link.href = data.url;
+        // link.target = '_blank';
+        // link.rel = 'noopener noreferrer';
 
-        // Kích hoạt sự kiện nhấp chuột trên thẻ <a>
-        const clickEvent = new MouseEvent('click', {
-            view: window,
-            bubbles: true,
-            cancelable: true,
-        });
+        // // Kích hoạt sự kiện nhấp chuột trên thẻ <a>
+        // const clickEvent = new MouseEvent('click', {
+        //     view: window,
+        //     bubbles: true,
+        //     cancelable: true,
+        // });
 
-        link.dispatchEvent(clickEvent);
+        // link.dispatchEvent(clickEvent);
     };
 
     return (
