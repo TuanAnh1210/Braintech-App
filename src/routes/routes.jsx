@@ -18,6 +18,7 @@ import Certificate from '@/pages/Client/Certificate';
 import ForgotPassword from '@/pages/Client/Forgetpassword';
 import Account from '@/pages/Client/Account';
 
+
 const publicRoutes = [
     { path: config.home, component: Home },
     { path: config.courses, component: Courses },
