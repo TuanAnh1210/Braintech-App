@@ -119,29 +119,32 @@ const Account = () => {
     };
     return (
         <>
-            <div class="">
-                <div class="container mx-auto py-8">
-                    <div class="grid grid-cols-4 sm:grid-cols-12  gap-6 px-4">
-                        <div class="col-span-4 sm:col-span-3">
-                            <div class="bg-white shadow rounded-lg p-6">
-                                <div class="flex flex-col items-center">
+            <div className="">
+                <div className="container mx-auto py-8">
+                    <div className="grid grid-cols-4 sm:grid-cols-12  gap-6 px-4">
+                        <div className="col-span-4 sm:col-span-3">
+                            <div className="bg-white shadow rounded-lg p-6">
+                                <div className="flex flex-col items-center">
                                     <img
                                         src={avatar}
-                                        class="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
+                                        className="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
                                     ></img>
-                                    <h1 class="text-2xl font-bold">{fullName}</h1>
+                                    <h1 className="text-2xl font-bold">{fullName}</h1>
                                     <div
                                         onClick={() => setShowModal(true)}
-                                        class="mt-6 flex flex-wrap gap-4 justify-center"
+                                        className="mt-6 flex flex-wrap gap-4 justify-center"
                                     >
-                                        <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                                        <a
+                                            href="#"
+                                            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                                        >
                                             Chỉnh sửa thông tin
                                         </a>
                                     </div>
                                 </div>
-                                <hr class="my-6 border-t border-gray-300" />
-                                <div class="flex flex-col">
-                                    <h1 class="text-2xl font-bold">Thông tin</h1>
+                                <hr className="my-6 border-t border-gray-300" />
+                                <div className="flex flex-col">
+                                    <h1 className="text-2xl font-bold">Thông tin</h1>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Họ và tên</label>
                                         <p className="text-lg font-[450]">{fullName}</p>
@@ -157,9 +160,9 @@ const Account = () => {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-span-4 sm:col-span-9">
-                            <div class="bg-white shadow rounded-lg p-6">
-                                <h2 class="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
+                        <div className="col-span-4 sm:col-span-9">
+                            <div className="bg-white shadow rounded-lg p-6">
+                                <h2 className="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
                                 {courses.map((item, index) => {
                                     return (
                                         <>
@@ -174,8 +177,8 @@ const Account = () => {
                                     );
                                 })}
                             </div>
-                            <div class="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 class="text-xl font-bold mb-4">Các khóa học đã mua</h2>
+                            <div className="bg-white shadow rounded-lg p-6 mt-4">
+                                <h2 className="text-xl font-bold mb-4">Các khóa học đã mua</h2>
                                 {courses.map((item, index) => {
                                     return (
                                         <>
@@ -190,8 +193,8 @@ const Account = () => {
                                     );
                                 })}
                             </div>
-                            <div class="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 class="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
+                            <div className="bg-white shadow rounded-lg p-6 mt-4">
+                                <h2 className="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
                                 {courses.map((item, index) => {
                                     return (
                                         <>
@@ -225,14 +228,21 @@ const Account = () => {
                                             <input {...getInputProps()} />
                                             <img
                                                 src={uploadedImages ? uploadedImages[0].preview : avatar}
-                                                class="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
+                                                className="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
                                             ></img>
                                         </div>
                                         <div>{}</div>
                                     </div>
-                                    <form action="#" class="grid grid-cols-6 gap-6" onSubmit={handleSubmit(onSubmit)}>
-                                        <div class="col-span-6 sm:col-span-3">
-                                            <label for="FirstName" class="block text-sm font-medium text-gray-700">
+                                    <form
+                                        action="#"
+                                        className="grid grid-cols-6 gap-6"
+                                        onSubmit={handleSubmit(onSubmit)}
+                                    >
+                                        <div className="col-span-6 sm:col-span-3">
+                                            <label
+                                                htmlFor="FirstName"
+                                                className="block text-sm font-medium text-gray-700"
+                                            >
                                                 Họ và tên
                                             </label>
 
@@ -262,15 +272,15 @@ const Account = () => {
                                                 className="last_name"
                                                 {...register('phone')}
                                                 defaultValue={access_token?.phone}
-                                                class="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
+                                                className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.phone && (
                                                 <span className="text-[#ff6969] italic">{errors.phone.message}</span>
                                             )}
                                         </div>
 
-                                        <div class="col-span-6">
-                                            <label for="Email" class="block text-sm font-medium text-gray-700">
+                                        <div className="col-span-6">
+                                            <label for="Email" className="block text-sm font-medium text-gray-700">
                                                 {' '}
                                                 Email{' '}
                                             </label>
