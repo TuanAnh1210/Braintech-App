@@ -19,7 +19,7 @@ export const userApi = createApi({
         }),
         forgetPassword: build.mutation({
             query: (payload) => {
-                return { url: `/user/forgetPassword/${payload._id}`, method: 'PATCH', body: payload };
+                return { url: `/user/forgetPassword/${payload._id}`, method: 'PUT', body: payload };
             },
         }),
 

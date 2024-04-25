@@ -475,7 +475,7 @@
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
-    margin: 10px;
+    margin: 10px 10px 3px 0;
     transition: all 0.3s ease;
 }
 
@@ -483,11 +483,11 @@
     background-color: #f76b1c;
     color: #ffffff;
     padding: 20px;
-    border-radius: 10px;
+    border-radius: 8px;
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
-    margin: 10px;
+    margin: 10px 10px 3px 0;
     transition: all 0.3s ease;
 }
 
@@ -497,11 +497,11 @@
 }
 
 .learning__chapter--lesson-btn {
-    border-radius: 8px;
-    background-color: rgb(38, 237, 161);
-    color: #000;
+    border-radius: 4px;
+    background-color: rgb(50, 34, 34);
+    color: #ebff13;
     border: none; 
-    padding: 2px 3px;
+    padding: 4px 6px;
     font-size: 14px;
     margin-top: 8px;
     display: inline-block;
@@ -609,13 +609,12 @@
 
 .message__delete {
     z-index: 10;
-    
     width: 400px;
     height: 120px;
     position: fixed;
     right: 26px;
-    top: 20%;
-    background-color: #111;
+    top: 15%;
+    background-color: #903232;
     box-shadow: rgba(0, 0, 0, 0.25) 0px 14px 28px, rgba(0, 0, 0, 0.22) 0px 10px 10px;
     padding: 8px;
     border-left: 6px solid orangered;
@@ -628,6 +627,7 @@
 }
 
 .message__delete h2 {
+    margin-top: 5px;
     margin-left: 10px;
     font-weight: 500;
     font-size: 18px;
@@ -635,7 +635,6 @@
 
 .message__delete h4 {
     font-size: 14px;
-
     margin-left: 28px;
     font-weight: 500;
     font-style: italic;
@@ -643,13 +642,13 @@
 }
 .btn__delete-container {
     margin-left: 18px;
-    margin-top: 10px;
     display: flex;
     justify-content: end;
 }
 
 .yes {
     border: none;
+    border-radius: 2px;
     font-size: 18px;
     font-weight: bold;
     background-color: #fff;
@@ -657,7 +656,6 @@
     padding: 4px 20px;
     margin: 3px;
 }
-
 
 .yes:hover {
     color: orangered;

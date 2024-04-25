@@ -95,6 +95,7 @@ const Learning = () => {
     const [lessonIncome, setIncomeLesson] = useState(null);
     const [isDelete, setDelete] = useState(false);
     const [preLesson, setPreLesson] = useState(null);
+    const [isStreaming, setStreaming] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
     const [handleAddSttCourse] = useAddSttCourseMutation();
     const [nextLesson, setNextLesson] = useState(null);
@@ -105,7 +106,7 @@ const Learning = () => {
 
     const { data: dataFinish, isLoading: loadingFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
     const { data: countLessonFinish, refetch: refetchCount } = useGetCountQuery(id);
-    // console.log(countLessonFinish);
+
     const completedLesson = allLesson?.lessons?.filter((lesson) => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
     });
@@ -165,6 +166,7 @@ const Learning = () => {
             user_id: userId,
             lesson_id: idLesson,
         };
+        console.log(newNote);
         handleAddNote(newNote).then(() => {
             // gửi dữ liêu được nhập về backend
             refNoteInput.current.value = '';
@@ -189,11 +191,10 @@ const Learning = () => {
         clearFilters();
         setSearchText('');
     };
-
     useEffect(() => {
         setIsModalShown(false);
 
-        if (progressVideo >= 90) {
+        if (progressVideo >= 95) {
             setIsModalShown(true);
         } else if (!nextLesson && countLessonFinish?.count === countLesson) {
             setIsModalShown(false);
@@ -469,8 +470,7 @@ const Learning = () => {
             idTest: item._id,
             name: lessonName.name,
             note: item.text,
-            createdate: formattedDate,
-            createTime: formattedTime,
+            createdate: `${formattedDate}  - ${formattedTime}`,
         };
     });
 
@@ -497,40 +497,33 @@ const Learning = () => {
             title: 'Tên bài học',
             dataIndex: 'name',
             key: 'name',
-            width: '35%',
+            width: '30%',
             ...getColumnSearchProps('name'),
         },
         {
             title: 'Nội dung ghi chú',
             dataIndex: 'note',
             key: 'note',
-            width: '35%',
+            width: '30%',
             ...getColumnSearchProps('note'),
         },
         {
-            title: 'Ngày',
+            title: 'Ngày - Giờ',
             dataIndex: 'createdate',
             key: 'createdate',
-            width: '15%',
+            width: '30%',
             ...getColumnSearchProps('createdate'),
-        },
-        {
-            title: 'Giờ',
-            dataIndex: 'createTime',
-            key: 'createTime',
-            width: '15%',
-            ...getColumnSearchProps('createTime'),
         },
         {
             title: 'Action',
             dataIndex: 'idTest',
-            width: '30%',
+            width: '25%',
             key: 'idTest',
 
             render: (abc) => (
                 <div className="flex gap-[5px]">
                     <>
-                        <Button type="primary" onClick={() => showDrawer(abc)} icon={<CgEditMarkup />}>
+                        <Button type="primary" onClick={() => showDrawer(abc)}>
                             Sửa
                         </Button>
                         <Drawer
@@ -637,7 +630,7 @@ const Learning = () => {
                             <Draggable>
                                 <div className={cx('message__delete')}>
                                     <h2>Bạn đã hoàn thành bài học này!!</h2>
-                                    <h4>Nhấn yes để {isReachedLesson ? 'chuyển bài' : 'mở khóa'} nhé</h4>
+                                    <h4>Nhấn "Yes" để {isReachedLesson ? 'chuyển bài' : 'mở khóa'} nhé</h4>
                                     <div className={cx('btn__delete-container')}>
                                         <button onClick={handleSetFinish} className={cx('yes')}>
                                             Yes
@@ -909,8 +902,8 @@ const Learning = () => {
                                                         className={cx('note--ipt')}
                                                         name="note_content"
                                                         id=""
-                                                        cols="30"
-                                                        rows="8"
+                                                        cols="10"
+                                                        rows="3"
                                                         ref={refNoteInput}
                                                         onChange={(e) => {
                                                             setNoteInput(e.target.value);
@@ -933,7 +926,7 @@ const Learning = () => {
                                         return (
                                             <div className={cx('learning__chapter')} key={item.id}>
                                                 <h3 className={cx('learning__chapter--txt')}>
-                                                    {++indexChapter}.{item.name}
+                                                    {++indexChapter}. {item.name}
                                                 </h3>
 
                                                 {item?.lessons.map((lesson, indexLesson) => {

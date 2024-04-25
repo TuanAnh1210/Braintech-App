@@ -31,6 +31,10 @@ const DetailCourse = () => {
 
     const user = useSelector((state) => state.user);
     useEffect(() => {
+        window.scrollTo(0, 0);
+    });
+
+    useEffect(() => {
         if (currentLesson?.length > 0 && !isLoading && !loadingFinish) {
             setSearchParams(currentLesson[currentLesson.length - 1]?.lesson_id);
         } else {
@@ -46,9 +50,7 @@ const DetailCourse = () => {
         }
     }, [loadingFinish, dataUser, data]);
     const dispatch = useDispatch();
-    useEffect(() => {
-        window.scrollTo(0, 0);
-    }, []);
+
     useEffect(() => {
         if (isLog != null) {
             setIsLogin(true);
@@ -62,7 +64,28 @@ const DetailCourse = () => {
             dispatch(openModal('login'));
         }
     }, [access_token]);
-    console.log(data);
+
+    const handleBuyCourse = async () => {
+        const { data } = await createPaymentUrl({ courseId: id });
+
+        location.href = data.url;
+
+        // Tạo một thẻ <a> ẩn
+        // const link = document.createElement('a');
+        // link.href = data.url;
+        // link.target = '_blank';
+        // link.rel = 'noopener noreferrer';
+
+        // // Kích hoạt sự kiện nhấp chuột trên thẻ <a>
+        // const clickEvent = new MouseEvent('click', {
+        //     view: window,
+        //     bubbles: true,
+        //     cancelable: true,
+        // });
+
+        // link.dispatchEvent(clickEvent);
+    };
+
     return (
         <>
             <div className={cx('detail-course')}>
@@ -101,13 +124,13 @@ const DetailCourse = () => {
                         <Col lg={4}>
                             <div className="course_img_wrapper">
                                 <img className={cx('course_img')} src={data?.course?.thumb} alt="" />
-                                {data?.courses?.price > 0 ? (
+                                {data?.course?.price > 0 ? (
                                     <>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
-                                                {data?.courses?.old_price.toLocaleString()}đ
+                                                {data?.course?.old_price.toLocaleString()}đ
                                             </p>
-                                            <p className={cx('price_cur')}>{data?.courses?.price.toLocaleString()}đ</p>
+                                            <p className={cx('price_cur')}>{data?.course?.price.toLocaleString()}đ</p>
                                         </div>
                                         <a href="">
                                             <button className={cx('course_btn-learn')}>Mua ngay</button>
