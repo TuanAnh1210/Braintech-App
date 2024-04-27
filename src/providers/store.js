@@ -13,6 +13,7 @@ import { noteApi } from './apis/noteApi';
 import { lessonApi } from './apis/lessonApi';
 import modalReducer from './slices/modalSlice';
 import lessonReducer from './slices/lessonSlice';
+import { paymentApi } from './apis/paymentApi';
 
 export const store = configureStore({
     reducer: {
@@ -26,6 +27,7 @@ export const store = configureStore({
         [cmtApi.reducerPath]: cmtApi.reducer,
         [noteApi.reducerPath]: noteApi.reducer,
         [lessonApi.reducerPath]: lessonApi.reducer,
+        [paymentApi.reducerPath]: paymentApi.reducer,
     },
 
     middleware: (getDefaultMiddleware) =>
@@ -36,6 +38,7 @@ export const store = configureStore({
             cmtApi.middleware,
             noteApi.middleware,
             lessonApi.middleware,
+            paymentApi.middleware,
         ),
 });
 

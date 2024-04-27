@@ -1,10 +1,12 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react-hooks/exhaustive-deps */
 import classNames from 'classnames/bind';
 import styles from './DetailCourse.module.scss';
 import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { useDispatch, useSelector } from 'react-redux';
@@ -12,7 +14,10 @@ import { openModal } from '@/providers/slices/modalSlice';
 import { jwtDecode } from 'jwt-decode';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useGetFinishLessonQuery } from '@/providers/apis/lessonApi';
+import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
+
 const cx = classNames.bind(styles);
+
 const DetailCourse = () => {
     const { id } = useParams();
     const [param, setSearchParams] = useState();
@@ -21,6 +26,8 @@ const DetailCourse = () => {
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
     const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
     const { data: dataFinish, isLoading: loadingFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
+
+    const [createPaymentUrl] = useCreatePaymentUrlMutation();
 
     const isLog = JSON.parse(localStorage.getItem('access_token'));
     const currentLesson = dataFinish?.data?.filter((dFinish) => {
@@ -49,6 +56,7 @@ const DetailCourse = () => {
             setUserId(idUser);
         }
     }, [loadingFinish, dataUser, data]);
+
     const dispatch = useDispatch();
 
     useEffect(() => {
@@ -58,6 +66,7 @@ const DetailCourse = () => {
             setIsLogin(false);
         }
     }, [user]);
+
     const access_token = localStorage.getItem('access_token');
     useEffect(() => {
         if (access_token === 'null' && access_token) {
@@ -132,7 +141,7 @@ const DetailCourse = () => {
                                             </p>
                                             <p className={cx('price_cur')}>{data?.course?.price.toLocaleString()}đ</p>
                                         </div>
-                                        <a href="">
+                                        <a onClick={handleBuyCourse}>
                                             <button className={cx('course_btn-learn')}>Mua ngay</button>
                                         </a>
                                     </>

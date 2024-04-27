@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { notification } from 'antd';
 import { useDropzone } from 'react-dropzone';
+import Cookies from 'js-cookie';
+import { useUpdateProfileMutation } from '@/providers/apis/userApi';
 const Account = () => {
     const schema = Joi.object({
         full_name: Joi.string().required(),
@@ -38,9 +40,10 @@ const Account = () => {
         },
     ];
 
-    const { avatar, fullName, phone, email, token } = JSON.parse(localStorage.getItem('access_token'));
+    const { avatar, fullName, phone, email, token } = JSON.parse(Cookies.get('userData'));
     const [uploadedImages, setUploadedImages] = useState();
     const [uploadFile, setUploadFile] = useState();
+    const [handleUpdateProfile] = useUpdateProfileMutation()
     const { getRootProps, getInputProps } = useDropzone({
         accept: 'image/*',
         maxFiles: 1,
@@ -64,52 +67,52 @@ const Account = () => {
             fullName: fullName,
             avatar: avatar,
         };
-        localStorage.setItem('access_token', JSON.stringify(newData));
+        Cookies.set('userData', JSON.stringify(newData));
     };
     const onHandleUploadImg = async (file) => {
         // Upload ảnh lên ImgBB
         const formData = new FormData();
         formData.append('image', file);
         try {
-            const response = await fetch('https://api.imgbb.com/1/upload?key=84f6d6a0f9728361a9fbfee270175801', {
+            const response = await fetch('http://127.0.0.1:8080/upload/image', {
                 method: 'POST',
                 body: formData,
             });
             const data = await response.json();
-            return data.data.display_url;
+            return data.url;
         } catch (error) {
             console.log(error);
             return avatar;
         }
     };
-    const onSubmit = async (data) => {
+    const onSubmit = async (payload) => {
         try {
-            const newUrl = await onHandleUploadImg(uploadFile);
-            fetch(`http://localhost:8080/api/user/update`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify({ ...data, avatar: newUrl }),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    updateLocalStorage(
-                        token,
-                        data.result.email,
-                        data.result.phone,
-                        data.result.full_name,
-                        data.result.avatar,
-                    );
-                    setShowModal(false);
-                    notification.success({
-                        message: 'Thông báo',
-                        description: data.message,
-                        duration: 1.75,
-                    });
+            let newUrl
+            uploadFile ? newUrl = await onHandleUploadImg(uploadFile) : newUrl = avatar
+            const { data, error } = await handleUpdateProfile({ ...payload, avatar: newUrl })
+            if (error) {
+                console.log(error)
+                return notification.error({
+                    message: 'Thông báo',
+                    description: error.data.message,
+                    duration: 1.75,
                 });
+            }
+            updateLocalStorage(
+                token,
+                data.result.email,
+                data.result.phone,
+                data.result.full_name,
+                data.result.avatar,
+            );
+            setShowModal(false);
+            notification.success({
+                message: 'Thông báo',
+                description: data.message,
+                duration: 1.75,
+            });
         } catch (error) {
+            console.log(error)
             return notification.error({
                 message: 'Thông báo',
                 description: error.data?.message,
@@ -119,29 +122,32 @@ const Account = () => {
     };
     return (
         <>
-            <div class="">
-                <div class="container mx-auto py-8">
-                    <div class="grid grid-cols-4 sm:grid-cols-12  gap-6 px-4">
-                        <div class="col-span-4 sm:col-span-3">
-                            <div class="bg-white shadow rounded-lg p-6">
-                                <div class="flex flex-col items-center">
+            <div className="">
+                <div className="container mx-auto py-8">
+                    <div className="grid grid-cols-4 sm:grid-cols-12  gap-6 px-4">
+                        <div className="col-span-4 sm:col-span-3">
+                            <div className="bg-white shadow rounded-lg p-6">
+                                <div className="flex flex-col items-center">
                                     <img
                                         src={avatar}
-                                        class="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
+                                        className="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
                                     ></img>
-                                    <h1 class="text-2xl font-bold">{fullName}</h1>
+                                    <h1 className="text-2xl font-bold">{fullName}</h1>
                                     <div
                                         onClick={() => setShowModal(true)}
-                                        class="mt-6 flex flex-wrap gap-4 justify-center"
+                                        className="mt-6 flex flex-wrap gap-4 justify-center"
                                     >
-                                        <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                                        <a
+                                            href="#"
+                                            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                                        >
                                             Chỉnh sửa thông tin
                                         </a>
                                     </div>
                                 </div>
-                                <hr class="my-6 border-t border-gray-300" />
-                                <div class="flex flex-col">
-                                    <h1 class="text-2xl font-bold">Thông tin</h1>
+                                <hr className="my-6 border-t border-gray-300" />
+                                <div className="flex flex-col">
+                                    <h1 className="text-2xl font-bold">Thông tin</h1>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Họ và tên</label>
                                         <p className="text-lg font-[450]">{fullName}</p>
@@ -157,9 +163,9 @@ const Account = () => {
                                 </div>
                             </div>
                         </div>
-                        <div class="col-span-4 sm:col-span-9">
-                            <div class="bg-white shadow rounded-lg p-6">
-                                <h2 class="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
+                        <div className="col-span-4 sm:col-span-9">
+                            <div className="bg-white shadow rounded-lg p-6">
+                                <h2 className="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
                                 {courses.map((item, index) => {
                                     return (
                                         <>
@@ -174,8 +180,8 @@ const Account = () => {
                                     );
                                 })}
                             </div>
-                            <div class="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 class="text-xl font-bold mb-4">Các khóa học đã mua</h2>
+                            <div className="bg-white shadow rounded-lg p-6 mt-4">
+                                <h2 className="text-xl font-bold mb-4">Các khóa học đã mua</h2>
                                 {courses.map((item, index) => {
                                     return (
                                         <>
@@ -190,8 +196,8 @@ const Account = () => {
                                     );
                                 })}
                             </div>
-                            <div class="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 class="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
+                            <div className="bg-white shadow rounded-lg p-6 mt-4">
+                                <h2 className="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
                                 {courses.map((item, index) => {
                                     return (
                                         <>
@@ -225,14 +231,21 @@ const Account = () => {
                                             <input {...getInputProps()} />
                                             <img
                                                 src={uploadedImages ? uploadedImages[0].preview : avatar}
-                                                class="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
+                                                className="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
                                             ></img>
                                         </div>
-                                        <div>{}</div>
+                                        <div>{ }</div>
                                     </div>
-                                    <form action="#" class="grid grid-cols-6 gap-6" onSubmit={handleSubmit(onSubmit)}>
-                                        <div class="col-span-6 sm:col-span-3">
-                                            <label for="FirstName" class="block text-sm font-medium text-gray-700">
+                                    <form
+                                        action="#"
+                                        className="grid grid-cols-6 gap-6"
+                                        onSubmit={handleSubmit(onSubmit)}
+                                    >
+                                        <div className="col-span-6 sm:col-span-3">
+                                            <label
+                                                htmlFor="FirstName"
+                                                className="block text-sm font-medium text-gray-700"
+                                            >
                                                 Họ và tên
                                             </label>
 
@@ -241,7 +254,7 @@ const Account = () => {
                                                 id="FirstName"
                                                 name="full_name"
                                                 {...register('full_name')}
-                                                defaultValue={access_token?.fullName}
+                                                defaultValue={fullName}
                                                 className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.full_name && (
@@ -259,18 +272,17 @@ const Account = () => {
                                             <input
                                                 type="text"
                                                 id="LastName"
-                                                className="last_name"
                                                 {...register('phone')}
-                                                defaultValue={access_token?.phone}
-                                                class="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
+                                                defaultValue={phone}
+                                                className="mt-1 w-full last_name focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.phone && (
                                                 <span className="text-[#ff6969] italic">{errors.phone.message}</span>
                                             )}
                                         </div>
 
-                                        <div class="col-span-6">
-                                            <label for="Email" class="block text-sm font-medium text-gray-700">
+                                        <div className="col-span-6">
+                                            <label for="Email" className="block text-sm font-medium text-gray-700">
                                                 {' '}
                                                 Email{' '}
                                             </label>
@@ -280,7 +292,7 @@ const Account = () => {
                                                 id="Email"
                                                 name="email"
                                                 {...register('email')}
-                                                defaultValue={access_token?.email}
+                                                defaultValue={email}
                                                 className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.email && (
