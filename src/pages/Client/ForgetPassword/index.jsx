@@ -39,13 +39,13 @@ const ForgotPassword = () => {
             };
 
             await emailjs.send(
-                'service_175oayh', // Service ID from EmailJS dashboard
-                'template_t7y1quv', // Template ID from EmailJS dashboard
+                'service_q0lye59', // Service ID from EmailJS dashboard
+                'template_vyebfac', // Template ID from EmailJS dashboard
                 templateParams,
-                '7rLlUinu9U6ZvF6Ey' // User ID from EmailJS dashboard
+                'TWJepBKsA2PD3FjQd' // User ID from EmailJS dashboard
             ).then((response) => {
                 console.log('Email sent successfully:', response);
-                const expiry = new Date().getTime() + 5 * 60 * 1000; // 5 minutes from now
+                const expiry = Date.now() + 30000 // 5 minutes from now
                 setExpiryTime(expiry);
             });
 
@@ -62,9 +62,11 @@ const ForgotPassword = () => {
         return enteredOTP === storedOTP;
     };
 
-    const verifyOTP = () => {
+    const verifyOTP = async () => {
         const currentTime = new Date().getTime();
+
         if (currentTime > expiryTime) {
+            console.log('hết hạn');
             setOtpSend('')
             setCheck(false)
             message.error('Mã OTP đã hết hạn , vui lòng nhấn nhận mã mới!');
@@ -80,6 +82,7 @@ const ForgotPassword = () => {
             message.success('Mã OTP hợp lệ!');
         } else {
             message.error('Mã OTP không hợp lệ!');
+            return;
         }
         setKeyProp((prevKey) => prevKey + 1);
     };
@@ -128,6 +131,14 @@ const ForgotPassword = () => {
                         <Input
                             className="w-[300px] mb-[20px]"
                             placeholder="Nhập email"
+                            rules={[
+                                { whitespace: true, message: 'Vui lòng nhập email!' },
+                                { required: true, message: 'Vui lòng nhập email!' },
+                                {
+                                    type: 'email',
+                                    message: 'Vui lòng nhập đúng định dạng email!',
+                                }
+                            ]}
                             onChange={(e) => setEmail(e.target.value)}
                         />
                         <Button type="primary" onClick={sendOTPByEmail} className="ml-[10px]">
