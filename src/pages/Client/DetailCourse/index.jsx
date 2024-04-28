@@ -63,7 +63,7 @@ const DetailCourse = () => {
         } else {
             setIsLogin(false);
         }
-    }, [user]);
+    }, [isLog]);
 
     useEffect(() => {
         if (cookies === 'null' && cookies) {
