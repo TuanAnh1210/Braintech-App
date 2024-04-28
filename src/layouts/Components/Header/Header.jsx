@@ -21,10 +21,16 @@ import styles from './Header.module.scss';
 const cx = classNames.bind(styles);
 
 const Header = () => {
+
     const dispatch = useDispatch();
     const handleOpenModal = (page) => {
-        dispatch(openModal(page));
+        dispatch(openModal(page, true));
     };
+    const onCC = () => {
+        handleOpenModal('register')
+        localStorage.setItem('checkModal', true)
+    }
+
     const user = useSelector((state) => state.user);
     const naviagte = useNavigate();
 
@@ -180,7 +186,7 @@ const Header = () => {
                                 </Button>
                                 <Button
                                     outline
-                                    onClick={() => handleOpenModal('register')}
+                                    onClick={onCC}
                                     className={cx('btn-register')}
                                 >
                                     Đăng ký

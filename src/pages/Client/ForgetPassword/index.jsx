@@ -45,7 +45,7 @@ const ForgotPassword = () => {
                 'TWJepBKsA2PD3FjQd' // User ID from EmailJS dashboard
             ).then((response) => {
                 console.log('Email sent successfully:', response);
-                const expiry = Date.now() + 30000 // 5 minutes from now
+                const expiry = Date.now() + 60000 // 60s from now
                 setExpiryTime(expiry);
             });
 

@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
     isOpen: false,
     page: 'login',
+    check: true
 };
 
 const modalSlice = createSlice({
@@ -14,7 +15,7 @@ const modalSlice = createSlice({
             state.page = action.payload;
         },
         closeModal: (state, action) => {
-            state.isOpen = false;
+            state.isOpen = false
         },
     },
 });
