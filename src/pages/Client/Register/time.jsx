@@ -26,7 +26,6 @@ const OTPTimer = ({ expiryTime, keyProp }) => {
             clearInterval(intervalId);
             clearTimeout(timeoutId);
         };
-
     }, [keyProp, expiryTime]);
 
     function getTimeLeft() {
@@ -43,7 +42,7 @@ const OTPTimer = ({ expiryTime, keyProp }) => {
 
     return (
         <div>
-            {isExpired ? (
+            {isExpired === true ? (
                 <span className='text-red-500 mt-[15px]'>Mã OTP đã hết hạn, vui lòng lấy lại mã mới!</span>
             ) : (
                 <span className='text-red-500 mt-[15px]'>Mã OTP sẽ hết hạn sau {timeLeft} giây!</span>
