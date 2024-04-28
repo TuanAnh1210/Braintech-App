@@ -62,6 +62,8 @@ import {
 } from 'antd';
 
 import { CgEditMarkup } from 'react-icons/cg';
+import { useGetChapterByIdQuery } from '@/providers/apis/chapterApi';
+import { useCookies } from 'react-cookie';
 const cx = classNames.bind(styles);
 
 const Learning = () => {
@@ -80,6 +82,7 @@ const Learning = () => {
     const [searchText, setSearchText] = useState('');
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
+    const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
     const { data, isLoading } = useGetDetailQuery(id); // các bài học của khóa học
     const { data: allLesson, isLoading: loadingAllLesson } = useGetLessonQuery(); // lấy ra tất cả các khóa học để thực hiện lọc
     const [chapterId, setChapterId] = useState(null); //chỉ mục của từng phần trong khóa học
@@ -111,6 +114,7 @@ const Learning = () => {
         return dataFinish?.data?.some((data) => data.lesson_id === lesson._id);
     });
     const openLesson = [...(completedLesson ?? []), nextLesson];
+
     const isReachedLesson = completedLesson?.some((lesson) => lesson?._id === idLesson);
     const handleGetTime = (event) => {
         if (intervalRef.current) {
@@ -155,7 +159,10 @@ const Learning = () => {
     };
     const handleClickLesson = useCallback(
         debounce((path) => {
-            setPath(path);
+            if (path) {
+                const path_video = path.split('=')[1];
+                setPath(path_video);
+            }
         }, 500),
         [],
     );
@@ -205,14 +212,15 @@ const Learning = () => {
         setProgessVideo(0);
         setIsModalShown(false);
 
-        const access_token = localStorage.getItem('access_token');
+        const access_token = cookies.cookieLoginStudent;
+        console.log(access_token, 'access_token');
         //lấy token được lưu khi người dùng đăng nhập
         if (access_token !== 'null' && access_token) {
-            const token = JSON.parse(access_token);
+            const token = access_token.accessToken;
             if (token !== null) {
-                const decode = jwtDecode(token.token); // dịch ngược mã jwt
-                const idLog = decode.data._id; // lấy id người dùng
-                const idUser = dataUser?.data?.find((user) => user._id === idLog);
+                const decode = jwtDecode(token); // dịch ngược mã jwt
+                const idLog = decode?._id; // lấy id người dùng
+                const idUser = dataUser?.data?.find((user) => user?._id === idLog);
                 setUserId(idUser?._id);
             }
         } else {
@@ -269,7 +277,7 @@ const Learning = () => {
     }, [data, dataFinish, countLessonFinish]);
     useEffect(() => {
         if (!loadingAllLesson && allLesson && data && !isLoading) {
-            const pathVideo = allLesson?.lessons?.find((lesson) => lesson._id === idLesson)?.path_video;
+            const pathVideo = allLesson?.lessons?.find((lesson) => lesson._id === idLesson)?.url_video.split('=')[1];
             const chapterId = data?.course.chapters.find((chapter) => {
                 return chapter.lessons.some((lesson) => lesson._id === idLesson);
             });
@@ -842,7 +850,7 @@ const Learning = () => {
                                                                         ''
                                                                     )}
 
-                                                                    {user._id == userId && (
+                                                                    {user?._id == userId && (
                                                                         <div className={cx('comments-options')}>
                                                                             <FontAwesomeIcon icon={faEllipsis} />
                                                                             <div className={cx('options-sub')}>
@@ -938,16 +946,16 @@ const Learning = () => {
                                                             className={cx('learning__chapter--lesson')}
                                                             key={lesson.id}
                                                         >
-                                                            {checkDone || isOpen || path === lesson.path_video ? (
+                                                            {checkDone || isOpen || path === lesson.url_video ? (
                                                                 <NavLink
                                                                     to={`/learning/${id}?id=${lesson._id}`}
                                                                     onClick={() => {
-                                                                        handleClickLesson(lesson.path_video);
+                                                                        handleClickLesson(lesson.url_video);
                                                                     }}
                                                                 >
                                                                     <div
                                                                         className={cx(
-                                                                            path === lesson.path_video
+                                                                            path === lesson.url_video?.split('=')[1]
                                                                                 ? 'learning__chapter--lesson_name_active'
                                                                                 : 'learning__chapter--lesson_name',
                                                                         )}

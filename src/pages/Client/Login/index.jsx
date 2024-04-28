@@ -29,7 +29,7 @@ const Login = () => {
         // setCookie('cookieUser', 'cookieValue', { path: '/' });
         console.log(data, 'data');
         if (data) {
-            setCookie('cookieLoginStudent', JSON.stringify(data.user), { path: '/' });
+            setCookie('cookieLoginStudent', JSON.stringify(data.user), { path: '/', domain: 'localhost' });
         }
 
         if (error) {
