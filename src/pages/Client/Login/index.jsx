@@ -7,12 +7,15 @@ import { login } from '@/providers/slices/userSlice';
 import { closeModal } from '@/providers/slices/modalSlice';
 import { openModal } from '@/providers/slices/modalSlice';
 import { Link } from 'react-router-dom';
-import Cookies from 'js-cookie';
+
+import { useCookies } from 'react-cookie';
 
 const Login = () => {
     const handleOpenModal = (page) => {
         dispatch(openModal(page));
     };
+    const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
+    console.log(cookies, 'cookies');
 
     const [handleLogin, { isLoading }] = useLoginMutation();
 
@@ -23,6 +26,11 @@ const Login = () => {
             ...value,
             auth_type: 'email',
         });
+        // setCookie('cookieUser', 'cookieValue', { path: '/' });
+        console.log(data, 'data');
+        if (data) {
+            setCookie('cookieLoginStudent', JSON.stringify(data.user), { path: '/' });
+        }
 
         if (error) {
             return notification.error({
@@ -46,9 +54,9 @@ const Login = () => {
             avatar: data.user.avatar,
         };
 
-        Cookies.set('access_token', user.token);
-        Cookies.set('userData', JSON.stringify(user));
-        Cookies.set('user', JSON.stringify(user), { expires: 7, secure: true, HttpOnly: true });
+        // Cookies.set('access_token', user.token);
+        // Cookies.set('userData', JSON.stringify(user));
+        // Cookies.set('user', JSON.stringify(user), { expires: 7, secure: true, HttpOnly: true });
         dispatch(login(user));
 
         dispatch(closeModal());
