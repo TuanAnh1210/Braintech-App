@@ -15,9 +15,8 @@ import UserManager from '@/pages/Admin/UserManager';
 import CourseList from '@/pages/Admin/CoursesList';
 import Quizz from '@/pages/Client/Quizz';
 import Certificate from '@/pages/Client/Certificate';
-import ForgotPassword from '@/pages/Client/Forgetpassword';
+import ForgotPassword from '@/pages/Client/ForgetPassword';
 import Account from '@/pages/Client/Account';
-
 
 const publicRoutes = [
     { path: config.home, component: Home },

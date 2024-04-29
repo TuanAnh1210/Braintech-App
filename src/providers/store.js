@@ -14,6 +14,7 @@ import { lessonApi } from './apis/lessonApi';
 import modalReducer from './slices/modalSlice';
 import lessonReducer from './slices/lessonSlice';
 import { paymentApi } from './apis/paymentApi';
+import { chapterApi } from './apis/chapterApi';
 
 export const store = configureStore({
     reducer: {
@@ -21,10 +22,11 @@ export const store = configureStore({
         user: userReducer,
         modal: modalReducer,
         lesson: lessonReducer,
+        [chapterApi.reducerPath]: chapterApi.reducer,
         [courseApi.reducerPath]: courseApi.reducer,
         [userApi.reducerPath]: userApi.reducer,
-        [sttCourseApi.reducerPath]: sttCourseApi.reducer,
         [cmtApi.reducerPath]: cmtApi.reducer,
+        [sttCourseApi.reducerPath]: sttCourseApi.reducer,
         [noteApi.reducerPath]: noteApi.reducer,
         [lessonApi.reducerPath]: lessonApi.reducer,
         [paymentApi.reducerPath]: paymentApi.reducer,
@@ -39,6 +41,7 @@ export const store = configureStore({
             noteApi.middleware,
             lessonApi.middleware,
             paymentApi.middleware,
+            chapterApi.middleware,
         ),
 });
 

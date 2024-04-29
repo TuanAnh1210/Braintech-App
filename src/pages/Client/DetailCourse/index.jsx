@@ -15,26 +15,28 @@ import { jwtDecode } from 'jwt-decode';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useGetFinishLessonQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
+import { useCookies } from 'react-cookie';
 
 const cx = classNames.bind(styles);
 
 const DetailCourse = () => {
     const { id } = useParams();
+
     const [param, setSearchParams] = useState();
     const [userId, setUserId] = useState(null);
     const { data: dataUser, isLoading: loadingUser } = useGetUsersQuery();
     const { data, isLoading, isFetching, isError } = useGetDetailQuery(id);
     const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
     const { data: dataFinish, isLoading: loadingFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
-
+    const [cookies] = useCookies(['cookieLoginStudent']);
+    console.log(cookies, 'cookies');
     const [createPaymentUrl] = useCreatePaymentUrlMutation();
 
-    const isLog = JSON.parse(localStorage.getItem('access_token'));
+    const isLog = cookies.cookieLoginStudent;
     const currentLesson = dataFinish?.data?.filter((dFinish) => {
         return dFinish.course_id === id;
     });
-
-    const [isLogin, setIsLogin] = useState(false);
+    const [isLogin, setIsLogin] = useState(true);
 
     const user = useSelector((state) => state.user);
     useEffect(() => {
@@ -47,15 +49,13 @@ const DetailCourse = () => {
         } else {
             setSearchParams(data?.course?.chapters[0].lessons[0]?._id);
         }
-        const token = JSON.parse(access_token);
-
-        if (token !== null) {
-            const decode = jwtDecode(user?.token);
-            const idLog = decode.data._id;
+        if (cookies && isLog) {
+            const decode = jwtDecode(cookies?.cookieLoginStudent?.accessToken);
+            const idLog = decode?._id;
             const idUser = dataUser?.data?.find((user) => user?._id === idLog)?._id;
             setUserId(idUser);
         }
-    }, [loadingFinish, dataUser, data]);
+    }, [loadingFinish, dataUser, data, cookies]);
 
     const dispatch = useDispatch();
 
@@ -65,14 +65,13 @@ const DetailCourse = () => {
         } else {
             setIsLogin(false);
         }
-    }, [user]);
+    }, [isLog]);
 
-    const access_token = localStorage.getItem('access_token');
     useEffect(() => {
-        if (access_token === 'null' && access_token) {
+        if (cookies === 'null' && cookies) {
             dispatch(openModal('login'));
         }
-    }, [access_token]);
+    }, [cookies]);
 
     const handleBuyCourse = async () => {
         const { data } = await createPaymentUrl({ courseId: id });
