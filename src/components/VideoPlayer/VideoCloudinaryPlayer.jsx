@@ -1,12 +1,20 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import React from 'react';
 import videojs from 'video.js';
 
 import 'video.js/dist/video-js.css';
 
-function VideoCloudinaryPlayer({ url = '' }) {
+function VideoCloudinaryPlayer({
+    // url = 'https://res.cloudinary.com/dexdqfkdu/video/upload/sp_auto/v1714422557/j6mwsvhgy7psn0lddbve.m3u8',
+    url = '',
+    setIsModalShown,
+    handleSetFinish,
+}) {
     const videoRef = React.useRef(null);
     const playerRef = React.useRef(null);
+
+    console.log(videoRef);
 
     const handlePlayerReady = (player) => {
         playerRef.current = player;
@@ -16,13 +24,26 @@ function VideoCloudinaryPlayer({ url = '' }) {
             videojs.log('player is waiting');
         });
 
+        player.on('ended', () => {
+            handleSetFinish();
+        });
+
+        // player.on('timeupdate', () => {
+        //     const currentTime = player.currentTime();
+        //     const duration = player.duration();
+        //     const progressPercent = (currentTime / duration) * 100;
+        //     if (progressPercent >= 95) {
+        //         setIsModalShown(true);
+        //     }
+        // });
+
         player.on('dispose', () => {
             videojs.log('player will dispose');
         });
     };
 
     const videoJsOptions = {
-        autoplay: true,
+        autoplay: false,
         controls: true,
         responsive: true,
         fluid: true,
@@ -77,10 +98,10 @@ function VideoCloudinaryPlayer({ url = '' }) {
     }, [playerRef]);
 
     return (
-        <div className="flex items-center justify-center w-full h-full" data-vjs-player>
+        <div data-vjs-player>
             <div className="video-js bg-white w-full h-full" ref={videoRef} />
         </div>
     );
 }
 
-export default VideoCloudinaryPlayer;
+export default React.memo(VideoCloudinaryPlayer);
