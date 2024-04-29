@@ -726,7 +726,7 @@ const Learning = () => {
                 <Container fluid>
                     <div className={cx('learning__wrapper')}>
                         <div className={cx('learning__video')} ref={mainView}>
-                            <div id="player">
+                            {/* <div id="player">
                                 {path ? (
                                     <YouTube
                                         opts={opts}
@@ -745,7 +745,7 @@ const Learning = () => {
                                         <Spin fullscreen />
                                     </>
                                 )}
-                            </div>
+                            </div> */}
 
                             <div className={cx('comment__wrapper')}>
                                 <div className={cx('commment__option')} ref={ref}>
