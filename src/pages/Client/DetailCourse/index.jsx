@@ -21,6 +21,7 @@ const cx = classNames.bind(styles);
 
 const DetailCourse = () => {
     const { id } = useParams();
+
     const [param, setSearchParams] = useState();
     const [userId, setUserId] = useState(null);
     const { data: dataUser, isLoading: loadingUser } = useGetUsersQuery();
@@ -28,6 +29,7 @@ const DetailCourse = () => {
     const [_accessToken, setAccessToken] = useLocalStorage('access_token', null);
     const { data: dataFinish, isLoading: loadingFinish, refetch: refetchDataFinish } = useGetFinishLessonQuery(userId);
     const [cookies] = useCookies(['cookieLoginStudent']);
+    console.log(cookies, 'cookies');
     const [createPaymentUrl] = useCreatePaymentUrlMutation();
 
     const isLog = cookies.cookieLoginStudent;

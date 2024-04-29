@@ -6,7 +6,7 @@ export const courseApi = createApi({
     endpoints: (build) => ({
         getCourses: build.query({
             query: () => {
-                return '/courses/all/client';
+                return '/courses/all';
             },
         }),
         getDetail: build.query({
