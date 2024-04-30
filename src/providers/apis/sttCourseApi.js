@@ -13,7 +13,10 @@ export const sttCourseApi = createApi({
                 return { url: '/sttCourse/add', method: 'POST', body: payload };
             },
         }),
+        countCourseUser: build.query({
+            query: (id) => `/sttCourse/count/${id}`,
+        }),
     }),
 });
 
-export const { useAddSttCourseMutation, useGetSttCourseQuery } = sttCourseApi;
+export const { useAddSttCourseMutation, useGetSttCourseQuery, useCountCourseUserQuery } = sttCourseApi;

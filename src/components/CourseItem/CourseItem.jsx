@@ -5,9 +5,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import Image from '../Image/Image';
+import { useCountCourseUserQuery } from '@/providers/apis/sttCourseApi';
 
 const cx = classNames.bind(styles);
 const CourseItem = ({ course }) => {
+    const { data, isLoading } = useCountCourseUserQuery(course?._id);
+    console.log();
     return (
         <Link to={`/detail/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
@@ -16,7 +19,7 @@ const CourseItem = ({ course }) => {
                 <h4>{course?.name}</h4>
                 <div className={cx('courses-newest_info')}>
                     <FontAwesomeIcon icon={faUsers} />
-                    <span>123</span>
+                    <span>{data?.count}</span>
                     {course?.price == 0 ? (
                         <p>Miễn phí</p>
                     ) : (
