@@ -47,7 +47,7 @@ const DetailCourse = () => {
         if (currentLesson?.length > 0 && !isLoading && !loadingFinish) {
             setSearchParams(currentLesson[currentLesson.length - 1]?.lesson_id);
         } else {
-            setSearchParams(data?.course?.chapters[0].lessons[0]?._id);
+            setSearchParams(data?.course?.chapters[0]?.lessons[0]?._id);
         }
         if (cookies && isLog) {
             const decode = jwtDecode(cookies?.cookieLoginStudent?.accessToken);
