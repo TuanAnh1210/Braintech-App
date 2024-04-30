@@ -4,14 +4,33 @@ import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { notification } from 'antd';
 import { useDropzone } from 'react-dropzone';
-import Cookies from 'js-cookie';
 import { useUpdateProfileMutation } from '@/providers/apis/userApi';
+import { useCookies } from 'react-cookie';
 const Account = () => {
     const schema = Joi.object({
-        full_name: Joi.string().required(),
-        email: Joi.string().required(),
-        phone: Joi.string().required(),
+        full_name: Joi.string()
+            .messages({
+                'string.pattern.base': `Vui lòng nhập họ tên của bạn`,
+                'string.empty': `Vui lòng không để trống`,
+            })
+            .required(),
+        email: Joi.string()
+            .email({ tlds: { allow: false } })
+            .messages({
+                'string.pattern.base': `Vui lòng đúng email của bạn`,
+                'string.empty': `Vui lòng không để trống`,
+            })
+            .required(),
+        phone: Joi.string()
+            .regex(/^[0-9]{10}$/)
+            .messages({
+                'string.pattern.base': `Vui lòng nhập đúng số điện thoại`,
+                'string.empty': `Vui lòng nhập số điện thoại`,
+            })
+            .required(),
     });
+    const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
+
     const {
         register,
         handleSubmit,
@@ -39,11 +58,10 @@ const Account = () => {
             time: '12/08/2023',
         },
     ];
-
-    const { avatar, fullName, phone, email, token } = JSON.parse(Cookies.get('userData'));
+    const { avatar, fullName, accessToken, email, phone } = cookies.cookieLoginStudent;
     const [uploadedImages, setUploadedImages] = useState();
     const [uploadFile, setUploadFile] = useState();
-    const [handleUpdateProfile] = useUpdateProfileMutation()
+    const [handleUpdateProfile] = useUpdateProfileMutation();
     const { getRootProps, getInputProps } = useDropzone({
         accept: 'image/*',
         maxFiles: 1,
@@ -59,15 +77,15 @@ const Account = () => {
         },
     });
     const [showModal, setShowModal] = useState(false);
-    const updateLocalStorage = (token, email, phone, fullName, avatar) => {
+    const updateLocalStorage = (accessToken, email, phone, fullName, avatar) => {
         const newData = {
-            token: token,
+            accessToken: accessToken,
             email: email,
             phone: phone,
             fullName: fullName,
             avatar: avatar,
         };
-        Cookies.set('userData', JSON.stringify(newData));
+        setCookie('cookieLoginStudent', JSON.stringify(newData));
     };
     const onHandleUploadImg = async (file) => {
         // Upload ảnh lên ImgBB
@@ -87,11 +105,10 @@ const Account = () => {
     };
     const onSubmit = async (payload) => {
         try {
-            let newUrl
-            uploadFile ? newUrl = await onHandleUploadImg(uploadFile) : newUrl = avatar
-            const { data, error } = await handleUpdateProfile({ ...payload, avatar: newUrl })
+            let newUrl;
+            uploadFile ? (newUrl = await onHandleUploadImg(uploadFile)) : (newUrl = avatar);
+            const { data, error } = await handleUpdateProfile({ ...payload, accessToken, avatar: newUrl });
             if (error) {
-                console.log(error)
                 return notification.error({
                     message: 'Thông báo',
                     description: error.data.message,
@@ -99,7 +116,7 @@ const Account = () => {
                 });
             }
             updateLocalStorage(
-                token,
+                accessToken,
                 data.result.email,
                 data.result.phone,
                 data.result.full_name,
@@ -112,7 +129,7 @@ const Account = () => {
                 duration: 1.75,
             });
         } catch (error) {
-            console.log(error)
+            console.log(error);
             return notification.error({
                 message: 'Thông báo',
                 description: error.data?.message,
@@ -234,7 +251,7 @@ const Account = () => {
                                                 className="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
                                             ></img>
                                         </div>
-                                        <div>{ }</div>
+                                        <div>{}</div>
                                     </div>
                                     <form
                                         action="#"
