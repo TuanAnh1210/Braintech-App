@@ -11,6 +11,12 @@ export const paymentApi = createApi({
                 return { url: `/create_payment_url`, method: 'POST', body: payload };
             },
         }),
+        getAllByUserId: build.query({
+            query: (userId) => {
+                return `/getBought/${userId}`;
+            },
+        }),
+
         handleCheckPayment: build.mutation({
             query: (payload) => {
                 return { url: `/create_payment_url`, method: 'POST', body: payload };
@@ -19,4 +25,4 @@ export const paymentApi = createApi({
     }),
 });
 
-export const { useCreatePaymentUrlMutation } = paymentApi;
+export const { useCreatePaymentUrlMutation, useGetAllByUserIdQuery } = paymentApi;

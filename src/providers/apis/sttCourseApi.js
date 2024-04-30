@@ -7,7 +7,6 @@ export const sttCourseApi = createApi({
         getSttCourse: build.query({
             query: () => '/sttCourse',
         }),
-
         addSttCourse: build.mutation({
             query: (payload) => {
                 return { url: '/sttCourse/add', method: 'POST', body: payload };
@@ -16,7 +15,19 @@ export const sttCourseApi = createApi({
         countCourseUser: build.query({
             query: (id) => `/sttCourse/count/${id}`,
         }),
+        getAllCourseFinish: build.query({
+            query: (id) => `/sttCourse/finishCourse/${id}`,
+        }),
+        getAllCourseJoin: build.query({
+            query: (id) => `/sttCourse/joinedCourse/${id}`,
+        }),
     }),
 });
 
-export const { useAddSttCourseMutation, useGetSttCourseQuery, useCountCourseUserQuery } = sttCourseApi;
+export const {
+    useAddSttCourseMutation,
+    useGetSttCourseQuery,
+    useCountCourseUserQuery,
+    useGetAllCourseFinishQuery,
+    useGetAllCourseJoinQuery,
+} = sttCourseApi;

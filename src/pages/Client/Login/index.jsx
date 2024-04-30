@@ -25,8 +25,6 @@ const Login = () => {
             ...value,
             auth_type: 'email',
         });
-        // setCookie('cookieUser', 'cookieValue', { path: '/' });
-        console.log(data, 'data');
         if (data) {
             setCookie('cookieLoginStudent', JSON.stringify(data.user), { path: '/', domain: 'localhost' });
         }

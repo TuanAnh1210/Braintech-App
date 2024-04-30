@@ -1,12 +1,18 @@
 import Joi from 'joi';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { notification } from 'antd';
 import { useDropzone } from 'react-dropzone';
 import { useUpdateProfileMutation } from '@/providers/apis/userApi';
 import { useCookies } from 'react-cookie';
+import { useGetAllCourseFinishQuery, useGetAllCourseJoinQuery } from '@/providers/apis/sttCourseApi';
+import { jwtDecode } from 'jwt-decode';
+import { useGetLessonQuery } from '@/providers/apis/lessonApi';
+import { useGetAllByUserIdQuery } from '@/providers/apis/paymentApi';
+import { useNavigate } from 'react-router-dom';
 const Account = () => {
+    const navigate = useNavigate();
     const schema = Joi.object({
         full_name: Joi.string()
             .messages({
@@ -30,6 +36,7 @@ const Account = () => {
             .required(),
     });
     const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
+    const [userid, setUserid] = useState(null);
 
     const {
         register,
@@ -58,7 +65,19 @@ const Account = () => {
             time: '12/08/2023',
         },
     ];
-    const { avatar, fullName, accessToken, email, phone } = cookies.cookieLoginStudent;
+    const data = cookies?.cookieLoginStudent;
+    useEffect(() => {
+        if (cookies.cookieLoginStudent) {
+            const decode = jwtDecode(data?.accessToken);
+            setUserid(decode._id);
+        } else {
+            navigate('/');
+        }
+    }, [cookies]);
+    // const { data: finishCourse, isLoading: loadingFinishCourse } = useGetAllCourseFinishQuery(userid);
+    // const { data: joinedCourse, isLoading: loadingJoinedCourse } = useGetAllCourseJoinQuery(userid);
+    // const { data: boughtCourse, isLoading } = useGetAllByUserIdQuery(userid);
+    // const { data: allLesson, isLoading: loadingAllLesson } = useGetLessonQuery();
     const [uploadedImages, setUploadedImages] = useState();
     const [uploadFile, setUploadFile] = useState();
     const [handleUpdateProfile] = useUpdateProfileMutation();
@@ -146,10 +165,10 @@ const Account = () => {
                             <div className="bg-white shadow rounded-lg p-6">
                                 <div className="flex flex-col items-center">
                                     <img
-                                        src={avatar}
+                                        src={data?.avatar}
                                         className="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
                                     ></img>
-                                    <h1 className="text-2xl font-bold">{fullName}</h1>
+                                    <h1 className="text-2xl font-bold">{data?.fullName}</h1>
                                     <div
                                         onClick={() => setShowModal(true)}
                                         className="mt-6 flex flex-wrap gap-4 justify-center"
@@ -167,15 +186,15 @@ const Account = () => {
                                     <h1 className="text-2xl font-bold">Thông tin</h1>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Họ và tên</label>
-                                        <p className="text-lg font-[450]">{fullName}</p>
+                                        <p className="text-lg font-[450]">{data?.fullName}</p>
                                     </div>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Số điện thoại</label>
-                                        <p className="text-lg font-[450]">{phone}</p>
+                                        <p className="text-lg font-[450]">{data?.phone}</p>
                                     </div>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Email</label>
-                                        <p className="text-lg font-[450]  w-[50px]">{email}</p>
+                                        <p className="text-lg font-[450]  w-[50px]">{data?.email}</p>
                                     </div>
                                 </div>
                             </div>
