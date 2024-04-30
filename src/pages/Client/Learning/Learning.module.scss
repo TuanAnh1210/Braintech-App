@@ -6,6 +6,7 @@
     left: 0;
     right: 0;
 }
+
 .header__wrapper {
     height: 100%;
     display: flex;
@@ -28,6 +29,7 @@
     color: var(--white-color);
     width: 60px;
 }
+
 .header__logo {
     a {
         display: flex;
@@ -88,6 +90,7 @@
         text-decoration: none !important;
     }
 }
+
 .header__cert--lock {
     color: #ffffff;
     margin-left: 20px;
@@ -110,10 +113,12 @@
 
     &:hover {
         color: red;
-        cursor: pointer;;
+        cursor: pointer;
+        ;
         text-decoration: none !important;
     }
 }
+
 /* content */
 .content {
     background-color: #f0f0f0;
@@ -157,6 +162,7 @@
     padding: 20px 0 2px 0;
     margin-left: 12px;
     position: relative;
+
     &::after {
         position: absolute;
         content: '';
@@ -220,6 +226,7 @@
     resize: none;
     border: none;
 }
+
 .send__comment {
     background-color: var(--primary-color);
     color: var(--white-color);
@@ -231,6 +238,7 @@
     margin-top: 6px;
     opacity: 0.8;
     margin-left: 10px;
+
     &:hover {
         opacity: 1;
         cursor: pointer;
@@ -352,21 +360,25 @@
         font-size: 16px;
     }
 }
-.noteZone{
+
+.noteZone {
     display: flex;
     margin: 20px;
 }
-.note--ipt{
+
+.note--ipt {
     width: 100%;
     padding: 8px 12px;
     margin-left: 12px;
     resize: none;
     border: none;
 }
-.noteForm{
+
+.noteForm {
     flex: 1;
     margin-bottom: 24px;
 }
+
 /* actionBar */
 .actionBar {
     position: fixed;
@@ -438,7 +450,8 @@
         opacity: 1;
     }
 }
-.block-lesson{
+
+.block-lesson {
     font-size: 14px;
     font-weight: 600;
     padding: 2px 20px;
@@ -453,6 +466,7 @@
         opacity: 0.3;
     }
 }
+
 .btn__bar {
     border: none;
     color: var(--primary-color);
@@ -460,14 +474,17 @@
     font-size: 24px;
     padding: 4px;
 }
+
 .learning__chapter {
     margin-top: 16px;
     padding-left: 24px;
 }
-.learning__chapter--txt{
+
+.learning__chapter--txt {
     font-size: 16px;
     font-weight: 600;
 }
+
 .learning__chapter--lesson_name {
     padding: 20px;
     border-radius: 10px;
@@ -479,7 +496,7 @@
     transition: all 0.3s ease;
 }
 
-.learning__chapter--lesson_name_active{
+.learning__chapter--lesson_name_active {
     background-color: #f76b1c;
     color: #ffffff;
     padding: 20px;
@@ -498,16 +515,17 @@
 
 .learning__chapter--lesson-btn {
     border-radius: 4px;
-    background-color: rgb(50, 34, 34);
-    color: #ebff13;
-    border: none; 
-    padding: 4px 6px;
-    font-size: 14px;
+    background-color: #2ecc71;
+    color: #fff;
+    border: none;
+    padding: 2px 4px;
+    font-size: 12px;
     margin-top: 8px;
     display: inline-block;
 }
+
 .modal {
-    
+
     position: fixed;
     top: 0;
     bottom: 0;
@@ -515,7 +533,8 @@
     right: 0;
     background-color: rgba(0, 0, 0, .4);
 }
-.modal__next-lesson{
+
+.modal__next-lesson {
     position: fixed;
     top: 30%;
     bottom: 0;
@@ -528,12 +547,15 @@
     transform-origin: right;
     transition: all 0.5s linear;
 }
-.modal__header{
+
+.modal__header {
     color: #ffffff;
 }
-.modal__content{
+
+.modal__content {
     color: #ffffff;
 }
+
 .note_wrapper {
     position: absolute;
     top: 0;
@@ -600,11 +622,12 @@
     margin-bottom: 0;
     margin-left: 12px;
 }
-.youtubeContainer{
+
+.youtubeContainer {
     width: 100% !important;
-   
+
     height: 515px !important;
-   
+
 }
 
 .message__delete {
@@ -640,6 +663,7 @@
     font-style: italic;
     line-height: 32px;
 }
+
 .btn__delete-container {
     margin-left: 18px;
     display: flex;
@@ -687,7 +711,7 @@
 .lesson_lock {
     opacity: 0.5;
     padding: 20px;
-    border-radius: 10px; 
+    border-radius: 10px;
     font-weight: 500;
     font-size: 14px;
     cursor: pointer;
@@ -699,4 +723,9 @@
 
 .lesson_lock:hover {
     opacity: 0.6;
+}
+
+.learning__chapter--circle_check {
+    // position: absolute;
+    color: #2ecc71;
 }
