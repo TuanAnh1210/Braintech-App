@@ -54,7 +54,7 @@ const DetailCourse = () => {
     }, [cookies]);
 
     const handleBuyCourse = async () => {
-        const { data } = await createPaymentUrl({ courseId: id });
+        const { data } = await createPaymentUrl({ courseId: courseId });
 
         location.href = data.url;
 
@@ -74,7 +74,9 @@ const DetailCourse = () => {
         // link.dispatchEvent(clickEvent);
     };
 
-    const nextlessonId = lessonFinish?.data?.lesson_id;
+    console.log(course);
+
+    const nextlessonId = lessonFinish?.data?.lesson_id || course?.course?.chapters?.[0]?.lessons?.[0]?._id;
 
     return (
         <>
@@ -135,7 +137,7 @@ const DetailCourse = () => {
                                         <h4 className={cx('course_free')}>Miễn phí</h4>
                                         <div className={cx('firstLessonBtn')}>
                                             {isLogin ? (
-                                                <Link to={`/learning/${courseId}?id=${nextlessonId}`}>
+                                                <Link to={`/learning/${courseId}/${nextlessonId || ''}`}>
                                                     <button className={cx('course_btn-learn')}>Học ngay</button>
                                                 </Link>
                                             ) : (

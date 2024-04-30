@@ -494,10 +494,11 @@
     cursor: pointer;
     margin: 10px 10px 3px 0;
     transition: all 0.3s ease;
+    background-color: #ecf0f1 !important;
 }
 
 .learning__chapter--lesson_name_active {
-    background-color: #f76b1c;
+    background-color: #f76b1c !important;
     color: #ffffff;
     padding: 20px;
     border-radius: 8px;
@@ -510,7 +511,7 @@
 
 .learning__chapter--lesson_name:hover {
     background-color: #f76b1c;
-    color: #ffffff;
+    // color: #ffffff;
 }
 
 .learning__chapter--lesson-btn {
