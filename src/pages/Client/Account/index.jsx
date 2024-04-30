@@ -1,10 +1,11 @@
 import Joi from 'joi';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { notification } from 'antd';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useDropzone } from 'react-dropzone';
+import Cookies from 'js-cookie';
+import { useUpdateProfileMutation } from '@/providers/apis/userApi';
 const Account = () => {
     const schema = Joi.object({
         full_name: Joi.string().required(),
@@ -39,104 +40,132 @@ const Account = () => {
         },
     ];
 
-    const access_token = JSON.parse(localStorage.getItem('access_token'));
+    const { avatar, fullName, phone, email, token } = JSON.parse(Cookies.get('userData'));
+    const [uploadedImages, setUploadedImages] = useState();
+    const [uploadFile, setUploadFile] = useState();
+    const [handleUpdateProfile] = useUpdateProfileMutation()
+    const { getRootProps, getInputProps } = useDropzone({
+        accept: 'image/*',
+        maxFiles: 1,
+        onDrop: (acceptedFiles) => {
+            setUploadedImages(
+                acceptedFiles.map((file) =>
+                    Object.assign(file, {
+                        preview: URL.createObjectURL(file),
+                    }),
+                ),
+            );
+            setUploadFile(acceptedFiles[0]);
+        },
+    });
     const [showModal, setShowModal] = useState(false);
-    const navigate = useNavigate();
-    const updateLocalStorage = (access_token) => {
+    const updateLocalStorage = (token, email, phone, fullName, avatar) => {
         const newData = {
-            token: access_token?.token,
-            email: access_token?.email,
-            phone: access_token?.phone,
-            fullName: access_token?.fullName,
-            avatar: access_token?.avatar,
+            token: token,
+            email: email,
+            phone: phone,
+            fullName: fullName,
+            avatar: avatar,
         };
-        localStorage.setItem('access_token', JSON.stringify(newData));
+        Cookies.set('userData', JSON.stringify(newData));
     };
-    const onSubmit = (data) => {
+    const onHandleUploadImg = async (file) => {
+        // Upload ảnh lên ImgBB
+        const formData = new FormData();
+        formData.append('image', file);
         try {
-            fetch(`http://localhost:8080/api/user/update`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
-                },
-                body: JSON.stringify(data),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    console.log(data);
-                    updateLocalStorage(
-                        token,
-                        data.result.email,
-                        data.result.phone,
-                        data.result.full_name,
-                        data.result.avatar,
-                    );
-                    setShowModal(false);
-                    notification.success({
-                        message: 'Thông báo',
-                        description: data.message,
-                        duration: 1.75,
-                    });
-                });
+            const response = await fetch('http://127.0.0.1:8080/upload/image', {
+                method: 'POST',
+                body: formData,
+            });
+            const data = await response.json();
+            return data.url;
         } catch (error) {
+            console.log(error);
+            return avatar;
+        }
+    };
+    const onSubmit = async (payload) => {
+        try {
+            let newUrl
+            uploadFile ? newUrl = await onHandleUploadImg(uploadFile) : newUrl = avatar
+            const { data, error } = await handleUpdateProfile({ ...payload, avatar: newUrl })
+            if (error) {
+                console.log(error)
+                return notification.error({
+                    message: 'Thông báo',
+                    description: error.data.message,
+                    duration: 1.75,
+                });
+            }
+            updateLocalStorage(
+                token,
+                data.result.email,
+                data.result.phone,
+                data.result.full_name,
+                data.result.avatar,
+            );
+            setShowModal(false);
+            notification.success({
+                message: 'Thông báo',
+                description: data.message,
+                duration: 1.75,
+            });
+        } catch (error) {
+            console.log(error)
             return notification.error({
                 message: 'Thông báo',
-                description: error.data.message,
+                description: error.data?.message,
                 duration: 1.75,
             });
         }
     };
-    const user = useSelector((state) => state.user);
-
-    useEffect(() => {
-        if (user === null) {
-            navigate('/');
-        }
-    }, [user]);
     return (
         <>
-            <div class="">
-                <div class="container mx-auto py-8">
-                    <div class="grid grid-cols-4 sm:grid-cols-12  gap-6 px-4">
-                        <div class="col-span-4 sm:col-span-3">
-                            <div class="bg-white shadow rounded-lg p-6">
-                                <div class="flex flex-col items-center">
+            <div className="">
+                <div className="container mx-auto py-8">
+                    <div className="grid grid-cols-4 sm:grid-cols-12  gap-6 px-4">
+                        <div className="col-span-4 sm:col-span-3">
+                            <div className="bg-white shadow rounded-lg p-6">
+                                <div className="flex flex-col items-center">
                                     <img
-                                        src={access_token?.avatar}
-                                        class="w-32 h-32 bg-gray-300 rounded-full mb-4 shrink-0"
+                                        src={avatar}
+                                        className="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
                                     ></img>
-                                    <h1 class="text-2xl font-bold">{access_token?.fullName}</h1>
+                                    <h1 className="text-2xl font-bold">{fullName}</h1>
                                     <div
                                         onClick={() => setShowModal(true)}
-                                        class="mt-6 flex flex-wrap gap-4 justify-center"
+                                        className="mt-6 flex flex-wrap gap-4 justify-center"
                                     >
-                                        <a href="#" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded">
+                                        <a
+                                            href="#"
+                                            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
+                                        >
                                             Chỉnh sửa thông tin
                                         </a>
                                     </div>
                                 </div>
-                                <hr class="my-6 border-t border-gray-300" />
-                                <div class="flex flex-col">
-                                    <h1 class="text-2xl font-bold">Thông tin</h1>
+                                <hr className="my-6 border-t border-gray-300" />
+                                <div className="flex flex-col">
+                                    <h1 className="text-2xl font-bold">Thông tin</h1>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Họ và tên</label>
-                                        <p className="text-lg font-[450]">{access_token?.fullName}</p>
+                                        <p className="text-lg font-[450]">{fullName}</p>
                                     </div>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Số điện thoại</label>
-                                        <p className="text-lg font-[450]">{access_token?.phone}</p>
+                                        <p className="text-lg font-[450]">{phone}</p>
                                     </div>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Email</label>
-                                        <p className="text-lg font-[450]  w-[50px]">{access_token?.email}</p>
+                                        <p className="text-lg font-[450]  w-[50px]">{email}</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-span-4 sm:col-span-9">
-                            <div class="bg-white shadow rounded-lg p-6">
-                                <h2 class="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
+                        <div className="col-span-4 sm:col-span-9">
+                            <div className="bg-white shadow rounded-lg p-6">
+                                <h2 className="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
                                 {courses.map((item, index) => {
                                     return (
                                         <>
@@ -151,8 +180,8 @@ const Account = () => {
                                     );
                                 })}
                             </div>
-                            <div class="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 class="text-xl font-bold mb-4">Các khóa học đã mua</h2>
+                            <div className="bg-white shadow rounded-lg p-6 mt-4">
+                                <h2 className="text-xl font-bold mb-4">Các khóa học đã mua</h2>
                                 {courses.map((item, index) => {
                                     return (
                                         <>
@@ -167,8 +196,8 @@ const Account = () => {
                                     );
                                 })}
                             </div>
-                            <div class="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 class="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
+                            <div className="bg-white shadow rounded-lg p-6 mt-4">
+                                <h2 className="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
                                 {courses.map((item, index) => {
                                     return (
                                         <>
@@ -192,14 +221,31 @@ const Account = () => {
                     <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
                         <div className="relative w-[80%] my-6 mx-auto max-w-3xl">
                             <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                                <div className="flex items-start mx-auto justify-between p-5 rounded-t">
+                                <div className="flex items-start mx-auto justify-between mt-5 rounded-t">
                                     <h3 className="text-3xl font-semibold">Chỉnh sửa thông tin</h3>
                                 </div>
                                 {/*body*/}
                                 <div className="relative p-6 flex-auto">
-                                    <form action="#" class="grid grid-cols-6 gap-6" onSubmit={handleSubmit(onSubmit)}>
-                                        <div class="col-span-6 sm:col-span-3">
-                                            <label for="FirstName" class="block text-sm font-medium text-gray-700">
+                                    <div>
+                                        <div {...getRootProps()} className="flex">
+                                            <input {...getInputProps()} />
+                                            <img
+                                                src={uploadedImages ? uploadedImages[0].preview : avatar}
+                                                className="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
+                                            ></img>
+                                        </div>
+                                        <div>{ }</div>
+                                    </div>
+                                    <form
+                                        action="#"
+                                        className="grid grid-cols-6 gap-6"
+                                        onSubmit={handleSubmit(onSubmit)}
+                                    >
+                                        <div className="col-span-6 sm:col-span-3">
+                                            <label
+                                                htmlFor="FirstName"
+                                                className="block text-sm font-medium text-gray-700"
+                                            >
                                                 Họ và tên
                                             </label>
 
@@ -209,7 +255,7 @@ const Account = () => {
                                                 name="full_name"
                                                 {...register('full_name')}
                                                 defaultValue={fullName}
-                                                class="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
+                                                className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.full_name && (
                                                 <span className="text-[#ff6969] italic">
@@ -218,26 +264,25 @@ const Account = () => {
                                             )}
                                         </div>
 
-                                        <div class="col-span-6 sm:col-span-3">
-                                            <label for="LastName" class="block text-sm font-medium text-gray-700">
+                                        <div className="col-span-6 sm:col-span-3">
+                                            <label for="LastName" className="block text-sm font-medium text-gray-700">
                                                 Số điện thoại
                                             </label>
 
                                             <input
                                                 type="text"
                                                 id="LastName"
-                                                name="last_name"
                                                 {...register('phone')}
                                                 defaultValue={phone}
-                                                class="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
+                                                className="mt-1 w-full last_name focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.phone && (
                                                 <span className="text-[#ff6969] italic">{errors.phone.message}</span>
                                             )}
                                         </div>
 
-                                        <div class="col-span-6">
-                                            <label for="Email" class="block text-sm font-medium text-gray-700">
+                                        <div className="col-span-6">
+                                            <label for="Email" className="block text-sm font-medium text-gray-700">
                                                 {' '}
                                                 Email{' '}
                                             </label>
@@ -248,7 +293,7 @@ const Account = () => {
                                                 name="email"
                                                 {...register('email')}
                                                 defaultValue={email}
-                                                class="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
+                                                className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.email && (
                                                 <span className="text-[#ff6969] italic">{errors.email.message}</span>

@@ -3,24 +3,34 @@ import { Button, Form, Input, Spin, notification } from 'antd';
 import { useDispatch } from 'react-redux';
 import { GoogleLogin } from '@react-oauth/google';
 import { useLoginMutation } from '@/providers/apis/userApi';
-import useLocalStorage from '@/hooks/useLocalStorage';
 import { login } from '@/providers/slices/userSlice';
 import { closeModal } from '@/providers/slices/modalSlice';
 import { openModal } from '@/providers/slices/modalSlice';
+import { Link } from 'react-router-dom';
+
+import { useCookies } from 'react-cookie';
 
 const Login = () => {
-    const dispatch = useDispatch();
     const handleOpenModal = (page) => {
         dispatch(openModal(page));
     };
-    const [, setAccessToken] = useLocalStorage('access_token', null);
+    const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
+    console.log(cookies, 'cookies');
+
     const [handleLogin, { isLoading }] = useLoginMutation();
+
+    const dispatch = useDispatch();
 
     const onFinish = async (value) => {
         const { data, error } = await handleLogin({
             ...value,
             auth_type: 'email',
         });
+        // setCookie('cookieUser', 'cookieValue', { path: '/' });
+        console.log(data, 'data');
+        if (data) {
+            setCookie('cookieLoginStudent', JSON.stringify(data.user), { path: '/', domain: 'localhost' });
+        }
 
         if (error) {
             return notification.error({
@@ -44,7 +54,9 @@ const Login = () => {
             avatar: data.user.avatar,
         };
 
-        setAccessToken(user);
+        // Cookies.set('access_token', user.token);
+        // Cookies.set('userData', JSON.stringify(user));
+        // Cookies.set('user', JSON.stringify(user), { expires: 7, secure: true, HttpOnly: true });
         dispatch(login(user));
 
         dispatch(closeModal());
@@ -61,7 +73,7 @@ const Login = () => {
                         { required: true, message: 'Vui lòng nhập email!' },
                     ]}
                 >
-                    <Input type='email' className="w-100 p-2 rounded" placeholder="Email" />
+                    <Input type="email" className="w-100 p-2 rounded" placeholder="Email" />
                 </Form.Item>
             </div>
             <div className="mb-4">
@@ -77,15 +89,12 @@ const Login = () => {
                 </Form.Item>
             </div>
 
-            <Button htmlType="submit" className="w-100 mt-4" type="primary" size={'large'}>
+            <Button htmlType="submit" className="w-100 mt-4 mb-[17px]" type="primary" size={'large'}>
                 {isLoading ? <Spin /> : 'Đăng nhập'}
             </Button>
-            <Button
-                outline
-                onClick={() => handleOpenModal('forgetPassword')}
-            >
+            <Link to={'/forgetPassword'} className="w-100 underline font-semibold" type="primary" size={'large'}>
                 Quên mật khẩu
-            </Button>
+            </Link>
 
             <div className="d-flex align-items-center gap-3 mt-5 mb-1">
                 <div

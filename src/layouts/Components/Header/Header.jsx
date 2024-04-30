@@ -17,6 +17,7 @@ import { logout } from '@/providers/slices/userSlice';
 
 import images from '@/assets/images';
 import styles from './Header.module.scss';
+import { useCookies } from 'react-cookie';
 
 const cx = classNames.bind(styles);
 
@@ -25,7 +26,7 @@ const Header = () => {
     const handleOpenModal = (page) => {
         dispatch(openModal(page));
     };
-    const user = useSelector((state) => state.user);
+    const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
     const naviagte = useNavigate();
 
     // handle active navbar
@@ -136,7 +137,7 @@ const Header = () => {
                     </ul>
 
                     <div className={cx('actions')}>
-                        {user ? (
+                        {cookies.cookieLoginStudent ? (
                             <Tooltip
                                 overlayInnerStyle={{
                                     minWidth: '220px',
@@ -168,8 +169,8 @@ const Header = () => {
                             >
                                 <div className={cx('acc_wrapper')}>
                                     <div className={cx('info')}>
-                                        <img src={user?.avatar} alt="" />
-                                        <strong>{user?.fullName}</strong>
+                                        <img src={cookies.cookieLoginStudent?.avatar} alt="" />
+                                        <strong>{cookies.cookieLoginStudent?.fullName}</strong>
                                     </div>
                                 </div>
                             </Tooltip>

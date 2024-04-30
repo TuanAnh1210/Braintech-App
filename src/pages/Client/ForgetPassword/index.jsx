@@ -1,142 +1,203 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, Alert } from 'antd';
-import { initializeApp } from "firebase/app";
-import 'firebase/auth';
-import nodemailer from 'nodemailer';
-import nodemailerBrowser from 'nodemailer-browser';
+import emailjs from 'emailjs-com';
+import { Button, notification, message, Form, Input } from 'antd';
+import { useForgetPasswordMutation, useGetUsersQuery } from '@/providers/apis/userApi';
+import OTPTimer from './time';
+import { useNavigate } from 'react-router-dom';
 
-import { Buffer } from 'buffer';
-
-if (typeof window !== 'undefined') {
-    window.Buffer = window.Buffer || Buffer;
-}
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDaXtlFUCrvYzF0yHQKG4F16t2R7EoF31I",
-    authDomain: "braintech-66be7.firebaseapp.com",
-    projectId: "braintech-66be7",
-    storageBucket: "braintech-66be7.appspot.com",
-    messagingSenderId: "1023954121782",
-    appId: "1:1023954121782:web:f4ef5fcae32028eabd5497",
-    measurementId: "G-47DNR1989T"
-};
-
-const app = initializeApp(firebaseConfig);
-
-const ForgotPasswordForm = () => {
-    const [form] = Form.useForm();
-    const [otpSent, setOtpSent] = useState(false);
+const ForgotPassword = () => {
+    const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [otpSend, setOtpSend] = useState('');
+    const [sent, setSent] = useState(false);
+    const [check, setCheck] = useState(false);
+    const { data: alluser } = useGetUsersQuery();
+    const [handleUpdateUser] = useForgetPasswordMutation();
+    const [expiryTime, setExpiryTime] = useState(null);
+    const navigate = useNavigate();
+    const [keyProp, setKeyProp] = useState(0);
+    const emailUser = alluser?.data?.find((item) => item.email === email);
 
-    const sendOTP = async (email) => {
+    const sendOTPByEmail = async () => {
         try {
-            console.log(email);
-            const transport = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                    user: 'vulinh20111999@gmail.com',
-                    pass: "Linhlam99@"
-                }
-            })
-
-            const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-            const mailOptions = {
-                from: 'vulinh20111999@gmail.com',
-                to: email,
-                subject: 'OTP Verification for Password Reset',
-                text: `Your OTP is ${generatedOtp}`,
-            };
-
-            await transport.sendMail(mailOptions);
-
-            setOtp(generatedOtp);
-            setOtpSent(true);
-            setSuccess('OTP sent to your email.');
-        } catch (err) {
-            setError('Failed to send OTP. Please try again.');
-        }
-    };
-
-    const handleResetPassword = async (values) => {
-        try {
-            if (values.otp !== otp) {
-                setError('Invalid OTP');
+            setOtp('')
+            if (!emailUser) {
+                notification.error({
+                    message: 'Error',
+                    description: 'Vui lòng kiểm tra lại email!',
+                });
                 return;
             }
+            const otp = generateOTP();
+            const templateParams = {
+                to_email: email,
+                from_name: 'Braintech',
+                to_name: emailUser?.full_name,
+                otp: otp,
+            };
 
-            await firebase.auth().sendPasswordResetEmail(values.email);
-            setSuccess('Password reset email sent.');
-            setError('');
-        } catch (err) {
-            setError(err.message);
+            await emailjs.send(
+                'service_q0lye59', // Service ID from EmailJS dashboard
+                'template_vyebfac', // Template ID from EmailJS dashboard
+                templateParams,
+                'TWJepBKsA2PD3FjQd' // User ID from EmailJS dashboard
+            ).then((response) => {
+                console.log('Email sent successfully:', response);
+                const expiry = Date.now() + 30000 // 5 minutes from now
+                setExpiryTime(expiry);
+            });
+
+            setOtpSend(otp);
+            setSent(true);
+
+            message.success('Mã OTP sẽ được gửi qua email!');
+        } catch (error) {
+            console.error('Error sending OTP:', error);
+            message.error('Không thể gửi mã OTP!');
         }
     };
+    const checkOTP = (enteredOTP, storedOTP) => {
+        return enteredOTP === storedOTP;
+    };
 
-    const validateOtp = (rule, value, callback) => {
-        if (value !== otp) {
-            callback('Invalid OTP');
-        } else {
-            callback();
+    const verifyOTP = async () => {
+        const currentTime = new Date().getTime();
+
+        if (currentTime > expiryTime) {
+            console.log('hết hạn');
+            setOtpSend('')
+            setCheck(false)
+            message.error('Mã OTP đã hết hạn , vui lòng nhấn nhận mã mới!');
+            return;
         }
+        if (otp === '') {
+            message.error('Vui lòng nhập mã OTP!');
+            return;
+        }
+        if (checkOTP(otp, otpSend)) {
+            setCheck(true);
+            setSent(false);
+            message.success('Mã OTP hợp lệ!');
+        } else {
+            message.error('Mã OTP không hợp lệ!');
+            return;
+        }
+        setKeyProp((prevKey) => prevKey + 1);
+    };
+
+    const generateOTP = () => {
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        return otp;
+    };
+    const onFinish = async () => {
+        if (newPassword !== confirmPassword) {
+            notification.error({
+                message: 'Error',
+                description: 'Mật khẩu nhập lại không khớp!',
+            });
+            return;
+        }
+        const userUpdate = {
+            ...emailUser,
+            isAdmin: false,
+            phone: 'Chưa cập nhật',
+            password: newPassword,
+            password_confirm: confirmPassword,
+        };
+        handleUpdateUser(userUpdate).then(() => {
+            setConfirmPassword('');
+            setNewPassword('');
+            setCheck(false);
+            setSent(false);
+            notification.success({
+                message: 'Success',
+                description: 'Mật khẩu đã được thay đổi thành công!.',
+            });
+            navigate('/');
+        });
     };
 
     return (
-        <div>
-            <h2>Forgot Password</h2>
-            <Form form={form} onFinish={handleResetPassword}>
-                <Form.Item
-                    name="email"
-                    label="Email"
-                    rules={[
-                        {
-                            type: 'email',
-                            message: 'The input is not valid E-mail!',
-                        },
-                        {
-                            required: true,
-                            message: 'Please input your E-mail!',
-                        },
-                    ]}
-                >
-                    <Input />
-                </Form.Item>
-
-                {!otpSent ? (
-                    <Form.Item>
-                        <Button type="primary" onClick={() => sendOTP(form.getFieldValue('email'))}>
-                            Send OTP
+        <body className="mt-[70px]">
+            <div
+                style={{ textAlign: 'center' }}
+                className="border-4 py-[100px] mt-[300px] bg-blue-100  rourded  w-[700px] rounded items-center m-auto"
+            >
+                {!check ? (
+                    <>
+                        <h2 className="mb-[25px] text-blue-400">Nhập địa chỉ email</h2>
+                        <Input
+                            className="w-[300px] mb-[20px]"
+                            placeholder="Nhập email"
+                            rules={[
+                                { whitespace: true, message: 'Vui lòng nhập email!' },
+                                { required: true, message: 'Vui lòng nhập email!' },
+                                {
+                                    type: 'email',
+                                    message: 'Vui lòng nhập đúng định dạng email!',
+                                }
+                            ]}
+                            onChange={(e) => setEmail(e.target.value)}
+                        />
+                        <Button type="primary" onClick={sendOTPByEmail} className="ml-[10px]">
+                            Lấy mã
                         </Button>
-                    </Form.Item>
-                ) : (
-                    <Form.Item
-                        name="otp"
-                        label="OTP"
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please input the OTP sent to your email!',
-                            },
-                            {
-                                validator: validateOtp,
-                            },
-                        ]}
-                    >
-                        <Input />
-                    </Form.Item>
-                )}
+                    </>
+                ) : (<>
+                    <Form onFinish={onFinish} className='w-[300px] m-auto'>
 
-                <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                        Reset Password
-                    </Button>
-                </Form.Item>
-            </Form>
-            {error && <Alert message={error} type="error" showIcon />}
-            {success && <Alert message={success} type="success" showIcon />}
-        </div>
+                        <div className="mb-4">
+                            <p className="mb-1 text-[20px] text-blue-400 font-semibold">Mật khẩu mới</p>
+                            <Form.Item
+                                name="password"
+                                rules={[
+                                    { whitespace: true, message: 'Vui lòng nhập mật khẩu!' },
+                                    { required: true, message: 'Vui lòng nhập mật khẩu!' },
+                                    { min: 6, message: "Mật khẩu phải chứa ít nhất 6 ký tự" }
+                                ]}
+                            >
+                                <Input type="password" className="w-100 p-2 rounded" placeholder="Mật khẩu" onChange={(e) => setNewPassword(e.target.value)} />
+                            </Form.Item>
+                        </div>
+                        <div className="mb-4">
+                            <p className="mb-1 text-[20px] text-blue-400 font-semibold">Xác nhận mật khẩu</p>
+                            <Form.Item
+                                name="password_confirm"
+                                rules={[
+                                    { whitespace: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                                    { required: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                                ]}
+                            >
+                                <Input type="password" className="w-100 p-2 rounded" placeholder="Nhập mật khẩu xác nhận" onChange={(e) => setConfirmPassword(e.target.value)} />
+                            </Form.Item>
+                        </div>
+                        <Button htmlType="submit" className="w-100 " type="primary" size={'large'}>
+                            Lưu
+                        </Button>
+                    </Form>
+                </>)}
+
+                {sent && (
+                    <div style={{ marginTop: '20px' }}>
+                        <Input
+                            className="w-[300px]"
+                            placeholder="Nhập mã OTP"
+                            defaultValue={otp}
+                            onChange={(e) => {
+                                setOtp(e.target.value);
+                            }}
+                        />
+                        <Button type="primary" style={{ marginLeft: '10px' }} onClick={verifyOTP} className="mb-[15px]">
+                            Kiểm tra
+                        </Button>
+                        <OTPTimer expiryTime={expiryTime} keyProp={keyProp} />
+                    </div>
+                )}
+            </div>
+        </body>
     );
 };
 
-export default ForgotPasswordForm;
+export default ForgotPassword;
