@@ -19,14 +19,14 @@ const Login = () => {
     const [handleLogin, { isLoading }] = useLoginMutation();
 
     const dispatch = useDispatch();
-
+    // const navigate = useNavigate();
     const onFinish = async (value) => {
         const { data, error } = await handleLogin({
             ...value,
             auth_type: 'email',
         });
         // setCookie('cookieUser', 'cookieValue', { path: '/' });
-        console.log(data, 'data');
+        console.log(data, 'data trong comp login');
         if (data) {
             setCookie('cookieLoginStudent', JSON.stringify(data.user), { path: '/', domain: 'localhost' });
         }
@@ -59,6 +59,10 @@ const Login = () => {
         dispatch(login(user));
 
         dispatch(closeModal());
+        if (data.user.isAdmin) {
+            // navigate('http://localhost:5173/dashboard');
+            window.location.href = 'http://localhost:5173/dashboard';
+        }
     };
 
     return (
