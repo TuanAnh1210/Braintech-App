@@ -3,7 +3,7 @@ const routes = {
     courses: '/courses',
     about: '/about',
     contact: '/contact',
-    detail: '/detail/:id',
+    detail: '/detail/:courseId',
     learning: '/learning/:id?id=:id',
     learning: '/learning/:id',
     login: '/login',

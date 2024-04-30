@@ -15,7 +15,6 @@ const Login = () => {
         dispatch(openModal(page));
     };
     const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
-    console.log(cookies, 'cookies');
 
     const [handleLogin, { isLoading }] = useLoginMutation();
 
