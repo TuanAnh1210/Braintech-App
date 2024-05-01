@@ -56,7 +56,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
     const [deleteCmt] = useDeleteCmtMutation();
 
     const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(lessonId); //lấy bình luận dựa trên id bài học
-    const { data: noteData, refetch: refetchNote } = useGetNoteByLessonIdQuery(lessonId); // lấy tất cả các ghi chú của người dùng
+    const { data: noteData = [], refetch: refetchNote } = useGetNoteByLessonIdQuery(lessonId); // lấy tất cả các ghi chú của người dùng
 
     const handleClickScroll = () => {
         ref.current?.scrollIntoView({ behavior: 'smooth' });
@@ -221,19 +221,6 @@ const Comments = ({ openStorage, setOpenStorage }) => {
         setSearchText('');
     };
 
-    const listNote = noteData?.data?.map((item) => {
-        const currentDate = item.updatedAt;
-        const formattedDate = format(currentDate, 'dd/MM/yyyy');
-        const formattedTime = format(currentDate, 'HH:mm:ss');
-
-        return {
-            idTest: item._id,
-            // name: currentLesson?.name,
-            note: item.text,
-            createdate: `${formattedDate}  - ${formattedTime}`,
-        };
-    });
-
     const onDelete = (x) => {
         handleDeleteNote(x).then(() => {
             refNoteInput.current.value = '';
@@ -241,10 +228,10 @@ const Comments = ({ openStorage, setOpenStorage }) => {
         });
     };
 
-    const showDrawer = async (x) => {
-        const a = await noteData?.data?.find((item) => item._id === x);
-        setValue(a.text);
-        setIdValue(a._id);
+    const showDrawer = async (noteId) => {
+        const note = await noteData?.find((item) => item._id === noteId);
+        setValue(note.text);
+        setIdValue(note._id);
         setErrNote('');
         setOpen(true);
     };
@@ -257,35 +244,37 @@ const Comments = ({ openStorage, setOpenStorage }) => {
     const columns = [
         {
             title: 'Tên bài học',
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'lesson_id',
             width: '30%',
-            ...getColumnSearchProps('name'),
+            render: (lesson_id) => {
+                return <b>{lesson_id.name}</b>;
+            },
         },
         {
-            title: 'Nội dung ghi chú',
-            dataIndex: 'note',
-            key: 'note',
+            title: 'Nội dung',
+            dataIndex: 'text',
             width: '30%',
-            ...getColumnSearchProps('note'),
+            ...getColumnSearchProps('text'),
         },
         {
+            width: '30%',
             title: 'Ngày - Giờ',
-            dataIndex: 'createdate',
-            key: 'createdate',
-            width: '30%',
-            ...getColumnSearchProps('createdate'),
+            dataIndex: 'updatedAt',
+            render: (updatedAt) => {
+                const formattedDate = format(updatedAt, 'dd/MM/yyyy');
+                const formattedTime = format(updatedAt, 'HH:mm:ss');
+                return <div>{`${formattedDate}  - ${formattedTime}`}</div>;
+            },
         },
         {
-            title: 'Action',
-            dataIndex: 'idTest',
+            title: 'Thao tác',
+            dataIndex: '_id',
             width: '25%',
-            key: 'idTest',
-
-            render: (abc) => (
+            key: '_id',
+            render: (_id) => (
                 <div className="flex gap-[5px]">
                     <>
-                        <Button type="primary" onClick={() => showDrawer(abc)}>
+                        <Button type="primary" onClick={() => showDrawer(_id)}>
                             Sửa
                         </Button>
                         <Drawer
@@ -293,6 +282,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                             width={500}
                             onClose={onClose}
                             open={open}
+                            destroyOnClose={true}
                             styles={{
                                 body: {
                                     paddingBottom: 80,
@@ -307,6 +297,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                                 value={valueNote}
                                                 onChange={handleTextareaChange}
                                                 ref={refNoteInput}
+                                                rows={10}
                                             />
                                             <Button type="primary" htmlType="submit" className="mt-[10px]">
                                                 Submit
@@ -324,7 +315,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                         title="Xóa ghi chú"
                         description="Bạn chắc chắn muốn xóa không?"
                         //onCancel={onClose}
-                        onConfirm={() => onDelete(abc)}
+                        onConfirm={() => onDelete(_id)}
                         ref={refNoteInput}
                         icon={
                             <QuestionCircleOutlined
@@ -447,7 +438,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                     });
 
                                     return (
-                                        <div className={cx('commentBox', 'noMt')} key={cmt._id}>
+                                        <div className={cx('commentBox', 'noMt')} key={Math.random()}>
                                             <img
                                                 className={cx('commentBox--img')}
                                                 src="https://yt3.ggpht.com/UsflU74uvka_3sejOu3LUGwzOhHJV0eIYoWcvOfkOre_c12uIN4ys-QqRlAkbusEmbZjTA-b=s88-c-k-c0x00ffffff-no-rj"
@@ -457,7 +448,8 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                             <div className={cx('commentBox--right')}>
                                                 <h5>{user?.full_name ? user?.full_name : user?.email}</h5>
                                                 <p className={cx('commentBox--text')}>{cmt.text}</p>
-                                                {isUpdateCmt.update === true ? (
+
+                                                {isUpdateCmt.update === true && (
                                                     <form
                                                         className={cx('update_cmt_form')}
                                                         onSubmit={handleSubmitUpdateCmt}
@@ -474,8 +466,6 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                                         />
                                                         <button>Cập nhật</button>
                                                     </form>
-                                                ) : (
-                                                    ''
                                                 )}
 
                                                 {user?._id == 'userId' && (
@@ -549,34 +539,33 @@ const Comments = ({ openStorage, setOpenStorage }) => {
             </div>
 
             {openStorage && (
-                <>
-                    <div className={cx('modal')}>
-                        <div className={cx('note_wrapper')}>
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '10px' }}>
-                                <span className={cx('note-close')} onClick={() => setOpenStorage(false)}>
-                                    <button className={cx('btn__bar')}>
-                                        <FontAwesomeIcon className={cx('icon')} icon={faTimes} />
-                                    </button>
-                                </span>
-                            </div>
-                            <div className={cx('note_heading')}>
-                                <h2>Ghi chú của tôi</h2>
-                            </div>
-                            <div className={cx('note_list')}>
-                                <Table
-                                    columns={columns}
-                                    dataSource={listNote}
-                                    pagination={{
-                                        pageSize: 50,
-                                    }}
-                                    scroll={{
-                                        y: 340,
-                                    }}
-                                />
-                            </div>
+                <div className={cx('modal')}>
+                    <div className={cx('note_wrapper')}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '10px' }}>
+                            <span className={cx('note-close')} onClick={() => setOpenStorage(false)}>
+                                <button className={cx('btn__bar')}>
+                                    <FontAwesomeIcon className={cx('icon')} icon={faTimes} />
+                                </button>
+                            </span>
+                        </div>
+                        <div className={cx('note_heading')}>
+                            <h2>Ghi chú của tôi</h2>
+                        </div>
+                        <div className={cx('note_list')}>
+                            <Table
+                                rowKey={(record) => record._id}
+                                columns={columns}
+                                dataSource={noteData}
+                                pagination={{
+                                    pageSize: 50,
+                                }}
+                                scroll={{
+                                    y: 340,
+                                }}
+                            />
                         </div>
                     </div>
-                </>
+                </div>
             )}
         </>
     );
