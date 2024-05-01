@@ -75,14 +75,23 @@ const Learning = () => {
         })
         .flat();
 
+    const handlePrev = () => {
+        const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonId);
+        const prevLessonId = lessons?.[lessonIndex - 1]?._id;
+        if (!prevLessonId) return;
+        navigate(`/learning/${courseId}/${prevLessonId}`);
+    };
+
     const handleNext = () => {
         const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonId);
         const nextLessonId = lessons?.[lessonIndex + 1]?._id;
+        if (!nextLessonId) return;
         navigate(`/learning/${courseId}/${nextLessonId}`);
     };
 
     const handleSetFinish = async () => {
-        setIsModalShown(true);
+        setIsModalShown(false);
+
         await handleAddFinishLesson({
             course_id: courseId,
             lesson_id: lessonId,
@@ -96,15 +105,17 @@ const Learning = () => {
         clearInterval(intervalRef.current);
     };
 
-    // useEffect(() => {
-    //     setIsModalShown(false);
+    useEffect(() => {
+        if (progressVideo >= 95) {
+            const isCompleted = lessons.find((lesson) => lesson._id === lessonId)?.isCompleted;
 
-    //     if (progressVideo >= 95) {
-    //         setIsModalShown(true);
-    //     } else if (countLessonFinish?.count === totalLesson) {
-    //         setIsModalShown(false);
-    //     }
-    // }, [progressVideo, isModalShown]);
+            if (isCompleted) return;
+
+            setIsModalShown(true);
+        } else if (countLessonFinish?.count === totalLesson) {
+            setIsModalShown(false);
+        }
+    }, [progressVideo, lessonId, isModalShown]);
 
     // Nếu chưa đăng nhập cho về trang chi tiết khóa học
     useEffect(() => {
@@ -132,21 +143,20 @@ const Learning = () => {
         <div className="main">
             <header className={cx('header')}>
                 {isModalShown && (
-                    <></>
-                    // <Draggable>
-                    //     <div className={cx('message__success')}>
-                    //         <h2>Bạn đã hoàn thành bài học này!!</h2>
-                    //         <h4>
-                    //             {/* Nhấn {`"Yes"`} để {true ? 'chuyển bài' : 'mở khóa'} nhé */}
-                    //             Nhấn {`"Yes"`} để chuyển bài nhé
-                    //         </h4>
-                    //         <div className={cx('btn__delete-container')}>
-                    //             <button onClick={handleSetFinish} className={cx('yes')}>
-                    //                 Yes
-                    //             </button>
-                    //         </div>
-                    //     </div>
-                    // </Draggable>
+                    <Draggable>
+                        <div className={cx('message__success')}>
+                            <h2>Bạn đã hoàn thành bài học này!!</h2>
+                            <h4>
+                                {/* Nhấn {`"Yes"`} để {true ? 'chuyển bài' : 'mở khóa'} nhé */}
+                                Nhấn {`"Yes"`} để chuyển bài nhé
+                            </h4>
+                            <div className={cx('btn__delete-container')}>
+                                <button onClick={handleSetFinish} className={cx('yes')}>
+                                    Yes
+                                </button>
+                            </div>
+                        </div>
+                    </Draggable>
                 )}
                 <Container fluid style={{ height: '100%' }}>
                     <div className={cx('header__wrapper')}>
@@ -212,11 +222,14 @@ const Learning = () => {
                 </Container>
             </header>
 
-            <div className={cx('content')}>
+            <div className={cx('content')} style={{ background: '#ecf0f1', borderRadius: '16px' }}>
                 <Container fluid>
                     <div className={cx('learning__wrapper')}>
                         <div className={cx('learning__video')} ref={mainView}>
-                            <div id="player">
+                            <div
+                                id="player"
+                                style={{ background: '#fff', marginTop: '14px', padding: '12px', borderRadius: '12px' }}
+                            >
                                 {currentLesson?.source_type === 'youtube' ? (
                                     <VideoYoutubePlayer
                                         url={currentLesson.url_video}
@@ -276,18 +289,20 @@ const Learning = () => {
                                                                     style={{ display: 'flex', gap: '1%' }}
                                                                 >
                                                                     <div className="d-flex align-items-center gap-2 flex-wrap">
-                                                                        <strong>
-                                                                            {indexChapter + '.' + ++indexLesson}
-                                                                        </strong>{' '}
-                                                                        {lesson.name}{' '}
-                                                                        {lesson.isCompleted && (
-                                                                            <FontAwesomeIcon
-                                                                                className={cx(
-                                                                                    'learning__chapter--circle_check',
-                                                                                )}
-                                                                                icon={faCircleCheck}
-                                                                            />
-                                                                        )}
+                                                                        <div>
+                                                                            <strong>
+                                                                                {indexChapter + '.' + ++indexLesson}
+                                                                            </strong>{' '}
+                                                                            {lesson.name}{' '}
+                                                                            {lesson.isCompleted && (
+                                                                                <FontAwesomeIcon
+                                                                                    className={cx(
+                                                                                        'learning__chapter--circle_check',
+                                                                                    )}
+                                                                                    icon={faCircleCheck}
+                                                                                />
+                                                                            )}
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                                 <div
@@ -331,10 +346,10 @@ const Learning = () => {
                     <span>Ghi chú</span>
                 </button>
                 <div className={cx('actionBtn')}>
-                    <button className={cx('pre-lesson')} onClick={() => 'handlePrev'}>
+                    <button className={cx('pre-lesson')} onClick={() => handlePrev()}>
                         Bài trước
                     </button>
-                    <button className={cx('next-lesson', false && 'block-lesson')} onClick={() => 'handleNext'}>
+                    <button className={cx('next-lesson', false && 'block-lesson')} onClick={() => handleNext()}>
                         Bài kế tiếp
                     </button>
                 </div>

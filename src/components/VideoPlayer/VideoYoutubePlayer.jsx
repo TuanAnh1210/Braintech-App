@@ -41,6 +41,7 @@ function VideoYoutubePlayer({ url = '', handleGetTime, handleSetFinish }) {
                 maxWidth: 'none',
                 maxHeight: 'none',
             }}
+            iframeClassName="rounded-lg"
             videoId={videoId}
             onReady={handleGetTime}
             onEnd={handleSetFinish}
