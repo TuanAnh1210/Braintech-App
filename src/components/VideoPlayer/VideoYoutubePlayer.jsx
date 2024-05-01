@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { memo } from 'react';
 import YouTube from 'react-youtube';
 
 function VideoYoutubePlayer({ url = '', handleGetTime, handleSetFinish }) {
@@ -47,4 +48,4 @@ function VideoYoutubePlayer({ url = '', handleGetTime, handleSetFinish }) {
     );
 }
 
-export default VideoYoutubePlayer;
+export default memo(VideoYoutubePlayer);

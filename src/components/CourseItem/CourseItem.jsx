@@ -1,12 +1,14 @@
 /* eslint-disable react/prop-types */
 import classNames from 'classnames/bind';
-import styles from './CourseItem.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
+
 import Image from '../Image/Image';
 
+import styles from './CourseItem.module.scss';
 const cx = classNames.bind(styles);
+
 const CourseItem = ({ course }) => {
     return (
         <Link to={`/detail/${course?._id}`}>
