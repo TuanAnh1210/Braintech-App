@@ -21,6 +21,9 @@ export const noteApi = createApi({
     endpoints: (build) => ({
         getNoteByLessonId: build.query({
             query: (lessonId) => `/notes/${lessonId}`,
+            transformResponse: (response) => {
+                return response.data;
+            },
         }),
         createNote: build.mutation({
             query: (payload) => {
