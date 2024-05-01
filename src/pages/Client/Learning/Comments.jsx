@@ -3,21 +3,28 @@
 import { faEllipsis, faPen, faTimes, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { SearchOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import classNames from 'classnames/bind';
+import { useParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { format } from 'date-fns';
+import Highlighter from 'react-highlight-words';
+import Draggable from 'react-draggable';
+import { Button, Col, Drawer, Form, Input, Popconfirm, Row, Space, Table } from 'antd';
 import React from 'react';
 
-import styles from './Learning.module.scss';
-import { useCreateCmtMutation, useGetAllQuery, useUpdateCmtMutation } from '@/providers/apis/cmtApi';
+import {
+    useCreateCmtMutation,
+    useDeleteCmtMutation,
+    useGetAllQuery,
+    useUpdateCmtMutation,
+} from '@/providers/apis/cmtApi';
 import {
     useCreateNoteMutation,
     useDeleteNoteMutation,
     useGetNoteByLessonIdQuery,
     useUpdateNoteMutation,
 } from '@/providers/apis/noteApi';
-import { useParams } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Button, Col, Drawer, Form, Input, Popconfirm, Row, Space, Table } from 'antd';
-import { format } from 'date-fns';
-import Highlighter from 'react-highlight-words';
+
+import styles from './Learning.module.scss';
 const cx = classNames.bind(styles);
 
 const Comments = ({ openStorage, setOpenStorage }) => {
@@ -25,6 +32,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
     const [valueNote, setValue] = React.useState('');
     const [idNote, setIdValue] = React.useState('');
     const [err, setErrNote] = React.useState('');
+    const [isDelete, setDelete] = React.useState(false);
 
     const [isComment, setCommment] = React.useState(true); // đang là bình luận hay ghi chú (true false)
     const [cmtInput, setCmtInput] = React.useState(''); // nội dung của cmt
@@ -45,6 +53,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
     const [handleUpdateCmt] = useUpdateCmtMutation();
     const [handleDeleteNote] = useDeleteNoteMutation(); // xóa ghi chú
     const [handleUpdateNotes] = useUpdateNoteMutation(); // update ghi chú
+    const [deleteCmt] = useDeleteCmtMutation();
 
     const { data: cmtData, isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(lessonId); //lấy bình luận dựa trên id bài học
     const { data: noteData, refetch: refetchNote } = useGetNoteByLessonIdQuery(lessonId); // lấy tất cả các ghi chú của người dùng
@@ -57,7 +66,6 @@ const Comments = ({ openStorage, setOpenStorage }) => {
         e.preventDefault();
         const newNote = {
             content: noteInput,
-            user_id: 'userId',
             lesson_id: lessonId,
         };
         // console.log(newNote);
@@ -75,7 +83,6 @@ const Comments = ({ openStorage, setOpenStorage }) => {
 
         const newCmt = {
             content: cmtInput,
-            user_id: 'userId',
             lesson_id: lessonId,
         };
 
@@ -91,9 +98,9 @@ const Comments = ({ openStorage, setOpenStorage }) => {
             });
     };
 
-    // const handleDelete = (id) => {
-    //     setDelete({ isDeleteCmt: true, id: id });
-    // };
+    const handleDelete = (id) => {
+        setDelete({ isDeleteCmt: true, id: id });
+    };
 
     const handleSubmitUpdateCmt = (e) => {
         e.preventDefault();
@@ -341,10 +348,8 @@ const Comments = ({ openStorage, setOpenStorage }) => {
             return;
         }
         const updateNote = {
-            ...a,
             _id: idNote,
             text: valueNote,
-            updatedAt: new Date(),
         };
 
         handleUpdateNotes(updateNote).then(() => {
@@ -354,12 +359,34 @@ const Comments = ({ openStorage, setOpenStorage }) => {
         setValue('');
         setOpen(false);
     };
+
     const onClose = () => {
         setOpen(false);
     };
 
+    const handleSubmitDeleteCmt = (id) => {
+        deleteCmt(id).then(() => refetch());
+        setDelete({ isDeleteCmt: false });
+    };
+
     return (
         <>
+            {isDelete.isDeleteCmt === true && (
+                <Draggable>
+                    <div className={cx('message__delete')}>
+                        <h2>Bạn muốn xóa bình luận này chứ!!</h2>
+                        <h4>Nhấn yes để xóa nhé</h4>
+                        <div className={cx('btn__delete-container')}>
+                            <button className={cx('yes')} onClick={() => handleSubmitDeleteCmt(isDelete.id)}>
+                                Yes
+                            </button>
+                            <button className={cx('yes')} onClick={() => setDelete(false)}>
+                                Hủy
+                            </button>
+                        </div>
+                    </div>
+                </Draggable>
+            )}
             <div className={cx('comment__wrapper')}>
                 <div className={cx('commment__option')} ref={ref}>
                     <button

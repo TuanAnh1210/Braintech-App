@@ -3,8 +3,7 @@ import { faBarsStaggered, faBell, faBook, faGear, faRightFromBracket, faUser } f
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { Container } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
 import { Divider, Tooltip } from 'antd';
 import { useState } from 'react';
@@ -78,10 +77,10 @@ const Header = () => {
             <Container>
                 <div className={cx('wrapper')}>
                     <div className={cx('logo')}>
-                        <a href="/">
+                        <Link to="/">
                             <img src={images.logo} alt="Braintech" />
                             <p>Brain Tech Edu</p>
-                        </a>
+                        </Link>
                     </div>
 
                     <ul className={cx('navbar', { open: isNavbarOpen })}>

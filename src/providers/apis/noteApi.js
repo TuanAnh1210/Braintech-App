@@ -24,7 +24,7 @@ export const noteApi = createApi({
         }),
         createNote: build.mutation({
             query: (payload) => {
-                return { url: '/notes/', method: 'POST', body: payload };
+                return { url: '/notes', method: 'POST', body: payload };
             },
         }),
         deleteNote: build.mutation({

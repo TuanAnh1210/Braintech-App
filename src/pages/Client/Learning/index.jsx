@@ -3,15 +3,13 @@ import { faBars, faChevronLeft, faCircleCheck, faNoteSticky } from '@fortawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Container } from 'react-bootstrap';
 import classNames from 'classnames/bind';
-import Draggable from 'react-draggable';
 import { Spin } from 'antd';
+import Draggable from 'react-draggable';
 import { useCookies } from 'react-cookie';
-// import { debounce } from 'lodash';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
 
 import { useGetCourseLearningQuery } from '@/providers/apis/courseApi';
-import { useDeleteCmtMutation } from '@/providers/apis/cmtApi';
 import { useAddFinishLessonMutation, useGetCountQuery, useGetLessonByIdQuery } from '@/providers/apis/lessonApi';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 
@@ -25,11 +23,12 @@ import styles from './Learning.module.scss';
 const cx = classNames.bind(styles);
 
 const Learning = () => {
+    const { courseId, lessonId } = useParams();
+
     const [progressVideo, setProgessVideo] = useState(0); // tiến độ video [0-100]
     const [openStorage, setOpenStorage] = useState(false);
     const [totalLesson, setTotalLesson] = useState(0); // Tổng khóa học
     const [isModalShown, setIsModalShown] = useState(false);
-    const [isDelete, setDelete] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
 
     const mainView = useRef(null);
@@ -37,11 +36,7 @@ const Learning = () => {
 
     const [cookies] = useCookies(['cookieLoginStudent']);
 
-    const { courseId, lessonId } = useParams();
-
     const navigate = useNavigate();
-
-    const [deleteCmt] = useDeleteCmtMutation();
 
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
     const [handleAddSttCourse] = useAddSttCourseMutation();
@@ -52,19 +47,19 @@ const Learning = () => {
         skip: !lessonId,
     }); // lấy ra tất cả các khóa học để thực hiện lọc
 
-    // const handleGetTime = (event) => {
-    //     if (intervalRef.current) {
-    //         clearInterval(intervalRef.current);
-    //     }
+    const handleGetTime = (event) => {
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+        }
 
-    //     const player = event.target;
-    //     const totalDuration = player.getDuration();
-    //     intervalRef.current = setInterval(() => {
-    //         const currentTime = player.getCurrentTime();
-    //         const timeCatched = Math.floor((currentTime / totalDuration) * 100);
-    //         setProgessVideo(timeCatched);
-    //     }, 3000);
-    // };
+        const player = event.target;
+        const totalDuration = player.getDuration();
+        intervalRef.current = setInterval(() => {
+            const currentTime = player.getCurrentTime();
+            const timeCatched = Math.floor((currentTime / totalDuration) * 100);
+            setProgessVideo(timeCatched);
+        }, 3000);
+    };
 
     const handleLearnCourse = () => {
         const data = {
@@ -74,41 +69,42 @@ const Learning = () => {
         handleAddSttCourse(data);
     };
 
-    const handleSubmitDeleteCmt = (id) => {
-        deleteCmt(id).then(() => {
-            // refetch();
-        });
-        setDelete({ isDeleteCmt: false });
-    };
+    const lessons = course?.data?.chapters
+        .map((chapter) => {
+            return chapter.lessons;
+        })
+        .flat();
 
     const handleNext = () => {
-        if (!course?.nextLessonId) return;
-        navigate(`/learning/${courseId}/${course?.nextLessonId}`);
+        const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonId);
+        const nextLessonId = lessons?.[lessonIndex + 1]?._id;
+        navigate(`/learning/${courseId}/${nextLessonId}`);
     };
 
-    const handleSetFinish = () => {
+    const handleSetFinish = async () => {
+        setIsModalShown(true);
+        await handleAddFinishLesson({
+            course_id: courseId,
+            lesson_id: lessonId,
+        });
+
+        refetchCourse();
+        refetchCount();
+        handleNext();
+
         setProgessVideo(0);
         clearInterval(intervalRef.current);
-
-        handleAddFinishLesson({
-            lesson_id: lessonId,
-            course_id: courseId,
-        }).then(() => {
-            refetchCourse();
-            refetchCount();
-            handleNext();
-        });
     };
 
-    useEffect(() => {
-        setIsModalShown(false);
+    // useEffect(() => {
+    //     setIsModalShown(false);
 
-        if (progressVideo >= 95) {
-            setIsModalShown(true);
-        } else if (countLessonFinish?.count === totalLesson) {
-            setIsModalShown(false);
-        }
-    }, [progressVideo, isModalShown]);
+    //     if (progressVideo >= 95) {
+    //         setIsModalShown(true);
+    //     } else if (countLessonFinish?.count === totalLesson) {
+    //         setIsModalShown(false);
+    //     }
+    // }, [progressVideo, isModalShown]);
 
     // Nếu chưa đăng nhập cho về trang chi tiết khóa học
     useEffect(() => {
@@ -136,33 +132,21 @@ const Learning = () => {
         <div className="main">
             <header className={cx('header')}>
                 {isModalShown && (
-                    <Draggable>
-                        <div className={cx('message__delete')}>
-                            <h2>Bạn đã hoàn thành bài học này!!</h2>
-                            <h4>{/* Nhấn {`"Yes"`} để {true ? 'chuyển bài' : 'mở khóa'} nhé */}</h4>
-                            <div className={cx('btn__delete-container')}>
-                                <button onClick={handleSetFinish} className={cx('yes')}>
-                                    Yes
-                                </button>
-                            </div>
-                        </div>
-                    </Draggable>
-                )}
-                {isDelete.isDeleteCmt === true && (
-                    <Draggable>
-                        <div className={cx('message__delete')}>
-                            <h2>Bạn muốn xóa bình luận này chứ!!</h2>
-                            <h4>Nhấn yes để xóa nhé</h4>
-                            <div className={cx('btn__delete-container')}>
-                                <button className={cx('yes')} onClick={() => handleSubmitDeleteCmt(isDelete.id)}>
-                                    Yes
-                                </button>
-                                <button className={cx('yes')} onClick={() => setDelete(false)}>
-                                    Hủy
-                                </button>
-                            </div>
-                        </div>
-                    </Draggable>
+                    <></>
+                    // <Draggable>
+                    //     <div className={cx('message__success')}>
+                    //         <h2>Bạn đã hoàn thành bài học này!!</h2>
+                    //         <h4>
+                    //             {/* Nhấn {`"Yes"`} để {true ? 'chuyển bài' : 'mở khóa'} nhé */}
+                    //             Nhấn {`"Yes"`} để chuyển bài nhé
+                    //         </h4>
+                    //         <div className={cx('btn__delete-container')}>
+                    //             <button onClick={handleSetFinish} className={cx('yes')}>
+                    //                 Yes
+                    //             </button>
+                    //         </div>
+                    //     </div>
+                    // </Draggable>
                 )}
                 <Container fluid style={{ height: '100%' }}>
                     <div className={cx('header__wrapper')}>
@@ -233,7 +217,7 @@ const Learning = () => {
                     <div className={cx('learning__wrapper')}>
                         <div className={cx('learning__video')} ref={mainView}>
                             <div id="player">
-                                {currentLesson.source_type === 'youtube' ? (
+                                {currentLesson?.source_type === 'youtube' ? (
                                     <VideoYoutubePlayer
                                         url={currentLesson.url_video}
                                         handleGetTime={handleGetTime}
@@ -247,7 +231,6 @@ const Learning = () => {
                                     />
                                 )}
                             </div>
-
                             <Comments openStorage={openStorage} setOpenStorage={setOpenStorage} />
                         </div>
                         <div className={cx('learning__bar')}>
@@ -261,10 +244,21 @@ const Learning = () => {
                                             </h3>
 
                                             {item?.lessons.map((lesson, indexLesson) => {
-                                                const isNextLesson = course.nextLessonId === lesson._id;
+                                                const lessonIndex = lessons.findIndex(
+                                                    (lesson) => lesson._id === lessonId,
+                                                );
+
+                                                const currentLessonId = lessons?.[lessonIndex]?._id;
+                                                const isOpenLesson = currentLessonId === lesson._id;
+                                                const nextLessonIndex = lessons.findIndex(
+                                                    (lesson) => !lesson?.isCompleted,
+                                                );
+
+                                                const isOpenNextLesson = lessons?.[nextLessonIndex]?._id === lesson._id;
+
                                                 return (
                                                     <div className={cx('learning__chapter--lesson')} key={lesson._id}>
-                                                        {lesson.isCompleted || isNextLesson ? (
+                                                        {lesson.isCompleted || isOpenLesson || isOpenNextLesson ? (
                                                             <NavLink
                                                                 exact="true"
                                                                 to={`/learning/${courseId}/${lesson._id}`}
