@@ -52,19 +52,19 @@ const Learning = () => {
         skip: !lessonId,
     }); // lấy ra tất cả các khóa học để thực hiện lọc
 
-    const handleGetTime = (event) => {
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-        }
+    // const handleGetTime = (event) => {
+    //     if (intervalRef.current) {
+    //         clearInterval(intervalRef.current);
+    //     }
 
-        const player = event.target;
-        const totalDuration = player.getDuration();
-        intervalRef.current = setInterval(() => {
-            const currentTime = player.getCurrentTime();
-            const timeCatched = Math.floor((currentTime / totalDuration) * 100);
-            setProgessVideo(timeCatched);
-        }, 3000);
-    };
+    //     const player = event.target;
+    //     const totalDuration = player.getDuration();
+    //     intervalRef.current = setInterval(() => {
+    //         const currentTime = player.getCurrentTime();
+    //         const timeCatched = Math.floor((currentTime / totalDuration) * 100);
+    //         setProgessVideo(timeCatched);
+    //     }, 3000);
+    // };
 
     const handleLearnCourse = () => {
         const data = {
