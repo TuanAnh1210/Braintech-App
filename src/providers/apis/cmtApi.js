@@ -21,6 +21,9 @@ export const cmtApi = createApi({
     endpoints: (build) => ({
         getAll: build.query({
             query: (lesson_id) => `/comments/lesson/${lesson_id}`,
+            transformResponse: (response) => {
+                return response.data;
+            },
         }),
         createCmt: build.mutation({
             query: (payload) => {
