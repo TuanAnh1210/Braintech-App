@@ -15,19 +15,11 @@ export const sttCourseApi = createApi({
         countCourseUser: build.query({
             query: (id) => `/sttCourse/count/${id}`,
         }),
-        getAllCourseFinish: build.query({
-            query: (id) => `/sttCourse/finishCourse/${id}`,
-        }),
-        getAllCourseJoin: build.query({
-            query: (id) => `/sttCourse/joinedCourse/${id}`,
+        getAllSttCourse: build.query({
+            query: (id) => `/sttCourse/getall`,
         }),
     }),
 });
 
-export const {
-    useAddSttCourseMutation,
-    useGetSttCourseQuery,
-    useCountCourseUserQuery,
-    useGetAllCourseFinishQuery,
-    useGetAllCourseJoinQuery,
-} = sttCourseApi;
+export const { useAddSttCourseMutation, useGetSttCourseQuery, useCountCourseUserQuery, useGetAllSttCourseQuery } =
+    sttCourseApi;
