@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { format } from 'date-fns';
 import Highlighter from 'react-highlight-words';
 import Draggable from 'react-draggable';
-import { Button, Col, Drawer, Empty, Form, Input, Popconfirm, Popover, Row, Space, Table, Tabs } from 'antd';
+import { Button, Col, Drawer, Empty, Form, Input, Popconfirm, Popover, Row, Space, Table, Tabs, message } from 'antd';
 import React from 'react';
 
 import {
@@ -69,11 +69,8 @@ const Comments = ({ openStorage, setOpenStorage }) => {
             content: noteInput,
             lesson_id: lessonId,
         };
-        // console.log(newNote);
-        handleAddNote(newNote).then(() => {
-            // gửi dữ liêu được nhập về backend
-            refNoteInput.current.value = '';
-
+        handleAddNote(newNote).then(({ data }) => {
+            message.success(data.message);
             setNoteInput('');
             refetchNote();
         });
@@ -550,19 +547,18 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                             children: (
                                 <div className={cx('noteZone')}>
                                     <form className={cx('noteForm')} onSubmit={handleSubmitNote}>
-                                        <h2 className={cx('note--title')}>
+                                        <h6 className={cx('note--title', 'font-bold')}>
                                             Thêm ghi chú tại <span className={cx('note--time')}>bài học này</span>
-                                        </h2>
+                                        </h6>
 
                                         <div className="form__group">
                                             <textarea
                                                 required
                                                 placeholder="Nội dung ghi chú..."
-                                                className={cx('note--ipt')}
+                                                className={cx('note--ipt', 'border outline-none rounded-lg')}
                                                 name="note_content"
-                                                id=""
                                                 cols="10"
-                                                rows="3"
+                                                rows={5}
                                                 ref={refNoteInput}
                                                 onChange={(e) => {
                                                     setNoteInput(e.target.value);
@@ -602,7 +598,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                     pageSize: 50,
                                 }}
                                 scroll={{
-                                    y: 340,
+                                    y: 360,
                                 }}
                             />
                         </div>
