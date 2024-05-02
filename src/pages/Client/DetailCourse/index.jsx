@@ -83,13 +83,8 @@ const DetailCourse = () => {
     const dataBought = coursePay?.data?.find(
         (s) => s.user_id === userid && s.course_id._id === courseId && s.status === 'SUCCESS',
     );
-    const nextlessonId = lessonFinish?.data?.lesson_id || course?.course?.chapters?.[0]?.lessons?.[0]?._id;
-    const handleLearn = async () => {
-        await handleAddSttCourse({ course_id: courseId });
-        navigate(`/learning/${courseId}/${nextlessonId}`);
-    };
-    const data = cookies?.cookieLoginStudent;
 
+    const data = cookies?.cookieLoginStudent;
 
     // const nextlessonId = lessonFinish?.data?.lesson_id || course?.course?.chapters?.[0]?.lessons?.[0]?._id;
 
@@ -98,8 +93,10 @@ const DetailCourse = () => {
         ?.lessons.find((lesson) => lesson.isPublic)?._id;
 
     const isPublicExist = course?.course?.chapters?.find((chapter) => !chapter.isPublic);
-
-
+    const handleLearn = async () => {
+        await handleAddSttCourse({ course_id: courseId });
+        navigate(`/learning/${courseId}/${nextlessonId}`);
+    };
     useEffect(() => {
         if (cookies.cookieLoginStudent) {
             const decode = jwtDecode(data?.accessToken);
@@ -162,7 +159,7 @@ const DetailCourse = () => {
                         <Col lg={4}>
                             <div className="course_img_wrapper">
                                 <img className={cx('course_img')} src={course?.course?.thumb} alt="" />
-                                {!dataBought ? (
+                                {!dataBought && course?.course?.price > 0 ? (
                                     <>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
@@ -177,20 +174,13 @@ const DetailCourse = () => {
                                 ) : (
                                     <>
                                         <h4 className={cx('course_free')}>
-                                            {course?.course?.price > 0 ? 'Đã mua' : 'Miễn phí'}
+                                            {course?.course?.price > 0 && dataBought ? 'Đã mua' : 'Miễn phí'}
                                         </h4>
                                         <div className={cx('firstLessonBtn')}>
                                             {isLogin ? (
                                                 <button className={cx('course_btn-learn')} onClick={handleLearn}>
                                                     Học ngay
                                                 </button>
-                                                <Link
-                                                    to={`${
-                                                        nextlessonId ? `/learning/${courseId}/${nextlessonId}` : ''
-                                                    }`}
-                                                >
-                                                    <button className={cx('course_btn-learn')}>Học ngay</button>
-                                                </Link>
                                             ) : (
                                                 <button
                                                     onClick={() => {
