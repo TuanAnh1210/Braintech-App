@@ -12,7 +12,6 @@ const cx = classNames.bind(styles);
 
 const CourseItem = ({ course }) => {
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
-    console.log();
     return (
         <Link to={`/detail/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
@@ -21,7 +20,7 @@ const CourseItem = ({ course }) => {
                 <h4>{course?.name}</h4>
                 <div className={cx('courses-newest_info')}>
                     <FontAwesomeIcon icon={faUsers} />
-                    <span>{data?.count}</span>
+                    {isLoading ? 'Loading...' : <span>{data?.count}</span>}
                     {course?.price == 0 ? (
                         <p>Miễn phí</p>
                     ) : (
