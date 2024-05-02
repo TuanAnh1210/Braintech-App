@@ -89,11 +89,16 @@ const Learning = () => {
     };
 
     const handleSetFinish = async () => {
-        setIsModalShown(false);
+        const lessonPath = window.location.pathname.split('/')[3];
+
+        // const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonPath);
+        // const currentLesson = lessons?.[lessonIndex];
+
+        // if (currentLesson.isCompleted) return;
 
         await handleAddFinishLesson({
             course_id: courseId,
-            lesson_id: lessonId,
+            lesson_id: lessonPath || lessonId,
         });
 
         refetchCourse();
@@ -102,12 +107,12 @@ const Learning = () => {
 
         setProgessVideo(0);
         clearInterval(intervalRef.current);
+        setIsModalShown(false);
     };
 
     useEffect(() => {
         if (progressVideo >= 95) {
             const isCompleted = lessons.find((lesson) => lesson._id === lessonId)?.isCompleted;
-
             if (isCompleted) return;
 
             setIsModalShown(true);
