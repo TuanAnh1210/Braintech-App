@@ -13,15 +13,16 @@ import { useGetFinishLessonByCourseIdQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
 import { useCookies } from 'react-cookie';
 import { Empty } from 'antd';
-import { useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
+import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
+import { jwtDecode } from 'jwt-decode';
 
 const cx = classNames.bind(styles);
 
 const DetailCourse = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const [userid, setUserid] = useState(null);
 
-    const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentQuery();
     const { courseId } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -77,13 +78,25 @@ const DetailCourse = () => {
 
         // link.dispatchEvent(clickEvent);
     };
-
+    const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
+    const dataBought = coursePay?.data?.find(
+        (s) => s.user_id === userid && s.course_id._id === courseId && s.status === 'SUCCESS',
+    );
     const nextlessonId = lessonFinish?.data?.lesson_id || course?.course?.chapters?.[0]?.lessons?.[0]?._id;
-    const handleLearn = () => {
-        handleAddSttCourse({ course_id: courseId }).then(() => {
-            navigate(`/learning/${courseId}/${nextlessonId}`);
-        });
+    const handleLearn = async () => {
+        await handleAddSttCourse({ course_id: courseId });
+        navigate(`/learning/${courseId}/${nextlessonId}`);
     };
+    const data = cookies?.cookieLoginStudent;
+
+    useEffect(() => {
+        if (cookies.cookieLoginStudent) {
+            const decode = jwtDecode(data?.accessToken);
+            setUserid(decode._id);
+        } else {
+            navigate('/');
+        }
+    }, [cookies]);
     return (
         <>
             <div className={cx('detail-course')}>
@@ -126,7 +139,7 @@ const DetailCourse = () => {
                         <Col lg={4}>
                             <div className="course_img_wrapper">
                                 <img className={cx('course_img')} src={course?.course?.thumb} alt="" />
-                                {course?.course?.price > 0 ? (
+                                {!dataBought ? (
                                     <>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
@@ -140,7 +153,9 @@ const DetailCourse = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <h4 className={cx('course_free')}>Miễn phí</h4>
+                                        <h4 className={cx('course_free')}>
+                                            {course?.course?.price > 0 ? 'Đã mua' : 'Miễn phí'}
+                                        </h4>
                                         <div className={cx('firstLessonBtn')}>
                                             {isLogin ? (
                                                 <button className={cx('course_btn-learn')} onClick={handleLearn}>

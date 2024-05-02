@@ -34,7 +34,7 @@ export const sttCourseApi = createApi({
             query: () => `/sttCourse/getall`,
         }),
         updateSttCourse: build.mutation({
-            query: () => {
+            query: (payload) => {
                 return { url: '/sttCourse/updatesttCourse', method: 'PUT', body: payload };
             },
         }),
