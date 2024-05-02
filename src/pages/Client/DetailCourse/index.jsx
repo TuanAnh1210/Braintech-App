@@ -79,7 +79,7 @@ const DetailCourse = () => {
         // link.dispatchEvent(clickEvent);
     };
 
-    const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
+    const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought = coursePay?.data?.find(
         (s) => s.user_id === userid && s.course_id._id === courseId && s.status === 'SUCCESS',
     );
@@ -93,9 +93,11 @@ const DetailCourse = () => {
         ?.lessons.find((lesson) => lesson.isPublic)?._id;
 
     const isPublicExist = course?.course?.chapters?.find((chapter) => !chapter.isPublic);
-    const handleLearn = async () => {
-        await handleAddSttCourse({ course_id: courseId });
-        navigate(`/learning/${courseId}/${nextlessonId}`);
+    const handleLearn = () => {
+        handleAddSttCourse({ course_id: courseId }).then(() => {
+            refetch();
+            navigate(`/learning/${courseId}/${nextlessonId}`);
+        });
     };
     useEffect(() => {
         if (cookies.cookieLoginStudent) {
