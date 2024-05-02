@@ -74,9 +74,13 @@ const DetailCourse = () => {
         // link.dispatchEvent(clickEvent);
     };
 
-    console.log(course);
+    // const nextlessonId = lessonFinish?.data?.lesson_id || course?.course?.chapters?.[0]?.lessons?.[0]?._id;
 
-    const nextlessonId = lessonFinish?.data?.lesson_id || course?.course?.chapters?.[0]?.lessons?.[0]?._id;
+    const nextlessonId = lessonFinish?.chapters
+        ?.find((chapter) => chapter.isPublic)
+        ?.lessons.find((lesson) => lesson.isPublic)?._id;
+
+    const isPublicExist = course?.course?.chapters?.find((chapter) => !chapter.isPublic);
 
     return (
         <>
@@ -90,27 +94,39 @@ const DetailCourse = () => {
                                 <div className={cx('learning__bar')}>
                                     <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
                                     <div className={cx('course_topic')}>
-                                        {course?.course?.chapters?.map((chapter) => (
-                                            <div key={chapter._id} className={cx('learning__chapter')}>
-                                                <h3 className={cx('learning__chapter--txt')}>{chapter.name}</h3>
+                                        {course?.course?.chapters
+                                            ?.filter((chapter) => chapter.isPublic)
+                                            .map((chapter) => {
+                                                return (
+                                                    <div
+                                                        key={chapter._id}
+                                                        className={cx(
+                                                            'learning__chapter',
+                                                            !chapter.isPublic && 'hidden',
+                                                        )}
+                                                    >
+                                                        <h3 className={cx('learning__chapter--txt')}>{chapter.name}</h3>
 
-                                                {chapter.lessons.map((lesson, index) => (
-                                                    <div key={lesson._id} className={cx('trackItem')}>
-                                                        <h3 className={cx('trackItem--title')}>
-                                                            {index + 1}. {lesson.name}
-                                                            <span>
-                                                                <FontAwesomeIcon
-                                                                    style={{ color: '#f76b1c' }}
-                                                                    icon={faGraduationCap}
-                                                                />
-                                                            </span>
-                                                        </h3>
+                                                        {chapter.lessons
+                                                            ?.filter((lesson) => lesson.isPublic)
+                                                            .map((lesson, index) => (
+                                                                <div key={lesson._id} className={cx('trackItem')}>
+                                                                    <h3 className={cx('trackItem--title')}>
+                                                                        {index + 1}. {lesson.name}
+                                                                        <span>
+                                                                            <FontAwesomeIcon
+                                                                                style={{ color: '#f76b1c' }}
+                                                                                icon={faGraduationCap}
+                                                                            />
+                                                                        </span>
+                                                                    </h3>
+                                                                </div>
+                                                            ))}
                                                     </div>
-                                                ))}
-                                            </div>
-                                        ))}
+                                                );
+                                            })}
 
-                                        {course?.course?.chapters.length === 0 && (
+                                        {(course?.course?.chapters.length === 0 || isPublicExist) && (
                                             <Empty className="my-8" description="Chưa có dữ liệu" />
                                         )}
                                     </div>
@@ -137,7 +153,11 @@ const DetailCourse = () => {
                                         <h4 className={cx('course_free')}>Miễn phí</h4>
                                         <div className={cx('firstLessonBtn')}>
                                             {isLogin ? (
-                                                <Link to={`/learning/${courseId}/${nextlessonId || ''}`}>
+                                                <Link
+                                                    to={`${
+                                                        nextlessonId ? `/learning/${courseId}/${nextlessonId}` : ''
+                                                    }`}
+                                                >
                                                     <button className={cx('course_btn-learn')}>Học ngay</button>
                                                 </Link>
                                             ) : (
