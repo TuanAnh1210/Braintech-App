@@ -77,14 +77,16 @@ const Learning = () => {
         .flat();
 
     const handlePrev = () => {
-        const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonId);
+        const lessonPath = window.location.pathname.split('/')[3];
+        const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonPath);
         const prevLessonId = lessons?.[lessonIndex - 1]?._id;
         if (!prevLessonId) return;
         navigate(`/learning/${courseId}/${prevLessonId}`);
     };
 
     const handleNext = () => {
-        const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonId);
+        const lessonPath = window.location.pathname.split('/')[3];
+        const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonPath);
         const nextLessonId = lessons?.[lessonIndex + 1]?._id;
         if (!nextLessonId) return;
         navigate(`/learning/${courseId}/${nextLessonId}`);
@@ -100,28 +102,29 @@ const Learning = () => {
 
         await handleAddFinishLesson({
             course_id: courseId,
-            lesson_id: lessonPath || lessonId,
+            lesson_id: lessonPath,
         });
 
         refetchCourse();
         refetchCount();
-        handleNext();
 
         setProgessVideo(0);
         clearInterval(intervalRef.current);
         setIsModalShown(false);
+
+        handleNext();
     };
 
-    useEffect(() => {
-        if (progressVideo >= 95) {
-            const isCompleted = lessons.find((lesson) => lesson._id === lessonId)?.isCompleted;
-            if (isCompleted) return;
+    // useEffect(() => {
+    //     if (progressVideo >= 95) {
+    //         const isCompleted = lessons.find((lesson) => lesson._id === lessonId)?.isCompleted;
+    //         if (isCompleted) return;
 
-            setIsModalShown(true);
-        } else if (countLessonFinish?.count === totalLesson) {
-            setIsModalShown(false);
-        }
-    }, [progressVideo, lessonId, isModalShown]);
+    //         setIsModalShown(true);
+    //     } else if (countLessonFinish?.count === totalLesson) {
+    //         setIsModalShown(false);
+    //     }
+    // }, [progressVideo, lessonId, isModalShown]);
 
     // Nếu chưa đăng nhập cho về trang chi tiết khóa học
     useEffect(() => {
