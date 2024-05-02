@@ -1,12 +1,17 @@
 import Joi from 'joi';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { joiResolver } from '@hookform/resolvers/joi';
 import { notification } from 'antd';
 import { useDropzone } from 'react-dropzone';
 import { useUpdateProfileMutation } from '@/providers/apis/userApi';
 import { useCookies } from 'react-cookie';
+import { useGetAllSttCourseQuery } from '@/providers/apis/sttCourseApi';
+import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
+import { useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
 const Account = () => {
+    const navigate = useNavigate();
     const schema = Joi.object({
         full_name: Joi.string()
             .messages({
@@ -30,6 +35,7 @@ const Account = () => {
             .required(),
     });
     const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
+    const [userid, setUserid] = useState(null);
 
     const {
         register,
@@ -38,27 +44,21 @@ const Account = () => {
     } = useForm({
         resolver: joiResolver(schema),
     });
-    const courses = [
-        {
-            _id: '64c232eeca36426de30f6426',
-            name: 'HTML CSS từ Zero đến Hero',
-            thumb: 'https://res.cloudinary.com/dpjieqbsk/image/upload/v1681393126/braintech/spmz7sjkfyo8lkchmyqx.png',
-            time: '23/04/2024',
-        },
-        {
-            _id: '64c232eeca36426de30f6427',
-            name: 'Kiến Thức Nhập Môn IT',
-            thumb: 'https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377227/braintech/cpge4lrnbot8fkkjgn7g.png',
-            time: '20/01/2024',
-        },
-        {
-            _id: '64c232eeca36426de30f6428',
-            name: 'Node & ExpressJS',
-            thumb: 'https://res.cloudinary.com/dpjieqbsk/image/upload/v1681377304/braintech/rl5psizy4vdmv9yk4nz8.png',
-            time: '12/08/2023',
-        },
-    ];
-    const { avatar, fullName, accessToken, email, phone } = cookies.cookieLoginStudent;
+
+    const data = cookies?.cookieLoginStudent;
+    useEffect(() => {
+        if (cookies.cookieLoginStudent) {
+            const decode = jwtDecode(data?.accessToken);
+            setUserid(decode._id);
+        } else {
+            navigate('/');
+        }
+    }, [cookies]);
+    const { data: sttCourse, isLoading: loadingSttCourse } = useGetAllSttCourseQuery();
+    const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentQuery();
+    const dataBought = coursePay?.data?.filter((s) => s.user_id === userid && s.status !== 'CANCEL');
+    const dataFinished = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === true);
+    const dataJoined = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === false);
     const [uploadedImages, setUploadedImages] = useState();
     const [uploadFile, setUploadFile] = useState();
     const [handleUpdateProfile] = useUpdateProfileMutation();
@@ -77,6 +77,7 @@ const Account = () => {
         },
     });
     const [showModal, setShowModal] = useState(false);
+
     const updateLocalStorage = (accessToken, email, phone, fullName, avatar) => {
         const newData = {
             accessToken: accessToken,
@@ -106,8 +107,14 @@ const Account = () => {
     const onSubmit = async (payload) => {
         try {
             let newUrl;
-            uploadFile ? (newUrl = await onHandleUploadImg(uploadFile)) : (newUrl = avatar);
-            const { data, error } = await handleUpdateProfile({ ...payload, accessToken, avatar: newUrl });
+            const dataCookie = cookies?.cookieLoginStudent;
+
+            uploadFile ? (newUrl = await onHandleUploadImg(uploadFile)) : (newUrl = dataCookie?.avatar);
+            const { data, error } = await handleUpdateProfile({
+                ...payload,
+                accessToken: dataCookie.accessToken,
+                avatar: newUrl,
+            });
             if (error) {
                 return notification.error({
                     message: 'Thông báo',
@@ -116,7 +123,7 @@ const Account = () => {
                 });
             }
             updateLocalStorage(
-                accessToken,
+                dataCookie.accessToken,
                 data.result.email,
                 data.result.phone,
                 data.result.full_name,
@@ -146,10 +153,10 @@ const Account = () => {
                             <div className="bg-white shadow rounded-lg p-6">
                                 <div className="flex flex-col items-center">
                                     <img
-                                        src={avatar}
+                                        src={data?.avatar}
                                         className="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
                                     ></img>
-                                    <h1 className="text-2xl font-bold">{fullName}</h1>
+                                    <h1 className="text-2xl font-bold">{data?.fullName}</h1>
                                     <div
                                         onClick={() => setShowModal(true)}
                                         className="mt-6 flex flex-wrap gap-4 justify-center"
@@ -163,19 +170,19 @@ const Account = () => {
                                     </div>
                                 </div>
                                 <hr className="my-6 border-t border-gray-300" />
-                                <div className="flex flex-col">
+                                <div className="flex flex-col overflow-hidden">
                                     <h1 className="text-2xl font-bold">Thông tin</h1>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Họ và tên</label>
-                                        <p className="text-lg font-[450]">{fullName}</p>
+                                        <p className="text-lg font-[450]">{data?.fullName}</p>
                                     </div>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Số điện thoại</label>
-                                        <p className="text-lg font-[450]">{phone}</p>
+                                        <p className="text-lg font-[450]">{data?.phone}</p>
                                     </div>
                                     <div className="mb-2">
                                         <label className="text-sm italic">Email</label>
-                                        <p className="text-lg font-[450]  w-[50px]">{email}</p>
+                                        <p className="text-lg font-[450]  w-[50px]">{data?.email}</p>
                                     </div>
                                 </div>
                             </div>
@@ -183,51 +190,59 @@ const Account = () => {
                         <div className="col-span-4 sm:col-span-9">
                             <div className="bg-white shadow rounded-lg p-6">
                                 <h2 className="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
-                                {courses.map((item, index) => {
-                                    return (
-                                        <>
-                                            <div key={index} className="flex mt-4">
-                                                <img className="w-[25%]" src={item.thumb} />
-                                                <div className="ml-4">
-                                                    <p className="font-bold mt-4">{item.name}</p>
-                                                    <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
-                                                </div>
-                                            </div>
-                                        </>
-                                    );
-                                })}
+                                {!loadingSttCourse && dataJoined?.length === 0
+                                    ? 'Bạn chưa tham gia khóa học nào'
+                                    : dataJoined?.map((item, index) => {
+                                          return (
+                                              <>
+                                                  <div key={index} className="flex mt-4">
+                                                      <img className="w-[25%]" src={item?.course_id?.thumb} />
+                                                      <div className="ml-4">
+                                                          <p className="font-bold mt-4">{item?.course_id?.name}</p>
+                                                          <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
+                                                      </div>
+                                                  </div>
+                                              </>
+                                          );
+                                      })}
                             </div>
                             <div className="bg-white shadow rounded-lg p-6 mt-4">
                                 <h2 className="text-xl font-bold mb-4">Các khóa học đã mua</h2>
-                                {courses.map((item, index) => {
-                                    return (
-                                        <>
-                                            <div key={index} className="flex mt-4">
-                                                <img className="w-[25%]" src={item.thumb} />
-                                                <div className="ml-4">
-                                                    <p className="font-bold mt-4">{item.name}</p>
-                                                    <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
-                                                </div>
-                                            </div>
-                                        </>
-                                    );
-                                })}
+                                {!coursePayLoading && dataBought?.length === 0
+                                    ? 'Bạn chưa mua khóa học nào'
+                                    : dataBought?.map((item, index) => {
+                                          return (
+                                              <>
+                                                  <div key={index} className="flex mt-4">
+                                                      <img className="w-[25%]" src={item?.course_id?.thumb} />
+                                                      <div className="ml-4">
+                                                          <p className="font-bold mt-4">{item?.course_id?.name}</p>
+                                                          <p className="mt-4 italic">
+                                                              Thời gian bắt đầu: {item?.course_id?.time}
+                                                          </p>
+                                                      </div>
+                                                  </div>
+                                              </>
+                                          );
+                                      })}
                             </div>
                             <div className="bg-white shadow rounded-lg p-6 mt-4">
                                 <h2 className="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
-                                {courses.map((item, index) => {
-                                    return (
-                                        <>
-                                            <div key={index} className="flex mt-4">
-                                                <img className="w-[25%]" src={item.thumb} />
-                                                <div className="ml-4">
-                                                    <p className="font-bold mt-4">{item.name}</p>
-                                                    <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
-                                                </div>
-                                            </div>
-                                        </>
-                                    );
-                                })}
+                                {!loadingSttCourse && dataFinished.length === 0
+                                    ? 'Bạn chưa hoàn thành khóa học nào'
+                                    : dataFinished?.map((item, index) => {
+                                          return (
+                                              <>
+                                                  <div key={index} className="flex mt-4">
+                                                      <img className="w-[25%]" src={item?.course_id.thumb} />
+                                                      <div className="ml-4">
+                                                          <p className="font-bold mt-4">{item?.course_id.name}</p>
+                                                          <p className="mt-4 italic">Thời gian bắt đầu: </p>
+                                                      </div>
+                                                  </div>
+                                              </>
+                                          );
+                                      })}
                             </div>
                         </div>
                     </div>
@@ -247,7 +262,7 @@ const Account = () => {
                                         <div {...getRootProps()} className="flex">
                                             <input {...getInputProps()} />
                                             <img
-                                                src={uploadedImages ? uploadedImages[0].preview : avatar}
+                                                src={uploadedImages ? uploadedImages[0].preview : data?.avatar}
                                                 className="w-[200px] h-[200px] bg-gray-300 rounded-full object-cover mx-auto mb-4 shrink-0"
                                             ></img>
                                         </div>
@@ -271,7 +286,7 @@ const Account = () => {
                                                 id="FirstName"
                                                 name="full_name"
                                                 {...register('full_name')}
-                                                defaultValue={fullName}
+                                                defaultValue={data?.fullName}
                                                 className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.full_name && (
@@ -290,7 +305,7 @@ const Account = () => {
                                                 type="text"
                                                 id="LastName"
                                                 {...register('phone')}
-                                                defaultValue={phone}
+                                                defaultValue={data?.phone}
                                                 className="mt-1 w-full last_name focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.phone && (
@@ -309,7 +324,7 @@ const Account = () => {
                                                 id="Email"
                                                 name="email"
                                                 {...register('email')}
-                                                defaultValue={email}
+                                                defaultValue={data?.email}
                                                 className="mt-1 w-full focus:outline-none h-[50px] rounded-md border-gray-200 bg-white text-sm text-gray-700 shadow-sm border-b border-solid border-blueGray-200 pl-4"
                                             />
                                             {errors.email && (

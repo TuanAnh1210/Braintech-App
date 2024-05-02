@@ -24,6 +24,7 @@ export const paymentApi = createApi({
                 return { url: `/create_payment_url`, method: 'POST', body: payload };
             },
         }),
+
         handleCheckPayment: build.mutation({
             query: (payload) => {
                 return { url: `/create_payment_url`, method: 'POST', body: payload };
@@ -32,4 +33,4 @@ export const paymentApi = createApi({
     }),
 });
 
-export const { useCreatePaymentUrlMutation } = paymentApi;
+export const { useCreatePaymentUrlMutation, useGetAllByUserIdQuery } = paymentApi;
