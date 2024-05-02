@@ -33,8 +33,18 @@ export const sttCourseApi = createApi({
         getAllSttCourse: build.query({
             query: () => `/sttCourse/getall`,
         }),
+        updateSttCourse: build.mutation({
+            query: (payload) => {
+                return { url: '/sttCourse/updatesttCourse', method: 'PUT', body: payload };
+            },
+        }),
     }),
 });
 
-export const { useAddSttCourseMutation, useGetSttCourseQuery, useCountCourseUserQuery, useGetAllSttCourseQuery } =
-    sttCourseApi;
+export const {
+    useAddSttCourseMutation,
+    useUpdateSttCourseMutation,
+    useGetSttCourseQuery,
+    useCountCourseUserQuery,
+    useGetAllSttCourseQuery,
+} = sttCourseApi;

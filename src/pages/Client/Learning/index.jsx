@@ -11,7 +11,7 @@ import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
 
 import { useGetCourseLearningQuery } from '@/providers/apis/courseApi';
 import { useAddFinishLessonMutation, useGetCountQuery, useGetLessonByIdQuery } from '@/providers/apis/lessonApi';
-import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
+import { useUpdateSttCourseMutation } from '@/providers/apis/sttCourseApi';
 
 import VideoYoutubePlayer from '@/components/VideoPlayer/VideoYoutubePlayer';
 import VideoCloudinaryPlayer from '@/components/VideoPlayer/VideoCloudinaryPlayer';
@@ -39,8 +39,7 @@ const Learning = () => {
     const navigate = useNavigate();
 
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
-    const [handleAddSttCourse] = useAddSttCourseMutation();
-
+    const [handleUpdateSttCourse] = useUpdateSttCourseMutation();
     const { data: countLessonFinish, refetch: refetchCount } = useGetCountQuery(courseId);
     const { data: course, isLoading, refetch: refetchCourse } = useGetCourseLearningQuery(courseId); // các bài học của khóa học
     const { data: currentLesson } = useGetLessonByIdQuery(lessonId, {
@@ -63,10 +62,9 @@ const Learning = () => {
 
     const handleLearnCourse = () => {
         const data = {
-            user_id: 'userId',
             course_id: courseId,
         };
-        handleAddSttCourse(data);
+        handleUpdateSttCourse(data);
     };
 
     const lessons = course?.data?.chapters

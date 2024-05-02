@@ -5,7 +5,7 @@ import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
 import { useGetDetailQuery } from '@/providers/apis/courseApi';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { openModal } from '@/providers/slices/modalSlice';
@@ -13,15 +13,20 @@ import { useGetFinishLessonByCourseIdQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
 import { useCookies } from 'react-cookie';
 import { Empty } from 'antd';
+import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
+import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
+import { jwtDecode } from 'jwt-decode';
 
 const cx = classNames.bind(styles);
 
 const DetailCourse = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const [userid, setUserid] = useState(null);
 
     const { courseId } = useParams();
     const dispatch = useDispatch();
-
+    const navigate = useNavigate();
+    const [handleAddSttCourse] = useAddSttCourseMutation();
     const [cookies] = useCookies(['cookieLoginStudent']);
     const [createPaymentUrl] = useCreatePaymentUrlMutation();
 
@@ -74,6 +79,13 @@ const DetailCourse = () => {
         // link.dispatchEvent(clickEvent);
     };
 
+    const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
+    const dataBought = coursePay?.data?.find(
+        (s) => s.user_id === userid && s.course_id._id === courseId && s.status === 'SUCCESS',
+    );
+
+    const data = cookies?.cookieLoginStudent;
+
     // const nextlessonId = lessonFinish?.data?.lesson_id || course?.course?.chapters?.[0]?.lessons?.[0]?._id;
 
     const nextlessonId = lessonFinish?.chapters
@@ -81,7 +93,18 @@ const DetailCourse = () => {
         ?.lessons.find((lesson) => lesson.isPublic)?._id;
 
     const isPublicExist = course?.course?.chapters?.find((chapter) => !chapter.isPublic);
-
+    const handleLearn = async () => {
+        await handleAddSttCourse({ course_id: courseId });
+        navigate(`/learning/${courseId}/${nextlessonId}`);
+    };
+    useEffect(() => {
+        if (cookies.cookieLoginStudent) {
+            const decode = jwtDecode(data?.accessToken);
+            setUserid(decode._id);
+        } else {
+            navigate('/');
+        }
+    }, [cookies]);
     return (
         <>
             <div className={cx('detail-course')}>
@@ -136,7 +159,7 @@ const DetailCourse = () => {
                         <Col lg={4}>
                             <div className="course_img_wrapper">
                                 <img className={cx('course_img')} src={course?.course?.thumb} alt="" />
-                                {course?.course?.price > 0 ? (
+                                {!dataBought && course?.course?.price > 0 ? (
                                     <>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
@@ -150,16 +173,14 @@ const DetailCourse = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <h4 className={cx('course_free')}>Miễn phí</h4>
+                                        <h4 className={cx('course_free')}>
+                                            {course?.course?.price > 0 && dataBought ? 'Đã mua' : 'Miễn phí'}
+                                        </h4>
                                         <div className={cx('firstLessonBtn')}>
                                             {isLogin ? (
-                                                <Link
-                                                    to={`${
-                                                        nextlessonId ? `/learning/${courseId}/${nextlessonId}` : ''
-                                                    }`}
-                                                >
-                                                    <button className={cx('course_btn-learn')}>Học ngay</button>
-                                                </Link>
+                                                <button className={cx('course_btn-learn')} onClick={handleLearn}>
+                                                    Học ngay
+                                                </button>
                                             ) : (
                                                 <button
                                                     onClick={() => {

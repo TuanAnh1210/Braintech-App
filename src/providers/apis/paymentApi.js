@@ -9,7 +9,6 @@ export const paymentApi = createApi({
         baseUrl: 'http://localhost:8080/api/payment',
         prepareHeaders: (headers) => {
             const token = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
-
             // If we have a token set in state, let's assume that we should be passing it.
             if (token) {
                 headers.set('Authorization', `Bearer ${token.accessToken}`);
@@ -33,4 +32,4 @@ export const paymentApi = createApi({
     }),
 });
 
-export const { useCreatePaymentUrlMutation, useGetAllByUserIdQuery } = paymentApi;
+export const { useCreatePaymentUrlMutation } = paymentApi;

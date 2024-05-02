@@ -5,7 +5,6 @@ import { Cookies } from 'react-cookie';
 
 const cookies = new Cookies(); // Tạo một instance mới của Cookies
 const user = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
-console.log(user, 'user');
 const initialState = user ? user : {};
 
 const userSlice = createSlice({

@@ -9,7 +9,8 @@ import { useCookies } from 'react-cookie';
 import { useGetAllSttCourseQuery } from '@/providers/apis/sttCourseApi';
 import { jwtDecode } from 'jwt-decode';
 import { useNavigate } from 'react-router-dom';
-import { useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
+import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
+import { format } from 'date-fns';
 const Account = () => {
     const navigate = useNavigate();
     const schema = Joi.object({
@@ -55,8 +56,10 @@ const Account = () => {
         }
     }, [cookies]);
     const { data: sttCourse, isLoading: loadingSttCourse } = useGetAllSttCourseQuery();
-    const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentQuery();
-    const dataBought = coursePay?.data?.filter((s) => s.user_id === userid && s.status !== 'CANCEL');
+    const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
+    const dataBought = coursePay?.data?.filter(
+        (s) => s.user_id === userid && s.status !== 'CANCEL' && s.status !== 'PENDING',
+    );
     const dataFinished = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === true);
     const dataJoined = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === false);
     const [uploadedImages, setUploadedImages] = useState();
@@ -193,13 +196,15 @@ const Account = () => {
                                 {!loadingSttCourse && dataJoined?.length === 0
                                     ? 'Bạn chưa tham gia khóa học nào'
                                     : dataJoined?.map((item, index) => {
+                                          const formatDate = format(item?.createdAt, 'dd/MM/yyyy');
+
                                           return (
                                               <>
                                                   <div key={index} className="flex mt-4">
                                                       <img className="w-[25%]" src={item?.course_id?.thumb} />
                                                       <div className="ml-4">
                                                           <p className="font-bold mt-4">{item?.course_id?.name}</p>
-                                                          <p className="mt-4 italic">Thời gian bắt đầu: {item.time}</p>
+                                                          <p className="mt-4 italic">Thời gian bắt đầu: {formatDate}</p>
                                                       </div>
                                                   </div>
                                               </>
@@ -211,15 +216,15 @@ const Account = () => {
                                 {!coursePayLoading && dataBought?.length === 0
                                     ? 'Bạn chưa mua khóa học nào'
                                     : dataBought?.map((item, index) => {
+                                          const formatDate = format(item?.createdAt, 'dd/MM/yyyy');
+
                                           return (
                                               <>
                                                   <div key={index} className="flex mt-4">
                                                       <img className="w-[25%]" src={item?.course_id?.thumb} />
                                                       <div className="ml-4">
                                                           <p className="font-bold mt-4">{item?.course_id?.name}</p>
-                                                          <p className="mt-4 italic">
-                                                              Thời gian bắt đầu: {item?.course_id?.time}
-                                                          </p>
+                                                          <p className="mt-4 italic">Thời gian bắt đầu: {formatDate}</p>
                                                       </div>
                                                   </div>
                                               </>
@@ -231,13 +236,15 @@ const Account = () => {
                                 {!loadingSttCourse && dataFinished.length === 0
                                     ? 'Bạn chưa hoàn thành khóa học nào'
                                     : dataFinished?.map((item, index) => {
+                                          const formatDate = format(item?.createdAt, 'dd/MM/yyyy');
+
                                           return (
                                               <>
                                                   <div key={index} className="flex mt-4">
                                                       <img className="w-[25%]" src={item?.course_id.thumb} />
                                                       <div className="ml-4">
                                                           <p className="font-bold mt-4">{item?.course_id.name}</p>
-                                                          <p className="mt-4 italic">Thời gian bắt đầu: </p>
+                                                          <p className="mt-4 italic">Thời gian bắt đầu: {formatDate}</p>
                                                       </div>
                                                   </div>
                                               </>
