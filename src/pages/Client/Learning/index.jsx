@@ -68,8 +68,9 @@ const Learning = () => {
     };
 
     const lessons = course?.data?.chapters
+        ?.filter((chapter) => chapter.isPublic)
         .map((chapter) => {
-            return chapter.lessons;
+            return chapter.lessons.filter((lesson) => lesson.isPublic);
         })
         .flat();
 
@@ -128,13 +129,18 @@ const Learning = () => {
 
         const access_token = cookies.cookieLoginStudent;
 
+        if (!lessonId) navigate(`/detail/${courseId}`);
+
         if (!access_token && access_token !== 'null') {
             navigate(`/detail/${courseId}`);
         }
     }, []);
 
     useEffect(() => {
-        const count = course?.data?.chapters?.reduce((total, chap) => total + chap.lessons.length, 0);
+        const count = course?.data?.chapters
+            ?.filter((chapter) => chapter.isPublic)
+            ?.reduce((total, chap) => total + chap.lessons?.filter((lesson) => lesson.isPublic).length, 0);
+
         const progressDone = Math.floor((countLessonFinish?.count / count) * 100);
         setProgessCourse(progressDone);
         setTotalLesson(count);
@@ -235,13 +241,13 @@ const Learning = () => {
                             >
                                 {currentLesson?.source_type === 'youtube' ? (
                                     <VideoYoutubePlayer
-                                        url={currentLesson.url_video}
+                                        url={currentLesson?.url_video}
                                         handleGetTime={handleGetTime}
                                         handleSetFinish={handleSetFinish}
                                     />
                                 ) : (
                                     <VideoCloudinaryPlayer
-                                        url={currentLesson.url_video}
+                                        url={currentLesson?.url_video}
                                         setIsModalShown={setIsModalShown}
                                         handleSetFinish={handleSetFinish}
                                     />
@@ -252,86 +258,108 @@ const Learning = () => {
                         <div className={cx('learning__bar')}>
                             <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
                             <div className={cx('course_topic')}>
-                                {course?.data?.chapters.map((item, indexChapter) => {
-                                    return (
-                                        <div className={cx('learning__chapter')} key={item._id}>
-                                            <h3 className={cx('learning__chapter--txt')}>
-                                                {++indexChapter}. {item.name}
-                                            </h3>
+                                {course?.data?.chapters
+                                    ?.filter((chapter) => chapter.isPublic)
+                                    .map((item, indexChapter) => {
+                                        return (
+                                            <div className={cx('learning__chapter')} key={item._id}>
+                                                <h3 className={cx('learning__chapter--txt')}>
+                                                    {++indexChapter}. {item.name}
+                                                </h3>
 
-                                            {item?.lessons.map((lesson, indexLesson) => {
-                                                const lessonIndex = lessons.findIndex(
-                                                    (lesson) => lesson._id === lessonId,
-                                                );
+                                                {item?.lessons
+                                                    .filter((lesson) => lesson.isPublic)
+                                                    .map((lesson, indexLesson) => {
+                                                        const lessonIndex = lessons.findIndex(
+                                                            (lesson) => lesson._id === lessonId,
+                                                        );
 
-                                                const currentLessonId = lessons?.[lessonIndex]?._id;
-                                                const isOpenLesson = currentLessonId === lesson._id;
-                                                const nextLessonIndex = lessons.findIndex(
-                                                    (lesson) => !lesson?.isCompleted,
-                                                );
+                                                        const currentLessonId = lessons?.[lessonIndex]?._id;
+                                                        const isOpenLesson = currentLessonId === lesson._id;
+                                                        const nextLessonIndex = lessons.findIndex(
+                                                            (lesson) => !lesson?.isCompleted,
+                                                        );
 
-                                                const isOpenNextLesson = lessons?.[nextLessonIndex]?._id === lesson._id;
+                                                        const isOpenNextLesson =
+                                                            lessons?.[nextLessonIndex]?._id === lesson._id;
 
-                                                return (
-                                                    <div className={cx('learning__chapter--lesson')} key={lesson._id}>
-                                                        {lesson.isCompleted || isOpenLesson || isOpenNextLesson ? (
-                                                            <NavLink
-                                                                exact="true"
-                                                                to={`/learning/${courseId}/${lesson._id}`}
-                                                                className={({ isActive }) => {
-                                                                    return cx(
-                                                                        'block',
-                                                                        'learning__chapter--lesson_name',
-                                                                        isActive &&
-                                                                            'learning__chapter--lesson_name_active',
-                                                                    );
-                                                                }}
+                                                        return (
+                                                            <div
+                                                                className={cx('learning__chapter--lesson')}
+                                                                key={lesson._id}
                                                             >
-                                                                <div
-                                                                    className="relative"
-                                                                    style={{ display: 'flex', gap: '1%' }}
-                                                                >
-                                                                    <div className="d-flex align-items-center gap-2 flex-wrap">
-                                                                        <div>
-                                                                            <strong>
-                                                                                {indexChapter + '.' + ++indexLesson}
-                                                                            </strong>{' '}
-                                                                            {lesson.name}{' '}
-                                                                            {lesson.isCompleted && (
-                                                                                <FontAwesomeIcon
-                                                                                    className={cx(
-                                                                                        'learning__chapter--circle_check',
+                                                                {lesson.isCompleted ||
+                                                                isOpenLesson ||
+                                                                isOpenNextLesson ? (
+                                                                    <NavLink
+                                                                        exact="true"
+                                                                        to={`/learning/${courseId}/${lesson._id}`}
+                                                                        className={({ isActive }) => {
+                                                                            return cx(
+                                                                                'block',
+                                                                                'learning__chapter--lesson_name',
+                                                                                isActive &&
+                                                                                    'learning__chapter--lesson_name_active',
+                                                                            );
+                                                                        }}
+                                                                    >
+                                                                        <div
+                                                                            className="relative"
+                                                                            style={{ display: 'flex', gap: '1%' }}
+                                                                        >
+                                                                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                                                                                <div>
+                                                                                    <strong>
+                                                                                        {indexChapter +
+                                                                                            '.' +
+                                                                                            ++indexLesson}
+                                                                                    </strong>{' '}
+                                                                                    {lesson.name}{' '}
+                                                                                    {lesson.isCompleted && (
+                                                                                        <FontAwesomeIcon
+                                                                                            className={cx(
+                                                                                                'learning__chapter--circle_check',
+                                                                                            )}
+                                                                                            icon={faCircleCheck}
+                                                                                        />
                                                                                     )}
-                                                                                    icon={faCircleCheck}
-                                                                                />
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div
+                                                                            onClick={() =>
+                                                                                navigate(`/quizz/${lesson._id}`)
+                                                                            }
+                                                                            className={cx(
+                                                                                'learning__chapter--lesson-btn',
                                                                             )}
+                                                                        >
+                                                                            Bài tập
+                                                                        </div>
+                                                                    </NavLink>
+                                                                ) : (
+                                                                    <div className={cx('lesson_lock')}>
+                                                                        <strong>
+                                                                            {indexChapter + '.' + ++indexLesson}
+                                                                        </strong>{' '}
+                                                                        {lesson.name}
+                                                                        <div>
+                                                                            <p
+                                                                                className={cx(
+                                                                                    'learning__chapter--lesson-btn',
+                                                                                )}
+                                                                            >
+                                                                                Bài tập
+                                                                            </p>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                                <div
-                                                                    onClick={() => navigate(`/quizz/${lesson._id}`)}
-                                                                    className={cx('learning__chapter--lesson-btn')}
-                                                                >
-                                                                    Bài tập
-                                                                </div>
-                                                            </NavLink>
-                                                        ) : (
-                                                            <div className={cx('lesson_lock')}>
-                                                                <strong>{indexChapter + '.' + ++indexLesson}</strong>{' '}
-                                                                {lesson.name}
-                                                                <div>
-                                                                    <p className={cx('learning__chapter--lesson-btn')}>
-                                                                        Bài tập
-                                                                    </p>
-                                                                </div>
+                                                                )}
                                                             </div>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
-                                    );
-                                })}
+                                                        );
+                                                    })}
+                                            </div>
+                                        );
+                                    })}
                             </div>
                         </div>
                     </div>

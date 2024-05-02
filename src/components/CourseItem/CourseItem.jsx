@@ -16,6 +16,7 @@ const cx = classNames.bind(styles);
 
 const CourseItem = ({ course }) => {
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
+
     const [userid, setUserid] = useState(null);
 
     const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
@@ -33,6 +34,7 @@ const CourseItem = ({ course }) => {
             navigate('/');
         }
     }, [cookies]);
+
     return (
         <Link to={`/detail/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
@@ -41,9 +43,13 @@ const CourseItem = ({ course }) => {
                 <h4>{course?.name}</h4>
                 <div className={cx('courses-newest_info')}>
                     <FontAwesomeIcon icon={faUsers} />
-                    <span>{data?.count}</span>
+
+                     {isLoading ? 'Loading...' : <span>{data?.count}</span>}
                     {course?.price == 0 || dataBought ? (
                         <p>{dataBought ? 'Đã mua' : 'Miễn phí'} </p>
+
+                   
+
                     ) : (
                         <div className={cx('price__wrapper')}>
                             <p className={cx('old__price')}>{course?.old_price.toLocaleString()}đ</p>
