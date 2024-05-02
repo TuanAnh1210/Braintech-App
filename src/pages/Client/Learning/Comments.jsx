@@ -361,7 +361,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                     <div className={cx('message__delete')}>
                         <h2>Bạn muốn xóa bình luận này chứ!!</h2>
                         <h4>Nhấn yes để xóa nhé</h4>
-                        <div className={cx('btn__delete-container')}>
+                        <div className={cx('btn__delete-container', 'gap-6')}>
                             <button className={cx('yes')} onClick={() => handleSubmitDeleteCmt(isDelete.id)}>
                                 Yes
                             </button>
@@ -510,7 +510,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                                                         </Button>
 
                                                                         <Button
-                                                                            // onClick={() => handleDelete(cmt._id)}
+                                                                            onClick={() => handleDelete(cmt._id)}
                                                                             type="primary"
                                                                             className="flex items-center gap-2"
                                                                             danger
