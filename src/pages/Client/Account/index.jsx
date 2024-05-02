@@ -57,9 +57,8 @@ const Account = () => {
     }, [cookies]);
     const { data: sttCourse, isLoading: loadingSttCourse } = useGetAllSttCourseQuery();
     const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
-    const dataBought = coursePay?.data?.filter(
-        (s) => s.user_id === userid && s.status !== 'CANCEL' && s.status !== 'PENDING',
-    );
+    const dataBought = coursePay?.data?.filter((s) => s.user_id === userid && s.status === 'SUCCESS');
+    console.log(coursePay);
     const dataFinished = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === true);
     const dataJoined = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === false);
     const [uploadedImages, setUploadedImages] = useState();

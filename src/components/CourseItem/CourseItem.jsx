@@ -2,7 +2,7 @@
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import Image from '../Image/Image';
 import { useCountCourseUserQuery } from '@/providers/apis/sttCourseApi';
@@ -18,12 +18,11 @@ const CourseItem = ({ course }) => {
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
 
     const [userid, setUserid] = useState(null);
-
-    const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
+    const navigate = useNavigate();
+    const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought =
         !coursePayLoading &&
         coursePay?.data?.find((s) => s.user_id === userid && s.course_id._id === course?._id && s.status === 'SUCCESS');
-    console.log(dataBought);
     const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
     const dataUser = cookies?.cookieLoginStudent;
     useEffect(() => {
@@ -34,7 +33,7 @@ const CourseItem = ({ course }) => {
             navigate('/');
         }
     }, [cookies]);
-
+    useEffect
     return (
         <Link to={`/detail/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
@@ -44,12 +43,9 @@ const CourseItem = ({ course }) => {
                 <div className={cx('courses-newest_info')}>
                     <FontAwesomeIcon icon={faUsers} />
 
-                     {isLoading ? 'Loading...' : <span>{data?.count}</span>}
+                    {isLoading ? 'Loading...' : <span>{data?.count}</span>}
                     {course?.price == 0 || dataBought ? (
                         <p>{dataBought ? 'Đã mua' : 'Miễn phí'} </p>
-
-                   
-
                     ) : (
                         <div className={cx('price__wrapper')}>
                             <p className={cx('old__price')}>{course?.old_price.toLocaleString()}đ</p>
