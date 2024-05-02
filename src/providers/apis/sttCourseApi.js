@@ -16,10 +16,20 @@ export const sttCourseApi = createApi({
             query: (id) => `/sttCourse/count/${id}`,
         }),
         getAllSttCourse: build.query({
-            query: (id) => `/sttCourse/getall`,
+            query: () => `/sttCourse/getall`,
+        }),
+        updateSttCourse: build.mutation({
+            query: () => {
+                return { url: '/sttCourse/updatesttCourse', method: 'PUT', body: payload };
+            },
         }),
     }),
 });
 
-export const { useAddSttCourseMutation, useGetSttCourseQuery, useCountCourseUserQuery, useGetAllSttCourseQuery } =
-    sttCourseApi;
+export const {
+    useAddSttCourseMutation,
+    useUpdateSttCourseMutation,
+    useGetSttCourseQuery,
+    useCountCourseUserQuery,
+    useGetAllSttCourseQuery,
+} = sttCourseApi;
