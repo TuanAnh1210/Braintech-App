@@ -1,4 +1,5 @@
 /* eslint-disable react/prop-types */
+import { memo } from 'react';
 import YouTube from 'react-youtube';
 
 function VideoYoutubePlayer({ url = '', handleGetTime, handleSetFinish }) {
@@ -40,6 +41,7 @@ function VideoYoutubePlayer({ url = '', handleGetTime, handleSetFinish }) {
                 maxWidth: 'none',
                 maxHeight: 'none',
             }}
+            iframeClassName="rounded-lg"
             videoId={videoId}
             onReady={handleGetTime}
             onEnd={handleSetFinish}
@@ -47,4 +49,4 @@ function VideoYoutubePlayer({ url = '', handleGetTime, handleSetFinish }) {
     );
 }
 
-export default VideoYoutubePlayer;
+export default memo(VideoYoutubePlayer);

@@ -1,12 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { Cookies } from 'react-cookie'; // Import the Cookies object from react-cookie
-
+import { Cookies } from 'react-cookie';
 const cookies = new Cookies(); // Create a new instance of Cookies
 
-export const paymentApi = createApi({
-    reducerPath: 'paymentApi',
+export const paymentDetailApi = createApi({
+    reducerPath: 'paymentDetailApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:8080/api/payment',
+        baseUrl: 'http://localhost:8080/api/paymentDetail',
         prepareHeaders: (headers) => {
             const token = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
             // If we have a token set in state, let's assume that we should be passing it.
@@ -18,18 +17,13 @@ export const paymentApi = createApi({
         },
     }),
     endpoints: (build) => ({
-        createPaymentUrl: build.mutation({
-            query: (payload) => {
-                return { url: `/create_payment_url`, method: 'POST', body: payload };
-            },
+        getAllPayment: build.query({
+            query: () => `/getall`,
         }),
-
-        handleCheckPayment: build.mutation({
-            query: (payload) => {
-                return { url: `/create_payment_url`, method: 'POST', body: payload };
-            },
+        getAllPaymentByUser: build.query({
+            query: () => `/getbyuserid`,
         }),
     }),
 });
 
-export const { useCreatePaymentUrlMutation } = paymentApi;
+export const { useGetAllPaymentQuery, useGetAllPaymentByUserQuery } = paymentDetailApi;

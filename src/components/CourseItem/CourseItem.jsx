@@ -1,13 +1,39 @@
 /* eslint-disable react/prop-types */
 import classNames from 'classnames/bind';
-import styles from './CourseItem.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router-dom';
-import Image from '../Image/Image';
+import { Link, useNavigate } from 'react-router-dom';
 
+import Image from '../Image/Image';
+import { useCountCourseUserQuery } from '@/providers/apis/sttCourseApi';
+
+import styles from './CourseItem.module.scss';
+import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
+import { jwtDecode } from 'jwt-decode';
+import { useCookies } from 'react-cookie';
+import { useEffect, useState } from 'react';
 const cx = classNames.bind(styles);
+
 const CourseItem = ({ course }) => {
+    const { data, isLoading } = useCountCourseUserQuery(course?._id);
+
+    const [userid, setUserid] = useState(null);
+    const navigate = useNavigate();
+    const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
+    const dataBought =
+        !coursePayLoading &&
+        coursePay?.data?.find((s) => s.user_id === userid && s.course_id._id === course?._id && s.status === 'SUCCESS');
+    const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
+    const dataUser = cookies?.cookieLoginStudent;
+    useEffect(() => {
+        if (cookies.cookieLoginStudent) {
+            const decode = jwtDecode(dataUser?.accessToken);
+            setUserid(decode._id);
+        } else {
+            navigate('/');
+        }
+    }, [cookies]);
+    useEffect
     return (
         <Link to={`/detail/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
@@ -16,9 +42,10 @@ const CourseItem = ({ course }) => {
                 <h4>{course?.name}</h4>
                 <div className={cx('courses-newest_info')}>
                     <FontAwesomeIcon icon={faUsers} />
-                    <span>123</span>
-                    {course?.price == 0 ? (
-                        <p>Miễn phí</p>
+
+                    {isLoading ? 'Loading...' : <span>{data?.count}</span>}
+                    {course?.price == 0 || dataBought ? (
+                        <p>{dataBought ? 'Đã mua' : 'Miễn phí'} </p>
                     ) : (
                         <div className={cx('price__wrapper')}>
                             <p className={cx('old__price')}>{course?.old_price.toLocaleString()}đ</p>

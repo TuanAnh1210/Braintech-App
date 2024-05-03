@@ -1,8 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { Cookies } from 'react-cookie';
 
-const user = JSON.parse(localStorage.getItem('access_token'));
+// const user = JSON.parse(localStorage.getItem('access_token'));
 
-const initialState = user;
+const cookies = new Cookies(); // Tạo một instance mới của Cookies
+const user = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
+const initialState = user ? user : {};
 
 const userSlice = createSlice({
     name: 'user',
@@ -12,7 +15,8 @@ const userSlice = createSlice({
             return { ...state, ...action.payload };
         },
         logout: () => {
-            localStorage.removeItem('access_token');
+            cookies.remove('cookieLoginStudent');
+
             return null;
         },
     },

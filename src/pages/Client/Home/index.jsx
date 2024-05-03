@@ -25,7 +25,7 @@ const cx = classNames.bind(styles);
 
 const Home = () => {
     const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
-
+    
     const { html, css, intern, js, node, react, fe, be, bg, group } = images;
     const infos = [
         {

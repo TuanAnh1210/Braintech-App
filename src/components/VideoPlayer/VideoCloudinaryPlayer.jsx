@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react/prop-types */
 import React from 'react';
@@ -8,13 +9,10 @@ import 'video.js/dist/video-js.css';
 function VideoCloudinaryPlayer({
     // url = 'https://res.cloudinary.com/dexdqfkdu/video/upload/sp_auto/v1714422557/j6mwsvhgy7psn0lddbve.m3u8',
     url = '',
-    setIsModalShown,
     handleSetFinish,
 }) {
     const videoRef = React.useRef(null);
     const playerRef = React.useRef(null);
-
-    console.log(videoRef);
 
     const handlePlayerReady = (player) => {
         playerRef.current = player;
