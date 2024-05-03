@@ -15,7 +15,6 @@ import { useCookies } from 'react-cookie';
 import { Empty } from 'antd';
 import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
-import { jwtDecode } from 'jwt-decode';
 
 const cx = classNames.bind(styles);
 
@@ -80,9 +79,7 @@ const DetailCourse = () => {
     };
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
-    const dataBought = coursePay?.data?.find(
-        (s) => s.user_id === userid && s.course_id._id === courseId && s.status === 'SUCCESS',
-    );
+    const dataBought = coursePay?.data?.find((s) => s.course_id._id === courseId && s.status === 'SUCCESS');
 
     const data = cookies?.cookieLoginStudent;
 
@@ -99,14 +96,7 @@ const DetailCourse = () => {
             navigate(`/learning/${courseId}/${nextlessonId}`);
         });
     };
-    useEffect(() => {
-        if (cookies.cookieLoginStudent) {
-            const decode = jwtDecode(data?.accessToken);
-            setUserid(decode._id);
-        } else {
-            navigate('/');
-        }
-    }, [cookies]);
+
     return (
         <>
             <div className={cx('detail-course')}>

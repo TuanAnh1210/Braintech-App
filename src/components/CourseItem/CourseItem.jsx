@@ -17,23 +17,11 @@ const cx = classNames.bind(styles);
 const CourseItem = ({ course }) => {
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
 
-    const [userid, setUserid] = useState(null);
-    const navigate = useNavigate();
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought =
-        !coursePayLoading &&
-        coursePay?.data?.find((s) => s.user_id === userid && s.course_id._id === course?._id && s.status === 'SUCCESS');
-    const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
-    const dataUser = cookies?.cookieLoginStudent;
-    useEffect(() => {
-        if (cookies.cookieLoginStudent) {
-            const decode = jwtDecode(dataUser?.accessToken);
-            setUserid(decode._id);
-        } else {
-            navigate('/');
-        }
-    }, [cookies]);
-    useEffect
+        !coursePayLoading && coursePay?.data?.find((s) => s.course_id._id === course?._id && s.status === 'SUCCESS');
+
+    useEffect;
     return (
         <Link to={`/detail/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
