@@ -294,7 +294,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                                 rows={10}
                                             />
                                             <Button type="primary" htmlType="submit" className="mt-[10px]">
-                                                Submit
+                                                Cập nhật
                                             </Button>
                                         </Form.Item>
                                         <span className="text-red-500" ref={refNoteInput}>
@@ -319,7 +319,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                             />
                         }
                     >
-                        <Button danger>Delete</Button>
+                        <Button danger>Xóa</Button>
                     </Popconfirm>
                 </div>
             ),

@@ -19,7 +19,7 @@ const CourseItem = ({ course }) => {
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought =
-        !coursePayLoading && coursePay?.data?.find((s) => s.course_id._id === course?._id && s.status === 'SUCCESS');
+        !coursePayLoading && coursePay?.data?.find((s) => s?.course_id?._id === course?._id && s?.status === 'SUCCESS');
 
     useEffect;
     return (

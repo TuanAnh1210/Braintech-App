@@ -79,7 +79,7 @@ const DetailCourse = () => {
     };
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
-    const dataBought = coursePay?.data?.find((s) => s.course_id._id === courseId && s.status === 'SUCCESS');
+    const dataBought = coursePay?.data?.find((s) => s.course_id?._id === courseId && s.status === 'SUCCESS');
 
     const data = cookies?.cookieLoginStudent;
 
