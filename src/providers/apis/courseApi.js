@@ -6,7 +6,7 @@ const cookies = new Cookies(); // Create a new instance of Cookies
 export const courseApi = createApi({
     reducerPath: 'courseApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:8080/api',
+        baseUrl: import.meta.env.VITE_REACT_APP_API_PATH,
         prepareHeaders: (headers) => {
             const token = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
 
@@ -21,17 +21,17 @@ export const courseApi = createApi({
     endpoints: (build) => ({
         getCourses: build.query({
             query: () => {
-                return '/courses/all/client';
+                return 'api/courses/all/client';
             },
         }),
         getDetail: build.query({
             query: (courseId) => {
-                return `/courses/${courseId}`;
+                return `api/courses/${courseId}`;
             },
         }),
         getCourseLearning: build.query({
             query: (courseId) => {
-                return `/courses/${courseId}/learning`;
+                return `api/courses/${courseId}/learning`;
             },
         }),
     }),

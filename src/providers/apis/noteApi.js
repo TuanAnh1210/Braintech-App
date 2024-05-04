@@ -6,7 +6,7 @@ const cookies = new Cookies(); // Create a new instance of Cookies
 export const noteApi = createApi({
     reducerPath: 'noteApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:8080/api',
+        baseUrl: import.meta.env.VITE_REACT_APP_API_PATH,
         prepareHeaders: (headers) => {
             const token = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
 
@@ -20,24 +20,24 @@ export const noteApi = createApi({
     }),
     endpoints: (build) => ({
         getNoteByLessonId: build.query({
-            query: (lessonId) => `/notes/${lessonId}`,
+            query: (lessonId) => `api/notes/${lessonId}`,
             transformResponse: (response) => {
                 return response.data;
             },
         }),
         createNote: build.mutation({
             query: (payload) => {
-                return { url: '/notes', method: 'POST', body: payload };
+                return { url: 'api/notes', method: 'POST', body: payload };
             },
         }),
         deleteNote: build.mutation({
             query: (id) => {
-                return { url: `/notes/delete/${id}`, method: 'DELETE' };
+                return { url: `api/notes/delete/${id}`, method: 'DELETE' };
             },
         }),
         updateNote: build.mutation({
             query: (payload) => {
-                return { url: `/notes/update/${payload._id}`, method: 'PUT', body: payload };
+                return { url: `api/notes/update/${payload._id}`, method: 'PUT', body: payload };
             },
         }),
     }),

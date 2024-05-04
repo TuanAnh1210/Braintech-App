@@ -6,7 +6,7 @@ const cookies = new Cookies(); // Create a new instance of Cookies
 export const sttCourseApi = createApi({
     reducerPath: 'sttCourseApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:8080/api',
+        baseUrl: import.meta.env.VITE_REACT_APP_API_PATH,
         prepareHeaders: (headers) => {
             const token = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
 
@@ -20,22 +20,22 @@ export const sttCourseApi = createApi({
     }),
     endpoints: (build) => ({
         getSttCourse: build.query({
-            query: () => '/sttCourse',
+            query: () => '/api/sttCourse',
         }),
         addSttCourse: build.mutation({
             query: (payload) => {
-                return { url: '/sttCourse/add', method: 'POST', body: payload };
+                return { url: 'api/sttCourse/add', method: 'POST', body: payload };
             },
         }),
         countCourseUser: build.query({
-            query: (id) => `/sttCourse/count/${id}`,
+            query: (id) => `api/sttCourse/count/${id}`,
         }),
         getAllSttCourse: build.query({
-            query: () => `/sttCourse/getall`,
+            query: () => `api/sttCourse/getall`,
         }),
         updateSttCourse: build.mutation({
             query: (payload) => {
-                return { url: '/sttCourse/updatesttCourse', method: 'PUT', body: payload };
+                return { url: 'api/sttCourse/updatesttCourse', method: 'PUT', body: payload };
             },
         }),
     }),
