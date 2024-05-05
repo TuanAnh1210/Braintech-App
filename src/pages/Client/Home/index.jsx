@@ -19,13 +19,15 @@ import images from '@/assets/images';
 
 import { useEffect, useRef } from 'react';
 import CourseItem from '@/components/CourseItem/CourseItem';
+import CourseItemTeacher from '@/components/CourseItem/CourseItemTeacher';
 import { useGetCoursesQuery } from '@/providers/apis/courseApi';
+import { useGetCoursesQuery as useGetCoursesteacherQuery  } from '@/providers/apis/courseTeacherApi';
 
 const cx = classNames.bind(styles);
 
 const Home = () => {
     const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
-    
+    const { data: listCoursesTeacher } = useGetCoursesteacherQuery();
     const { html, css, intern, js, node, react, fe, be, bg, group } = images;
     const infos = [
         {
@@ -96,7 +98,29 @@ const Home = () => {
             },
         ],
     };
-
+    const settings2 = {
+        dots: false,
+        infinite: true,
+        speed: 500,
+        slidesToShow: 3,
+        slidesToScroll: 2,
+        autoplay: true,
+        autoplaySpeed: 2000,
+        responsive: [
+            {
+                breakpoint: 992, // Kích thước màn hình từ 768px trở xuống
+                settings: {
+                    slidesToShow: 3, // Hiển thị 2 slide trên một hàng
+                },
+            },
+            {
+                breakpoint: 576, // Kích thước màn hình từ 480px trở xuống
+                settings: {
+                    slidesToShow: 1, // Hiển thị 1 slide trên một hàng
+                },
+            },
+        ],
+    };
     return (
         <>
             <Banner {...base_banner.banner_home} />
@@ -119,6 +143,22 @@ const Home = () => {
                 <Slider ref={sliderRef} {...settings} className={cx('courses-newest_list')}>
                     {listCourses?.courses?.slice(0, 5)?.map((course) => (
                         <CourseItem key={course.id} course={course} />
+                    ))}
+                </Slider>
+                <div className={cx('courses-action')}>
+                    <button onClick={handlePrevious}>
+                        <FontAwesomeIcon icon={faAngleLeft} />
+                    </button>
+                    <button onClick={handleNext}>
+                        <FontAwesomeIcon icon={faAngleRight} />
+                    </button>
+                </div>
+            </div>
+            <div className={cx('courses-newest')}>
+                <h2>Khóa học có giáo viên</h2>
+                <Slider ref={sliderRef} {...settings2} className={cx('courses-newest_list')}>
+                    {listCoursesTeacher?.courses?.slice(0, 5)?.map((course) => (
+                        <CourseItemTeacher key={course.id} course={course} />
                     ))}
                 </Slider>
                 <div className={cx('courses-action')}>

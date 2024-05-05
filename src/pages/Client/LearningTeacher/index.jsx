@@ -9,7 +9,7 @@ import { useCookies } from 'react-cookie';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
 
-import { useGetCourseLearningQuery } from '@/providers/apis/courseApi';
+import { useGetCourseLearningQuery } from '@/providers/apis/courseTeacherApi';
 import { useAddFinishLessonMutation, useGetCountQuery, useGetLessonByIdQuery } from '@/providers/apis/lessonApi';
 import { useUpdateSttCourseMutation } from '@/providers/apis/sttCourseApi';
 
@@ -22,7 +22,7 @@ import images from '@/assets/images';
 import styles from './Learning.module.scss';
 const cx = classNames.bind(styles);
 
-const Learning = () => {
+const LearningTeacher = () => {
     const { courseId, lessonId } = useParams();
 
     const [progressVideo, setProgessVideo] = useState(0); // tiến độ video [0-100]
@@ -45,7 +45,6 @@ const Learning = () => {
     const { data: currentLesson } = useGetLessonByIdQuery(lessonId, {
         skip: !lessonId,
     }); // lấy ra tất cả các khóa học để thực hiện lọc
-    console.log(course)
     const handleGetTime = (event) => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -83,20 +82,20 @@ const Learning = () => {
     };
 
     const handleNext = () => {
-        const lessonPath = window.location.pathname.split('/')[3];
+        const lessonPath = window.location.pathname.split('/')[4];
         const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonPath);
         const nextLessonId = lessons?.[lessonIndex + 1]?._id;
         if (!nextLessonId) return;
-        navigate(`/learning/${courseId}/${nextLessonId}`);
+        navigate(`/learning/teacher/${courseId}/${nextLessonId}`);
     };
 
     const handleSetFinish = async () => {
-        const lessonPath = window.location.pathname.split('/')[3];
-
+        const lessonPath = window.location.pathname.split('/')[4];
         // const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonPath);
         // const currentLesson = lessons?.[lessonIndex];
 
         // if (currentLesson.isCompleted) return;
+      
 
         await handleAddFinishLesson({
             course_id: courseId,
@@ -395,4 +394,4 @@ const Learning = () => {
     );
 };
 
-export default Learning;
+export default LearningTeacher;

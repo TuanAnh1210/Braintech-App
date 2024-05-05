@@ -21,6 +21,7 @@ export const lessonApi = createApi({
     endpoints: (build) => ({
         getLesson: build.query({
             query: () => {
+                
                 return 'api/lessons';
             },
         }),
