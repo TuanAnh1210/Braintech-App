@@ -5,6 +5,7 @@ import { useForgetPasswordMutation, useGetUsersQuery } from '@/providers/apis/us
 import OTPTimer from './time';
 import { useNavigate } from 'react-router-dom';
 
+
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
@@ -21,6 +22,7 @@ const ForgotPassword = () => {
     const emailUser = alluser?.data?.find((item) => item.email === email);
 
     const sendOTPByEmail = async () => {
+
         try {
             setOtp('')
             if (!emailUser) {
@@ -101,7 +103,6 @@ const ForgotPassword = () => {
         }
         const userUpdate = {
             ...emailUser,
-            isAdmin: false,
             phone: 'Chưa cập nhật',
             password: newPassword,
             password_confirm: confirmPassword,

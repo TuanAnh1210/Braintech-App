@@ -128,21 +128,21 @@ const Register = () => {
             auth_type: 'email',
         }
         setKeyProp((prevKey) => prevKey + 1);
-        handleRegister(accRe).then(async() => {
+        handleRegister(accRe).then(async () => {
             notification.success({
                 message: 'Success',
                 description: 'Đăng ký thành công!.',
             });
-            
+
             const { data, error } = await handleLogin({
-                account : accRe.account,
-                password : accRe.password,
+                account: accRe.account,
+                password: accRe.password,
                 auth_type: 'email',
             });
             if (data) {
                 setCookie('cookieLoginStudent', JSON.stringify(data.user), { path: '/', domain: 'localhost' });
             }
-    
+
             if (error) {
                 return notification.error({
                     message: 'Thông báo',
@@ -150,13 +150,7 @@ const Register = () => {
                     duration: 1.75,
                 });
             }
-    
-            notification.success({
-                message: 'Thông báo',
-                description: data.message,
-                duration: 1.75,
-            });
-    
+
             const user = {
                 token: data.user.accessToken,
                 email: data.user.email,
@@ -164,18 +158,18 @@ const Register = () => {
                 fullName: data.user.fullName,
                 avatar: data.user.avatar,
             };
-    
-            
+
+
             dispatch(login(user));
-    
+
             dispatch(closeModal());
-            if (data.user.isAdmin) {
+            if (data.user.isAdmin | data.user.isTeacher) {
                 // navigate('http://localhost:5173/dashboard');
                 window.location.href = 'http://localhost:5173/dashboard';
             }
         });
-        
-        
+
+
     };
     const generateOTP = () => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -236,6 +230,24 @@ const Register = () => {
                         ]}
                     >
                         <Input type="password" className="w-100 p-2 rounded" placeholder="Nhập mật khẩu xác nhận" />
+                    </Form.Item>
+                </div>
+                <div className="mb-4">
+
+                    <Form.Item
+                        name="isAdmin"
+                        hidden
+                    >
+                        <Input className="w-100 p-2 rounded" defaultValue={false} />
+                    </Form.Item>
+                </div>
+                <div className="mb-4">
+
+                    <Form.Item
+                        name="isTeacher"
+                        hidden
+                    >
+                        <Input className="w-100 p-2 rounded" defaultValue={false} />
                     </Form.Item>
                 </div>
 

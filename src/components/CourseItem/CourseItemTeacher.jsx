@@ -18,7 +18,7 @@ const CourseItemTeacher = ({ course }) => {
     const dataBought =
         !coursePayLoading && coursePay?.data?.find((s) => s?.course_id?._id === course?._id && s?.status === 'SUCCESS');
 
-    
+
     return (
         <Link to={`/detail/teacher/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
@@ -37,7 +37,7 @@ const CourseItemTeacher = ({ course }) => {
                             <p>{course?.price.toLocaleString()}đ</p>
                         </div>
                     )}
-                    <p>Giảng viên : {course.teacherId.full_name} </p>
+                    <p>Giảng viên : {course?.teacherId?.full_name} </p>
                 </div>
             </div>
         </Link>
