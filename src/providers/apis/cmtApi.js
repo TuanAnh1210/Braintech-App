@@ -6,7 +6,7 @@ const cookies = new Cookies(); // Create a new instance of Cookies
 export const cmtApi = createApi({
     reducerPath: 'cmtApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: JSON.stringify(import.meta.env.VITE_REACT_APP_API_PATH),
+        baseUrl: import.meta.env.VITE_REACT_APP_API_PATH,
         prepareHeaders: (headers) => {
             const token = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
 

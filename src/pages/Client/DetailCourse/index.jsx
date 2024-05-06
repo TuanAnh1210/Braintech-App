@@ -12,15 +12,15 @@ import { openModal } from '@/providers/slices/modalSlice';
 import { useGetFinishLessonByCourseIdQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
 import { useCookies } from 'react-cookie';
-import { Empty } from 'antd';
+import { Breadcrumb, Button, Empty, Form, Input, Modal, Rate, message, notification } from 'antd';
 import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
+import RatingSide from './RatingSide';
 
 const cx = classNames.bind(styles);
 
 const DetailCourse = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [userid, setUserid] = useState(null);
 
     const { courseId } = useParams();
     const dispatch = useDispatch();
@@ -41,7 +41,7 @@ const DetailCourse = () => {
 
     useEffect(() => {
         window.scrollTo(0, 0);
-    });
+    }, []);
 
     useEffect(() => {
         if (isLog != null) {
@@ -101,11 +101,17 @@ const DetailCourse = () => {
         <>
             <div className={cx('detail-course')}>
                 <Container>
+                    <Breadcrumb
+                        className="mb-4"
+                        items={[{ title: 'Trang chủ' }, { title: 'Khóa học' }, { title: course?.course?.name }]}
+                    />
                     <Row>
                         <Col lg={8}>
                             <div>
                                 <h2 className={cx('course_name')}>{course?.course?.name}</h2>
+
                                 <p className={cx('course_text')}>{course?.course?.description}</p>
+
                                 <div className={cx('learning__bar')}>
                                     <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
                                     <div className={cx('course_topic')}>
@@ -144,6 +150,7 @@ const DetailCourse = () => {
                                         {(course?.course?.chapters.length === 0 || isPublicExist) && (
                                             <Empty className="my-8" description="Chưa có dữ liệu" />
                                         )}
+                                        <RatingSide />
                                     </div>
                                 </div>
                             </div>

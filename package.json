@@ -48,6 +48,7 @@
         "react-responsive-carousel": "^3.2.23",
         "react-router-dom": "^6.11.2",
         "react-slick": "^0.29.0",
+        "react-text-more-less": "^0.4.2",
         "react-toastify": "^10.0.5",
         "react-youtube": "^10.1.0",
         "redux-persist": "^6.0.0",
