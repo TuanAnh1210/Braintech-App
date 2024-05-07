@@ -6,6 +6,7 @@ import userReducer from './slices/userSlice';
 
 import { sttCourseApi } from './apis/sttCourseApi';
 import { courseApi } from './apis/courseApi';
+import { courseTeacherApi } from './apis/courseTeacherApi';
 import { userApi } from './apis/userApi';
 
 import { cmtApi } from './apis/cmtApi';
@@ -25,6 +26,7 @@ export const store = configureStore({
         lesson: lessonReducer,
         [chapterApi.reducerPath]: chapterApi.reducer,
         [courseApi.reducerPath]: courseApi.reducer,
+        [courseTeacherApi.reducerPath]: courseTeacherApi.reducer,
         [userApi.reducerPath]: userApi.reducer,
         [cmtApi.reducerPath]: cmtApi.reducer,
         [sttCourseApi.reducerPath]: sttCourseApi.reducer,
@@ -37,6 +39,7 @@ export const store = configureStore({
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(
             courseApi.middleware,
+            courseTeacherApi.middleware,
             userApi.middleware,
             sttCourseApi.middleware,
             cmtApi.middleware,
