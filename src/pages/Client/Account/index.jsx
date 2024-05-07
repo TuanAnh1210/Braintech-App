@@ -8,7 +8,7 @@ import { useUpdateProfileMutation } from '@/providers/apis/userApi';
 import { useCookies } from 'react-cookie';
 import { useGetAllSttCourseQuery } from '@/providers/apis/sttCourseApi';
 import { jwtDecode } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
 import { format } from 'date-fns';
 const Account = () => {
@@ -37,6 +37,7 @@ const Account = () => {
     });
     const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
     const [userid, setUserid] = useState(null);
+    const [isChatTing, setIsChating] = useState(false);
 
     const {
         register,
@@ -148,122 +149,7 @@ const Account = () => {
     };
     return (
         <>
-            <div className="">
-                <div className="container mx-auto py-8">
-                    <div className="grid grid-cols-4 sm:grid-cols-12  gap-6 px-4">
-                        <div className="col-span-4 sm:col-span-3">
-                            <div className="bg-white shadow rounded-lg p-6">
-                                <div className="flex flex-col items-center">
-                                    <img
-                                        src={data?.avatar}
-                                        className="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
-                                    ></img>
-                                    <h1 className="text-2xl font-bold">{data?.fullName}</h1>
-                                    <div
-                                        onClick={() => setShowModal(true)}
-                                        className="mt-6 flex flex-wrap gap-4 justify-center"
-                                    >
-                                        <a
-                                            href="#"
-                                            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-                                        >
-                                            Chỉnh sửa thông tin
-                                        </a>
-                                    </div>
-                                </div>
-                                <hr className="my-6 border-t border-gray-300" />
-                                <div className="flex flex-col overflow-hidden">
-                                    <h1 className="text-2xl font-bold">Thông tin</h1>
-                                    <div className="mb-2">
-                                        <label className="text-sm italic">Họ và tên</label>
-                                        <p className="text-lg font-[450]">{data?.fullName}</p>
-                                    </div>
-                                    <div className="mb-2">
-                                        <label className="text-sm italic">Số điện thoại</label>
-                                        <p className="text-lg font-[450]">{data?.phone}</p>
-                                    </div>
-                                    <div className="mb-2">
-                                        <label className="text-sm italic">Email</label>
-                                        <p className="text-lg font-[450]  w-[50px]">{data?.email}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-span-4 sm:col-span-9">
-                            <div className="bg-white shadow rounded-lg p-6">
-                                <h2 className="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
-                                {!loadingSttCourse && dataJoined?.length === 0
-                                    ? 'Bạn chưa tham gia khóa học nào'
-                                    : dataJoined?.map((item, index) => {
-                                          const formatDate = format(item?.createdAt, 'dd/MM/yyyy');
-
-                                          return (
-                                              <>
-                                                  <div key={index} className="flex mt-4">
-                                                      <img className="w-[25%]" src={item?.course_id?.thumb} />
-                                                      <div className="ml-4">
-                                                          <p className="font-bold mt-4">{item?.course_id?.name}</p>
-                                                          <p className="mt-4 italic">Thời gian bắt đầu: {formatDate}</p>
-                                                      </div>
-                                                  </div>
-                                              </>
-                                          );
-                                      })}
-                            </div>
-                            <div className="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 className="text-xl font-bold mb-4">Các khóa học đã mua</h2>
-                                {!coursePayLoading && dataBought?.length === 0
-                                    ? 'Bạn chưa mua khóa học nào'
-                                    : dataBought?.map((item, index) => {
-                                          const formatDate = format(item?.createdAt, 'dd/MM/yyyy');
-
-                                          return (
-                                              <>
-                                                  <div key={index} className="flex mt-4">
-                                                      <img className="w-[25%]" src={item?.course_id?.thumb} />
-                                                      <div className="ml-4">
-                                                          <p className="font-bold mt-4">{item?.course_id?.name}</p>
-                                                          <p className="mt-4 italic">Thời gian bắt đầu: {formatDate}</p>
-                                                      </div>
-                                                  </div>
-                                              </>
-                                          );
-                                      })}
-                            </div>
-                            <div className="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 className="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
-                                {!loadingSttCourse && dataFinished.length === 0
-                                    ? 'Bạn chưa hoàn thành khóa học nào'
-                                    : dataFinished?.map((item, index) => {
-                                          const formatDate = format(item?.createdAt, 'dd/MM/yyyy');
-
-                                          return (
-                                              <>
-                                                  <div key={index} className="flex mt-4">
-                                                      <img className="w-[25%]" src={item?.course_id.thumb} />
-                                                      <div className="ml-4">
-                                                          <p className="font-bold mt-4">{item?.course_id.name}</p>
-                                                          <p className="mt-4 italic">Thời gian bắt đầu: {formatDate}</p>
-                                                      </div>
-                                                  </div>
-                                              </>
-                                          );
-                                      })}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {showModal ? (
-                <>
-                    <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
-                        <div className="relative w-[80%] my-6 mx-auto max-w-3xl">
-                            <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
-                                <div className="flex items-start mx-auto justify-between mt-5 rounded-t">
-                                    <h3 className="text-3xl font-semibold">Chỉnh sửa thông tin</h3>
-                                </div>
-                                {/*body*/}
-                                <div className="relative p-6 flex-auto">
+            {/* <div className="relative p-6 flex-auto">
                                     <div>
                                         <div {...getRootProps()} className="flex">
                                             <input {...getInputProps()} />
@@ -353,13 +239,96 @@ const Account = () => {
                                             </button>
                                         </div>
                                     </form>
-                                </div>
+                                </div> */}
+            <div className="container mx-auto px-4">
+                <div className=" h-[200px] w-[100vh] mx-auto relative bg-auto bg-no-repeat bg-[url('https://imgs.search.brave.com/mnNYq4S0KVo43YKN3R_KP3r6-JuZWTDL-2PIU_J31hs/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9oYXlj/YWZlLnZuL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDIyLzAxL0hp/bmgtYW5oLWJpYS1k/ZXAtbmhhdC04MDB4/NDUwLmpwZw')]"></div>
+                <div className="flex flex-col justify-center items-center m-3">
+                    <img
+                        className="absolute top-[150px] rounded-full"
+                        width={200}
+                        src="https://imgs.search.brave.com/ibLpEjvPhkKVrxCsd8xkEsLZlTpL92KGZYH6wwjJXEw/rs:fit:500:0:0/g:ce/aHR0cHM6Ly9pbWcu/dGh1dGh1YXRwaGFu/bWVtLnZuL3VwbG9h/ZHMvMjAxOC8wOS8y/Mi9oaW5oLW1hdC1j/dW9pXzAyMDAyOTM5/MC5qcGc"
+                        alt="img"
+                    />
+                    <div className="text-center m-2">
+                        <p className="font-bold">Anh Thanh</p>
+                        <p>Ha Noi</p>
+                    </div>
+                    <p className="text-center w-[70%]">
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta hic quisquam dignissimos omnis
+                        nostrum nesciunt assumenda voluptate delectus, sint praesentium reiciendis cum, aut odio eveniet
+                        expedita quasi fuga in iusto!
+                    </p>
+                </div>
+                <div className="flex justify-between border-t border-b w-full h-full">
+                    <div className="flex  gap-10 w-full">
+                        <Link
+                            to={'/coursebuy'}
+                            className="hover:border-b-2 flex items-center p-2 w-50 h-20 transition delay-200 ease-in-out"
+                        >
+                            Course Bought
+                        </Link>
+                        <Link
+                            to={'/learning'}
+                            className="hover:border-b-2 p-2 flex items-center w-50 h-20 transition delay-200 ease-in-out"
+                        >
+                            Course Learing
+                        </Link>
+                        <Link className="hover:border-b-2 p-2 w-50 flex items-center h-20 transition delay-200 ease-in-out">
+                            Course Finish
+                        </Link>
+                    </div>
+                    <div className="flex gap-3">
+                        <button onClick={() => setIsChating(true)}>Chat with teacher</button>
+                        <button>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.5"
+                                stroke="currentColor"
+                                className="w-6 h-6"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div className="m-4 relative">
+                    <div className="relative min-h-[100vh]">
+                        <div className="flex justify-between">
+                            <p>My Item</p>
+                            <div className="flex gap-2">
+                                <p>Sort by :</p>
+                                <select name="" id="">
+                                    <option value="1">Asc</option>
+                                    <option value="2">Desc</option>
+                                </select>
                             </div>
                         </div>
+                        <Outlet />
+                        {isChatTing ? (
+                            <div className="fixed bottom-0 right-20 bg-red-300 w-[300px] h-[400px]">
+                                <div className="flex justify-between p-3 bg-blue-600">
+                                    <p className="text-sm flex items-center">Teacher Name - online</p>
+                                    <button
+                                        onClick={() => {
+                                            setIsChating(false);
+                                        }}
+                                    >
+                                        x
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            ''
+                        )}
                     </div>
-                    <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
-                </>
-            ) : null}
+                </div>
+            </div>
         </>
     );
 };
