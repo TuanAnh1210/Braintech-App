@@ -28,6 +28,13 @@ const Courses = () => {
                             ?.filter((course) => course?.cate_id?.code == 'pro')
                             ?.map((course) => (
                                 <Col lg={3} md={4} key={course.id}>
+                                    <div className={cx('courses_pro_icon')}>
+                                        <img
+                                            src="https://fullstack.edu.vn/static/media/crown_icon.3e4800f7485935ab6ea312a7080a85fe.svg"
+                                            alt=""
+                                            className={cx('img_icon')}
+                                        />
+                                    </div>
                                     <CourseItem course={course} />
                                 </Col>
                             ))}
