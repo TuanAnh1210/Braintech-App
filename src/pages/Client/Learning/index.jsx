@@ -45,7 +45,6 @@ const Learning = () => {
     const { data: currentLesson } = useGetLessonByIdQuery(lessonId, {
         skip: !lessonId,
     }); // lấy ra tất cả các khóa học để thực hiện lọc
-    console.log(course)
     const handleGetTime = (event) => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -292,8 +291,8 @@ const Learning = () => {
                                                                 key={lesson._id}
                                                             >
                                                                 {lesson.isCompleted ||
-                                                                isOpenLesson ||
-                                                                isOpenNextLesson ? (
+                                                                    isOpenLesson ||
+                                                                    isOpenNextLesson ? (
                                                                     <NavLink
                                                                         exact="true"
                                                                         to={`/learning/${courseId}/${lesson._id}`}
@@ -302,7 +301,7 @@ const Learning = () => {
                                                                                 'block',
                                                                                 'learning__chapter--lesson_name',
                                                                                 isActive &&
-                                                                                    'learning__chapter--lesson_name_active',
+                                                                                'learning__chapter--lesson_name_active',
                                                                             );
                                                                         }}
                                                                     >
