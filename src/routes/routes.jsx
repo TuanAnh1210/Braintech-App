@@ -17,6 +17,7 @@ import Quizz from '@/pages/Client/Quizz';
 import Certificate from '@/pages/Client/Certificate';
 import ForgotPassword from '@/pages/Client/ForgetPassword';
 import Account from '@/pages/Client/Account';
+import CourseBought from '@/pages/Client/Account/CourseBought';
 
 const publicRoutes = [
     { path: config.home, component: Home },

@@ -1,12 +1,13 @@
 import React from 'react';
 import { format } from 'date-fns';
 import { useGetAllCateQuery } from '@/providers/apis/cateApi';
-const CourseBought = ({ dataBought }) => {
+
+const CourseFinished = ({ dataFinished }) => {
     const { data: dataCate } = useGetAllCateQuery();
 
     return (
         <div className="grid grid-cols-4 mt-4 justify-center gap-4">
-            {dataBought?.map((course) => {
+            {dataFinished?.map((course) => {
                 const cate_name = dataCate?.data.find((e) => {
                     return course.course_id.cate_id === e._id;
                 });
@@ -31,4 +32,4 @@ const CourseBought = ({ dataBought }) => {
     );
 };
 
-export default CourseBought;
+export default CourseFinished;

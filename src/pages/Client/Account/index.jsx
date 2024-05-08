@@ -11,6 +11,10 @@ import { jwtDecode } from 'jwt-decode';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
 import { format } from 'date-fns';
+import CourseBought from './CourseBought';
+import CourseLearning from './CourseLearning';
+import CourseFinished from './CourseFinished';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 const Account = () => {
     const navigate = useNavigate();
     const schema = Joi.object({
@@ -38,7 +42,9 @@ const Account = () => {
     const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
     const [userid, setUserid] = useState(null);
     const [isChatTing, setIsChating] = useState(false);
-
+    const [courseBought, setCourseBought] = useState(true);
+    const [courseLearning, setCourseLearning] = useState(false);
+    const [courseFinish, setCourseFinish] = useState(false);
     const {
         register,
         handleSubmit,
@@ -59,7 +65,6 @@ const Account = () => {
     const { data: sttCourse, isLoading: loadingSttCourse } = useGetAllSttCourseQuery();
     const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
     const dataBought = coursePay?.data?.filter((s) => s.user_id === userid && s.status === 'SUCCESS');
-    console.log(coursePay);
     const dataFinished = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === true);
     const dataJoined = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === false);
     const [uploadedImages, setUploadedImages] = useState();
@@ -147,9 +152,19 @@ const Account = () => {
             });
         }
     };
+
     return (
         <>
-            {/* <div className="relative p-6 flex-auto">
+            {showModal ? (
+                <>
+                    <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
+                        <div className="relative w-[80%] my-6 mx-auto max-w-3xl">
+                            <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+                                <div className="flex items-start mx-auto justify-between mt-5 rounded-t">
+                                    <h3 className="text-3xl font-semibold">Chỉnh sửa thông tin</h3>
+                                </div>
+                                {/*body*/}
+                                <div className="relative p-6 flex-auto">
                                     <div>
                                         <div {...getRootProps()} className="flex">
                                             <input {...getInputProps()} />
@@ -239,47 +254,71 @@ const Account = () => {
                                             </button>
                                         </div>
                                     </form>
-                                </div> */}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+                </>
+            ) : null}
             <div className="container mx-auto px-4">
                 <div className=" h-[200px] w-[100vh] mx-auto relative bg-auto bg-no-repeat bg-[url('https://imgs.search.brave.com/mnNYq4S0KVo43YKN3R_KP3r6-JuZWTDL-2PIU_J31hs/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9oYXlj/YWZlLnZuL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDIyLzAxL0hp/bmgtYW5oLWJpYS1k/ZXAtbmhhdC04MDB4/NDUwLmpwZw')]"></div>
                 <div className="flex flex-col justify-center items-center m-3">
                     <img
                         className="absolute top-[150px] rounded-full"
-                        width={200}
-                        src="https://imgs.search.brave.com/ibLpEjvPhkKVrxCsd8xkEsLZlTpL92KGZYH6wwjJXEw/rs:fit:500:0:0/g:ce/aHR0cHM6Ly9pbWcu/dGh1dGh1YXRwaGFu/bWVtLnZuL3VwbG9h/ZHMvMjAxOC8wOS8y/Mi9oaW5oLW1hdC1j/dW9pXzAyMDAyOTM5/MC5qcGc"
+                        width={150}
+                        src={data?.avatar ? data?.avatar : 'https://i.imgur.com/6b6b7Z6.png'}
                         alt="img"
                     />
                     <div className="text-center m-2">
-                        <p className="font-bold">Anh Thanh</p>
-                        <p>Ha Noi</p>
+                        <p className="font-bold">{data?.fullName}</p>
+                        <p>{data?.email}</p>
                     </div>
-                    <p className="text-center w-[70%]">
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta hic quisquam dignissimos omnis
-                        nostrum nesciunt assumenda voluptate delectus, sint praesentium reiciendis cum, aut odio eveniet
-                        expedita quasi fuga in iusto!
-                    </p>
                 </div>
                 <div className="flex justify-between border-t border-b w-full h-full">
-                    <div className="flex  gap-10 w-full">
-                        <Link
-                            to={'/coursebuy'}
-                            className="hover:border-b-2 flex items-center p-2 w-50 h-20 transition delay-200 ease-in-out"
+                    <div className="flex justify-right gap-10 text-sm font-bold w-full">
+                        <button
+                            className={`hover:border-b-4 ${
+                                courseBought && `border-b-4 border-[#f76b1c]`
+                            }  justify-center border-b-4 flex items-center p-3 w-50 h-20 transition delay-200 ease-in-out`}
+                            onClick={() => {
+                                setCourseBought(true);
+                                setCourseLearning(false);
+                                setCourseFinish(false);
+                            }}
                         >
                             Course Bought
-                        </Link>
-                        <Link
-                            to={'/learning'}
-                            className="hover:border-b-2 p-2 flex items-center w-50 h-20 transition delay-200 ease-in-out"
+                        </button>
+                        <button
+                            className={`hover:border-b-4 ${
+                                courseLearning && `border-b-4 border-[#f76b1c]`
+                            }  justify-center border-b-4 flex items-center p-3 w-50 h-20 transition delay-200 ease-in-out`}
+                            onClick={() => {
+                                setCourseBought(false);
+                                setCourseLearning(true);
+                                setCourseFinish(false);
+                            }}
                         >
                             Course Learing
-                        </Link>
-                        <Link className="hover:border-b-2 p-2 w-50 flex items-center h-20 transition delay-200 ease-in-out">
+                        </button>
+                        <button
+                            onClick={() => {
+                                setCourseBought(false);
+                                setCourseLearning(false);
+                                setCourseFinish(true);
+                            }}
+                            className={`hover:border-b-4 ${
+                                courseFinish && `border-b-4 border-[#f76b1c]`
+                            }  justify-center border-b-4 flex items-center p-3 w-50 h-20 transition delay-200 ease-in-out`}
+                        >
                             Course Finish
-                        </Link>
+                        </button>
                     </div>
                     <div className="flex gap-3">
-                        <button onClick={() => setIsChating(true)}>Chat with teacher</button>
-                        <button>
+                        <button onClick={() => setIsChating(true)}>
+                            <FontAwesomeIcon icon="fa-regular fa-comment" /> Chat with teacher
+                        </button>
+                        <button onClick={() => setShowModal(true)}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 fill="none"
@@ -300,7 +339,7 @@ const Account = () => {
                 <div className="m-4 relative">
                     <div className="relative min-h-[100vh]">
                         <div className="flex justify-between">
-                            <p>My Item</p>
+                            <p className="text-lg font-semibold">Khóa học của tôi</p>
                             <div className="flex gap-2">
                                 <p>Sort by :</p>
                                 <select name="" id="">
@@ -309,7 +348,9 @@ const Account = () => {
                                 </select>
                             </div>
                         </div>
-                        <Outlet />
+                        {courseBought && <CourseBought dataBought={dataBought} />}
+                        {courseLearning && <CourseLearning dataJoined={dataJoined} />}
+                        {courseFinish && <CourseFinished dataFinished={dataFinished} />}
                         {isChatTing ? (
                             <div className="fixed bottom-0 right-20 bg-red-300 w-[300px] h-[400px]">
                                 <div className="flex justify-between p-3 bg-blue-600">

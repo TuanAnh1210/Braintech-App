@@ -17,6 +17,7 @@ import { paymentApi } from './apis/paymentApi';
 import { chapterApi } from './apis/chapterApi';
 import { paymentDetailApi } from './apis/paymentDetail';
 import { rateApi } from './apis/rateApi';
+import { cateApi } from './apis/cateApi';
 
 export const store = configureStore({
     reducer: {
@@ -34,6 +35,7 @@ export const store = configureStore({
         [paymentApi.reducerPath]: paymentApi.reducer,
         [paymentDetailApi.reducerPath]: paymentDetailApi.reducer,
         [rateApi.reducerPath]: rateApi.reducer,
+        [cateApi.reducerPath]: cateApi.reducer,
     },
 
     middleware: (getDefaultMiddleware) =>
@@ -48,6 +50,7 @@ export const store = configureStore({
             paymentDetailApi.middleware,
             chapterApi.middleware,
             rateApi.middleware,
+            cateApi.middleware,
         ),
 });
 
