@@ -11,6 +11,7 @@ const CommentItem = ({ cmt, refetch }) => {
     const toggleReplyForm = (cmt) => {
         setShowReplyForm({ reply: true, ...cmt });
     };
+    console.log(cmt)
     const [replyText, setReplyText] = useState('');
     const [showReplyForm, setShowReplyForm] = useState({ reply: false });
     const handleReplySubmit = (e) => {
@@ -127,25 +128,29 @@ const CommentItem = ({ cmt, refetch }) => {
                         </h5>
                         <p className={cx('commentBox--text')}>{cmt.text}</p>
                         <div className="flex gap-2 text-[12px]">
-                            <div
-                                onClick={() => {
-                                    setUpdateCmt({ update: true, ...cmt });
-                                    setCmtUpdateInput(cmt.text);
-                                }}
-                                className="flex items-center gap-2 italic hover:underline ml-4"
-                            >
-                                <span>Sửa</span>
-                                <FontAwesomeIcon icon={faPen} />
-                            </div>
+                            {cmt.isMyComment && (
+                                <>
+                                    <div
+                                        onClick={() => {
+                                            setUpdateCmt({ update: true, ...cmt });
+                                            setCmtUpdateInput(cmt.text);
+                                        }}
+                                        className="flex items-center gap-2 italic hover:underline ml-4"
+                                    >
+                                        <span>Sửa</span>
+                                        <FontAwesomeIcon icon={faPen} />
+                                    </div>
 
-                            <div
-                                onClick={() => handleDelete(cmt._id)}
-                                className="flex items-center gap-2 italic hover:underline ml-4"
-                                danger
-                            >
-                                <span>Xóa</span>
-                                <FontAwesomeIcon icon={faTrash} />
-                            </div>
+                                    <div
+                                        onClick={() => handleDelete(cmt._id)}
+                                        className="flex items-center gap-2 italic hover:underline ml-4"
+                                        danger
+                                    >
+                                        <span>Xóa</span>
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </div>
+                                </>
+                            )}
                             <div
                                 onClick={() => toggleReplyForm(cmt)}
                                 className="flex items-center gap-2 italic hover:underline ml-4"

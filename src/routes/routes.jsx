@@ -17,8 +17,10 @@ import Quizz from '@/pages/Client/Quizz';
 import Certificate from '@/pages/Client/Certificate';
 import ForgotPassword from '@/pages/Client/ForgetPassword';
 import Account from '@/pages/Client/Account';
+
 import DetailCourseTeacher from '@/pages/Client/DetailCourseTeacher';
 import LearningTeacher from '@/pages/Client/LearningTeacher';
+
 
 const publicRoutes = [
     { path: config.home, component: Home },
