@@ -99,6 +99,7 @@ const DetailCourse = () => {
             navigate(`/learning/${courseId}/${nextlessonId}`);
         });
     };
+
     useEffect(() => {
         if (cookies.cookieLoginStudent) {
             const decode = jwtDecode(data?.accessToken);
@@ -107,6 +108,7 @@ const DetailCourse = () => {
             navigate('/');
         }
     }, [cookies]);
+
     return (
         <>
             <div className={cx('detail-course')}>
