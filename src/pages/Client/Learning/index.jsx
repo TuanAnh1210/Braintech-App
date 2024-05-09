@@ -3,7 +3,7 @@ import { faBars, faChevronLeft, faCircleCheck, faNoteSticky } from '@fortawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Container } from 'react-bootstrap';
 import classNames from 'classnames/bind';
-import { Spin } from 'antd';
+import { Progress, Spin } from 'antd';
 import Draggable from 'react-draggable';
 import { useCookies } from 'react-cookie';
 import { useEffect, useRef, useState } from 'react';
@@ -187,14 +187,15 @@ const Learning = () => {
                                 </Link>
                             </div>
                         </div>
-                        <div className={cx('header__actions')}>
+                        <div className={cx('header__actions', 'flex items-center gap-3')}>
                             <div className={cx('header__progress')}>
-                                <p className={cx('header__progress--txt')}>
-                                    Tiến độ: &emsp;
-                                    <span className="progress_learned">{countLessonFinish?.count}</span>/
+                                <p className={cx('header__progress--txt', 'font-bold')}>
+                                    Tiến độ: <span className="progress_learned">{countLessonFinish?.count}</span>
+                                    {'/'}
                                     <span className="progress_lesson">{totalLesson}</span>
                                 </p>
-                                <div className="progress">
+                                <Progress className="text-white" percent={progressCourse} steps={5} />
+                                {/* <div className="progress">
                                     <div
                                         className="progress-bar"
                                         role="progressbar"
@@ -205,7 +206,7 @@ const Learning = () => {
                                     >
                                         {progressCourse}%
                                     </div>
-                                </div>
+                                </div> */}
                             </div>
                             <div className={cx('header__cert')}>
                                 {countLessonFinish?.count === totalLesson ? (
@@ -216,7 +217,7 @@ const Learning = () => {
                                     >
                                         <button
                                             type="button"
-                                            className="btn btn-secondary"
+                                            className="btn btn-secondary "
                                             data-toggle="tooltip"
                                             data-placement="bottom"
                                             title="Hoàn thành hết các bài học bạn sẽ nhận được chứng chỉ"
@@ -225,7 +226,7 @@ const Learning = () => {
                                         </button>
                                     </Link>
                                 ) : (
-                                    <p className={cx('header__cert--lock')}>Nhận chứng chỉ</p>
+                                    <p className={cx('header__cert--lock', 'font-medium')}>Nhận chứng chỉ</p>
                                 )}
                             </div>
                         </div>
@@ -291,8 +292,8 @@ const Learning = () => {
                                                                 key={lesson._id}
                                                             >
                                                                 {lesson.isCompleted ||
-                                                                    isOpenLesson ||
-                                                                    isOpenNextLesson ? (
+                                                                isOpenLesson ||
+                                                                isOpenNextLesson ? (
                                                                     <NavLink
                                                                         exact="true"
                                                                         to={`/learning/${courseId}/${lesson._id}`}
@@ -301,7 +302,7 @@ const Learning = () => {
                                                                                 'block',
                                                                                 'learning__chapter--lesson_name',
                                                                                 isActive &&
-                                                                                'learning__chapter--lesson_name_active',
+                                                                                    'learning__chapter--lesson_name_active',
                                                                             );
                                                                         }}
                                                                     >

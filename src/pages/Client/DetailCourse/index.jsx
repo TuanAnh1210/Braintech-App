@@ -97,18 +97,6 @@ const DetailCourse = () => {
         });
     };
 
-<<<<<<< HEAD
-    useEffect(() => {
-        if (cookies.cookieLoginStudent) {
-            const decode = jwtDecode(data?.accessToken);
-            setUserid(decode._id);
-        } else {
-            navigate('/');
-        }
-    }, [cookies]);
-
-=======
->>>>>>> 117032b11d449eda67e2b392cdd7e3d1ae858779
     return (
         <>
             <div className={cx('detail-course')}>
