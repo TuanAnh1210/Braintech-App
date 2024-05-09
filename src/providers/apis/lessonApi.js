@@ -6,7 +6,7 @@ const cookies = new Cookies(); // Create a new instance of Cookies
 export const lessonApi = createApi({
     reducerPath: 'lessonApi',
     baseQuery: fetchBaseQuery({
-        baseUrl: 'http://localhost:8080/api',
+        baseUrl: import.meta.env.VITE_REACT_APP_API_PATH,
         prepareHeaders: (headers) => {
             const token = cookies.get('cookieLoginStudent'); // Lấy giá trị token từ cookie
 
@@ -21,12 +21,13 @@ export const lessonApi = createApi({
     endpoints: (build) => ({
         getLesson: build.query({
             query: () => {
-                return '/lessons';
+                
+                return 'api/lessons';
             },
         }),
         getLessonById: build.query({
             query: (id) => {
-                return `/lessons/${id}`;
+                return `api/lessons/${id}`;
             },
             transformResponse: (response) => {
                 return response.data;
@@ -34,27 +35,27 @@ export const lessonApi = createApi({
         }),
         getNextLesson: build.query({
             query: () => {
-                return '/lessons/nextLesson';
+                return 'api/lessons/nextLesson';
             },
         }),
         getFinishLesson: build.query({
             query: (id) => {
-                return `/finishLesson/${id}`;
+                return `api/finishLesson/${id}`;
             },
         }),
         getFinishLessonByCourseId: build.query({
             query: (courseId) => {
-                return `/finishLesson/${courseId}`;
+                return `api/finishLesson/${courseId}`;
             },
         }),
         getCount: build.query({
             query: (course_id) => {
-                return `/finishLesson/count/${course_id}`;
+                return `api/finishLesson/count/${course_id}`;
             },
         }),
         addFinishLesson: build.mutation({
             query: (payload) => {
-                return { url: '/finishLesson/add', method: 'POST', body: payload };
+                return { url: 'api/finishLesson/add', method: 'POST', body: payload };
             },
         }),
     }),

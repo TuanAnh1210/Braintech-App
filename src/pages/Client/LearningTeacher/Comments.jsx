@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import Highlighter from 'react-highlight-words';
 import Draggable from 'react-draggable';
 import { Button, Col, Drawer, Empty, Form, Input, Popconfirm, Popover, Row, Space, Table, Tabs, message } from 'antd';
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
     useCreateCmtMutation,
@@ -26,7 +26,6 @@ import {
 } from '@/providers/apis/noteApi';
 
 import styles from './Learning.module.scss';
-import CommentItem from './CommentItem';
 const cx = classNames.bind(styles);
 
 const Comments = ({ openStorage, setOpenStorage }) => {
@@ -34,13 +33,13 @@ const Comments = ({ openStorage, setOpenStorage }) => {
     const [valueNote, setValue] = React.useState('');
     const [idNote, setIdValue] = React.useState('');
     const [err, setErrNote] = React.useState('');
-
+    const [isDelete, setDelete] = React.useState(false);
 
     const [isComment, setCommment] = React.useState(true); // đang là bình luận hay ghi chú (true false)
     const [cmtInput, setCmtInput] = React.useState(''); // nội dung của cmt
-
+    const [cmtUpdateInput, setCmtUpdateInput] = React.useState(''); // nội dung của cmt
     const [noteInput, setNoteInput] = React.useState(''); //nội dung của ghi chú
-
+    const [isUpdateCmt, setUpdateCmt] = React.useState({ update: false });
     const [searchText, setSearchText] = React.useState('');
     const [searchedColumn, setSearchedColumn] = React.useState('');
 
@@ -52,15 +51,18 @@ const Comments = ({ openStorage, setOpenStorage }) => {
 
     const [handleAddNote] = useCreateNoteMutation(); //thêm ghi chú
     const [handleAddCmt] = useCreateCmtMutation(); //thêm bình luận
-
+    const [handleUpdateCmt] = useUpdateCmtMutation();
     const [handleDeleteNote] = useDeleteNoteMutation(); // xóa ghi chú
     const [handleUpdateNotes] = useUpdateNoteMutation(); // update ghi chú
+    const [deleteCmt] = useDeleteCmtMutation();
 
     const { data: cmtData = [], isLoading: cmtLoading, isFetching: cmtFetching, refetch } = useGetAllQuery(lessonId); //lấy bình luận dựa trên id bài học
     const { data: noteData = [], refetch: refetchNote } = useGetNoteByLessonIdQuery(lessonId); // lấy tất cả các ghi chú của người dùng
+
     const handleClickScroll = () => {
         ref.current?.scrollIntoView({ behavior: 'smooth' });
     }; // thực hiện scroll
+
     const handleSubmitNote = (e) => {
         e.preventDefault();
         const newNote = {
@@ -80,13 +82,11 @@ const Comments = ({ openStorage, setOpenStorage }) => {
         const newCmt = {
             content: cmtInput,
             lesson_id: lessonId,
-            parent_id: parentComment
         };
 
         handleAddCmt(newCmt)
             .then(() => {
                 setCmtInput('');
-                setParentComment(null)
                 refetch();
             })
             .catch((error) => {
@@ -95,8 +95,20 @@ const Comments = ({ openStorage, setOpenStorage }) => {
             });
     };
 
+    const handleDelete = (id) => {
+        setDelete({ isDeleteCmt: true, id: id });
+    };
 
-    const [isDelete, setDelete] = React.useState(false);
+    const handleSubmitUpdateCmt = (e) => {
+        e.preventDefault();
+        const updateData = { content: cmtUpdateInput, id: isUpdateCmt._id };
+        handleUpdateCmt(updateData).then(() => {
+            refetch();
+            setUpdateCmt({ update: false });
+            setCmtUpdateInput('');
+        });
+    };
+
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
@@ -336,12 +348,30 @@ const Comments = ({ openStorage, setOpenStorage }) => {
     const onClose = () => {
         setOpen(false);
     };
-    const [parentComment, setParentComment] = useState(null)
 
-
+    const handleSubmitDeleteCmt = (id) => {
+        deleteCmt(id).then(() => refetch());
+        setDelete({ isDeleteCmt: false });
+    };
 
     return (
         <div style={{ background: '#fff', padding: '0 16px 0 16px', borderRadius: '12px 12px 0 0' }}>
+            {isDelete.isDeleteCmt === true && (
+                <Draggable>
+                    <div className={cx('message__delete')}>
+                        <h2>Bạn muốn xóa bình luận này chứ!!</h2>
+                        <h4>Nhấn yes để xóa nhé</h4>
+                        <div className={cx('btn__delete-container', 'gap-6')}>
+                            <button className={cx('yes')} onClick={() => handleSubmitDeleteCmt(isDelete.id)}>
+                                Yes
+                            </button>
+                            <button className={cx('yes')} onClick={() => setDelete(false)}>
+                                Hủy
+                            </button>
+                        </div>
+                    </div>
+                </Draggable>
+            )}
             <div className={cx('comment__wrapper', 'note comment')}>
                 <Tabs
                     defaultActiveKey="1"
@@ -386,6 +416,20 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                         className={cx('comment_wrapper-content')}
                                         style={{ minHeight: '500px', marginTop: '20px' }}
                                     >
+                                        <Tabs
+                                            tabBarStyle={{ margin: '0' }}
+                                            defaultActiveKey="1"
+                                            items={[
+                                                {
+                                                    key: '1',
+                                                    label: `Tất cả bình luận`,
+                                                },
+                                                {
+                                                    key: '2',
+                                                    label: `Bình luận của tôi`,
+                                                },
+                                            ]}
+                                        />
                                         {cmtLoading && cmtFetching ? (
                                             <div className="flex flex-col items-center justify-center my-16">
                                                 <LoadingOutlined className="text-3xl" />
@@ -395,12 +439,101 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                             cmtData.map((cmt) => {
                                                 return (
                                                     <div className={cx('commentBox', 'noMt')} key={Math.random()}>
-                                                        <CommentItem cmt={cmt} refetch={refetch} />
+                                                        <img
+                                                            className={cx('commentBox--img')}
+                                                            style={{ margin: 0 }}
+                                                            src="https://yt3.ggpht.com/UsflU74uvka_3sejOu3LUGwzOhHJV0eIYoWcvOfkOre_c12uIN4ys-QqRlAkbusEmbZjTA-b=s88-c-k-c0x00ffffff-no-rj"
+                                                            alt=""
+                                                        />
+
+                                                        <div
+                                                            className={cx('commentBox--right')}
+                                                            style={{ background: '#ecf0f1' }}
+                                                        >
+                                                            {isUpdateCmt.update === true &&
+                                                            cmt._id === isUpdateCmt._id ? (
+                                                                <form
+                                                                    className={cx('mt-6')}
+                                                                    onSubmit={handleSubmitUpdateCmt}
+                                                                >
+                                                                    <textarea
+                                                                        rows={4}
+                                                                        required={true}
+                                                                        name="contentUpdateIpt"
+                                                                        className={cx('commentBox--ipt')}
+                                                                        placeholder="Nhập bình luận của bạn"
+                                                                        onChange={(e) =>
+                                                                            setCmtUpdateInput(e.target.value)
+                                                                        }
+                                                                        value={cmtUpdateInput}
+                                                                    />
+                                                                    <div className="flex gap-2">
+                                                                        <Button
+                                                                            onClick={() =>
+                                                                                setUpdateCmt({
+                                                                                    update: false,
+                                                                                    ...cmt,
+                                                                                })
+                                                                            }
+                                                                            type="default"
+                                                                        >
+                                                                            Đóng
+                                                                        </Button>
+                                                                        <Button type="primary" htmlType="submit">
+                                                                            Cập nhật
+                                                                        </Button>
+                                                                    </div>
+                                                                </form>
+                                                            ) : (
+                                                                <div>
+                                                                    <h5>
+                                                                        {cmt?.user_id?.full_name || 'Người ẩn danh'}
+                                                                    </h5>
+                                                                    <p className={cx('commentBox--text')}>{cmt.text}</p>
+                                                                </div>
+                                                            )}
+
+                                                            <Popover
+                                                                placement="bottom"
+                                                                content={
+                                                                    <div className="flex gap-2">
+                                                                        <Button
+                                                                            onClick={() => {
+                                                                                setUpdateCmt({ update: true, ...cmt });
+                                                                                setCmtUpdateInput(cmt.text);
+                                                                            }}
+                                                                            type="primary"
+                                                                            className="flex items-center gap-2"
+                                                                        >
+                                                                            <span>Sửa</span>
+                                                                            <FontAwesomeIcon icon={faPen} />
+                                                                        </Button>
+
+                                                                        <Button
+                                                                            onClick={() => handleDelete(cmt._id)}
+                                                                            type="primary"
+                                                                            className="flex items-center gap-2"
+                                                                            danger
+                                                                        >
+                                                                            <span>Xóa</span>
+                                                                            <FontAwesomeIcon icon={faTrash} />
+                                                                        </Button>
+                                                                    </div>
+                                                                }
+                                                                title={'Thao tác'}
+                                                            >
+                                                                {cmt.isMyComment && (
+                                                                    <FontAwesomeIcon
+                                                                        className="absolute top-4 right-4 cursor-pointer text-amber-600 text-lg"
+                                                                        icon={faEllipsis}
+                                                                    />
+                                                                )}
+                                                            </Popover>
+                                                        </div>
                                                     </div>
                                                 );
                                             })
                                         )}
-
                                         {cmtData.length === 0 && (
                                             <Empty className="my-8" description="Chưa có dữ liệu" />
                                         )}

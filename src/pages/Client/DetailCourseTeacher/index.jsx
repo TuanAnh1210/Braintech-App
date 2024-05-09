@@ -4,7 +4,7 @@ import styles from './DetailCourse.module.scss';
 import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
-import { useGetDetailQuery } from '@/providers/apis/courseApi';
+import { useGetDetailQuery } from '@/providers/apis/courseTeacherApi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -12,15 +12,15 @@ import { openModal } from '@/providers/slices/modalSlice';
 import { useGetFinishLessonByCourseIdQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
 import { useCookies } from 'react-cookie';
-import { Breadcrumb, Button, Empty, Form, Input, Modal, Rate, message, notification } from 'antd';
+import { Empty } from 'antd';
 import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
-import RatingSide from './RatingSide';
 
 const cx = classNames.bind(styles);
 
-const DetailCourse = () => {
+const DetailCourseTeacher = () => {
     const [isLogin, setIsLogin] = useState(true);
+    const [userid, setUserid] = useState(null);
 
     const { courseId } = useParams();
     const dispatch = useDispatch();
@@ -34,14 +34,13 @@ const DetailCourse = () => {
     const { data: course } = useGetDetailQuery(courseId, {
         skip: !courseId,
     });
-
     const { data: lessonFinish } = useGetFinishLessonByCourseIdQuery(courseId, {
         skip: !courseId,
     });
 
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, []);
+    });
 
     useEffect(() => {
         if (isLog != null) {
@@ -91,39 +90,22 @@ const DetailCourse = () => {
 
     const isPublicExist = course?.course?.chapters?.find((chapter) => !chapter.isPublic);
     const handleLearn = () => {
+       
         handleAddSttCourse({ course_id: courseId }).then(() => {
             refetch();
-            navigate(`/learning/${courseId}/${nextlessonId}`);
+            navigate(`/learning/teacher/${courseId}/${nextlessonId}`);
         });
     };
 
-<<<<<<< HEAD
-    useEffect(() => {
-        if (cookies.cookieLoginStudent) {
-            const decode = jwtDecode(data?.accessToken);
-            setUserid(decode._id);
-        } else {
-            navigate('/');
-        }
-    }, [cookies]);
-
-=======
->>>>>>> 117032b11d449eda67e2b392cdd7e3d1ae858779
     return (
         <>
             <div className={cx('detail-course')}>
                 <Container>
-                    <Breadcrumb
-                        className="mb-4"
-                        items={[{ title: 'Trang chủ' }, { title: 'Khóa học' }, { title: course?.course?.name }]}
-                    />
                     <Row>
                         <Col lg={8}>
                             <div>
                                 <h2 className={cx('course_name')}>{course?.course?.name}</h2>
-
                                 <p className={cx('course_text')}>{course?.course?.description}</p>
-
                                 <div className={cx('learning__bar')}>
                                     <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
                                     <div className={cx('course_topic')}>
@@ -162,7 +144,6 @@ const DetailCourse = () => {
                                         {(course?.course?.chapters.length === 0 || isPublicExist) && (
                                             <Empty className="my-8" description="Chưa có dữ liệu" />
                                         )}
-                                        <RatingSide />
                                     </div>
                                 </div>
                             </div>
@@ -214,4 +195,4 @@ const DetailCourse = () => {
     );
 };
 
-export default DetailCourse;
+export default DetailCourseTeacher;

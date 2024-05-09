@@ -2,28 +2,25 @@
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import Image from '../Image/Image';
 import { useCountCourseUserQuery } from '@/providers/apis/sttCourseApi';
 
 import styles from './CourseItem.module.scss';
 import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
-import { jwtDecode } from 'jwt-decode';
-import { useCookies } from 'react-cookie';
-import { useEffect, useState } from 'react';
 const cx = classNames.bind(styles);
 
-const CourseItem = ({ course }) => {
+const CourseItemTeacher = ({ course }) => {
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought =
         !coursePayLoading && coursePay?.data?.find((s) => s?.course_id?._id === course?._id && s?.status === 'SUCCESS');
 
-    useEffect;
+
     return (
-        <Link to={`/detail/${course?._id}`}>
+        <Link to={`/detail/teacher/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
                 <Image src={course?.thumb} alt={course?.name} />
 
@@ -40,10 +37,11 @@ const CourseItem = ({ course }) => {
                             <p>{course?.price.toLocaleString()}đ</p>
                         </div>
                     )}
+                    <p>Giảng viên : {course?.teacherId?.full_name} </p>
                 </div>
             </div>
         </Link>
     );
 };
 
-export default CourseItem;
+export default CourseItemTeacher;

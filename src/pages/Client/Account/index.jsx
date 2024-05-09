@@ -8,9 +8,13 @@ import { useUpdateProfileMutation } from '@/providers/apis/userApi';
 import { useCookies } from 'react-cookie';
 import { useGetAllSttCourseQuery } from '@/providers/apis/sttCourseApi';
 import { jwtDecode } from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
 import { format } from 'date-fns';
+import CourseBought from './CourseBought';
+import CourseLearning from './CourseLearning';
+import CourseFinished from './CourseFinished';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 const Account = () => {
     const navigate = useNavigate();
     const schema = Joi.object({
@@ -37,7 +41,10 @@ const Account = () => {
     });
     const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
     const [userid, setUserid] = useState(null);
-
+    const [isChatTing, setIsChating] = useState(false);
+    const [courseBought, setCourseBought] = useState(true);
+    const [courseLearning, setCourseLearning] = useState(false);
+    const [courseFinish, setCourseFinish] = useState(false);
     const {
         register,
         handleSubmit,
@@ -58,7 +65,6 @@ const Account = () => {
     const { data: sttCourse, isLoading: loadingSttCourse } = useGetAllSttCourseQuery();
     const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
     const dataBought = coursePay?.data?.filter((s) => s.user_id === userid && s.status === 'SUCCESS');
-    console.log(coursePay);
     const dataFinished = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === true);
     const dataJoined = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === false);
     const [uploadedImages, setUploadedImages] = useState();
@@ -95,7 +101,7 @@ const Account = () => {
         const formData = new FormData();
         formData.append('image', file);
         try {
-            const response = await fetch('http://127.0.0.1:8080/upload/image', {
+            const response = await fetch(JSON.stringify(import.meta.env.VITE_REACT_APP_API_PATH) + '/upload/image', {
                 method: 'POST',
                 body: formData,
             });
@@ -146,114 +152,9 @@ const Account = () => {
             });
         }
     };
+
     return (
         <>
-            <div className="">
-                <div className="container mx-auto py-8">
-                    <div className="grid grid-cols-4 sm:grid-cols-12  gap-6 px-4">
-                        <div className="col-span-4 sm:col-span-3">
-                            <div className="bg-white shadow rounded-lg p-6">
-                                <div className="flex flex-col items-center">
-                                    <img
-                                        src={data?.avatar}
-                                        className="w-32 h-32 object-cover bg-gray-300 rounded-full mb-4 shrink-0"
-                                    ></img>
-                                    <h1 className="text-2xl font-bold">{data?.fullName}</h1>
-                                    <div
-                                        onClick={() => setShowModal(true)}
-                                        className="mt-6 flex flex-wrap gap-4 justify-center"
-                                    >
-                                        <a
-                                            href="#"
-                                            className="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded"
-                                        >
-                                            Chỉnh sửa thông tin
-                                        </a>
-                                    </div>
-                                </div>
-                                <hr className="my-6 border-t border-gray-300" />
-                                <div className="flex flex-col overflow-hidden">
-                                    <h1 className="text-2xl font-bold">Thông tin</h1>
-                                    <div className="mb-2">
-                                        <label className="text-sm italic">Họ và tên</label>
-                                        <p className="text-lg font-[450]">{data?.fullName}</p>
-                                    </div>
-                                    <div className="mb-2">
-                                        <label className="text-sm italic">Số điện thoại</label>
-                                        <p className="text-lg font-[450]">{data?.phone}</p>
-                                    </div>
-                                    <div className="mb-2">
-                                        <label className="text-sm italic">Email</label>
-                                        <p className="text-lg font-[450]  w-[50px]">{data?.email}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-span-4 sm:col-span-9">
-                            <div className="bg-white shadow rounded-lg p-6">
-                                <h2 className="text-xl font-bold mb-4">Các khóa học đã tham gia</h2>
-                                {!loadingSttCourse && dataJoined?.length === 0
-                                    ? 'Bạn chưa tham gia khóa học nào'
-                                    : dataJoined?.map((item, index) => {
-                                          const formatDate = format(item?.createdAt, 'dd/MM/yyyy');
-
-                                          return (
-                                              <>
-                                                  <div key={index} className="flex mt-4">
-                                                      <img className="w-[25%]" src={item?.course_id?.thumb} />
-                                                      <div className="ml-4">
-                                                          <p className="font-bold mt-4">{item?.course_id?.name}</p>
-                                                          <p className="mt-4 italic">Thời gian bắt đầu: {formatDate}</p>
-                                                      </div>
-                                                  </div>
-                                              </>
-                                          );
-                                      })}
-                            </div>
-                            <div className="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 className="text-xl font-bold mb-4">Các khóa học đã mua</h2>
-                                {!coursePayLoading && dataBought?.length === 0
-                                    ? 'Bạn chưa mua khóa học nào'
-                                    : dataBought?.map((item, index) => {
-                                          const formatDate = format(item?.createdAt, 'dd/MM/yyyy');
-
-                                          return (
-                                              <>
-                                                  <div key={index} className="flex mt-4">
-                                                      <img className="w-[25%]" src={item?.course_id?.thumb} />
-                                                      <div className="ml-4">
-                                                          <p className="font-bold mt-4">{item?.course_id?.name}</p>
-                                                          <p className="mt-4 italic">Thời gian bắt đầu: {formatDate}</p>
-                                                      </div>
-                                                  </div>
-                                              </>
-                                          );
-                                      })}
-                            </div>
-                            <div className="bg-white shadow rounded-lg p-6 mt-4">
-                                <h2 className="text-xl font-bold mb-4">Các khóa học đã hoàn thành</h2>
-                                {!loadingSttCourse && dataFinished.length === 0
-                                    ? 'Bạn chưa hoàn thành khóa học nào'
-                                    : dataFinished?.map((item, index) => {
-                                          const formatDate = format(item?.createdAt, 'dd/MM/yyyy');
-
-                                          return (
-                                              <>
-                                                  <div key={index} className="flex mt-4">
-                                                      <img className="w-[25%]" src={item?.course_id.thumb} />
-                                                      <div className="ml-4">
-                                                          <p className="font-bold mt-4">{item?.course_id.name}</p>
-                                                          <p className="mt-4 italic">Thời gian bắt đầu: {formatDate}</p>
-                                                      </div>
-                                                  </div>
-                                              </>
-                                          );
-                                      })}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
             {showModal ? (
                 <>
                     <div className="justify-center items-center flex overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none">
@@ -360,6 +261,115 @@ const Account = () => {
                     <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
                 </>
             ) : null}
+            <div className="container mx-auto px-4">
+                <div className=" h-[200px] w-[100vh] mx-auto relative bg-auto bg-no-repeat bg-[url('https://imgs.search.brave.com/mnNYq4S0KVo43YKN3R_KP3r6-JuZWTDL-2PIU_J31hs/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9oYXlj/YWZlLnZuL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDIyLzAxL0hp/bmgtYW5oLWJpYS1k/ZXAtbmhhdC04MDB4/NDUwLmpwZw')]"></div>
+                <div className="flex flex-col justify-center items-center m-3">
+                    <img
+                        className="absolute top-[150px] rounded-full"
+                        width={150}
+                        src={data?.avatar ? data?.avatar : 'https://i.imgur.com/6b6b7Z6.png'}
+                        alt="img"
+                    />
+                    <div className="text-center m-2">
+                        <p className="font-bold">{data?.fullName}</p>
+                        <p>{data?.email}</p>
+                    </div>
+                </div>
+                <div className="flex justify-between border-t border-b w-full h-full">
+                    <div className="flex justify-right gap-10 text-sm font-bold w-full">
+                        <button
+                            className={`hover:border-b-4 ${
+                                courseBought && `border-b-4 border-[#f76b1c]`
+                            }  justify-center border-b-4 flex items-center p-3 w-50 h-20 transition delay-200 ease-in-out`}
+                            onClick={() => {
+                                setCourseBought(true);
+                                setCourseLearning(false);
+                                setCourseFinish(false);
+                            }}
+                        >
+                            Course Bought
+                        </button>
+                        <button
+                            className={`hover:border-b-4 ${
+                                courseLearning && `border-b-4 border-[#f76b1c]`
+                            }  justify-center border-b-4 flex items-center p-3 w-50 h-20 transition delay-200 ease-in-out`}
+                            onClick={() => {
+                                setCourseBought(false);
+                                setCourseLearning(true);
+                                setCourseFinish(false);
+                            }}
+                        >
+                            Course Learing
+                        </button>
+                        <button
+                            onClick={() => {
+                                setCourseBought(false);
+                                setCourseLearning(false);
+                                setCourseFinish(true);
+                            }}
+                            className={`hover:border-b-4 ${
+                                courseFinish && `border-b-4 border-[#f76b1c]`
+                            }  justify-center border-b-4 flex items-center p-3 w-50 h-20 transition delay-200 ease-in-out`}
+                        >
+                            Course Finish
+                        </button>
+                    </div>
+                    <div className="flex gap-3">
+                        <button onClick={() => setIsChating(true)}>
+                            <FontAwesomeIcon icon="fa-regular fa-comment" /> Chat with teacher
+                        </button>
+                        <button onClick={() => setShowModal(true)}>
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                strokeWidth="1.5"
+                                stroke="currentColor"
+                                className="w-6 h-6"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div className="m-4 relative">
+                    <div className="relative min-h-[100vh]">
+                        <div className="flex justify-between">
+                            <p className="text-lg font-semibold">Khóa học của tôi</p>
+                            <div className="flex gap-2">
+                                <p>Sort by :</p>
+                                <select name="" id="">
+                                    <option value="1">Asc</option>
+                                    <option value="2">Desc</option>
+                                </select>
+                            </div>
+                        </div>
+                        {courseBought && <CourseBought dataBought={dataBought} />}
+                        {courseLearning && <CourseLearning dataJoined={dataJoined} />}
+                        {courseFinish && <CourseFinished dataFinished={dataFinished} />}
+                        {isChatTing ? (
+                            <div className="fixed bottom-0 right-20 bg-red-300 w-[300px] h-[400px]">
+                                <div className="flex justify-between p-3 bg-blue-600">
+                                    <p className="text-sm flex items-center">Teacher Name - online</p>
+                                    <button
+                                        onClick={() => {
+                                            setIsChating(false);
+                                        }}
+                                    >
+                                        x
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            ''
+                        )}
+                    </div>
+                </div>
+            </div>
         </>
     );
 };

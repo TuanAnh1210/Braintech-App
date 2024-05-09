@@ -21,33 +21,38 @@ const authMiddleware = (baseQuery) => async (args, api, extraOptions) => {
 
 export const userApi = createApi({
     reducerPath: 'userApi',
-    baseQuery: authMiddleware(fetchBaseQuery({ baseUrl: 'http://localhost:8080/api' })),
+    baseQuery: authMiddleware(fetchBaseQuery({ baseUrl: import.meta.env.VITE_REACT_APP_API_PATH })),
     endpoints: (build) => ({
         getUsers: build.query({
-            query: () => '/user',
+            query: () => 'api/user',
         }),
         login: build.mutation({
             query: (payload) => {
-                return { url: '/user/login', method: 'POST', body: payload };
+                return { url: 'api/user/login', method: 'POST', body: payload };
             },
         }),
         register: build.mutation({
             query: (payload) => {
-                return { url: '/user/register', method: 'POST', body: payload };
+                return { url: 'api/user/register', method: 'POST', body: payload };
             },
         }),
         forgetPassword: build.mutation({
             query: (payload) => {
-                return { url: `/user/forgetPassword/${payload._id}`, method: 'PUT', body: payload };
+                return { url: `api/user/forgetPassword/${payload._id}`, method: 'PUT', body: payload };
             },
         }),
         updateProfile: build.mutation({
             query: (payload) => {
-                return { url: `/user/update`, method: 'PATCH', body: payload };
+                return { url: `api/user/update`, method: 'PATCH', body: payload };
             },
         }),
-
     }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetUsersQuery, useForgetPasswordMutation, useUpdateProfileMutation } = userApi;
+export const {
+    useLoginMutation,
+    useRegisterMutation,
+    useGetUsersQuery,
+    useForgetPasswordMutation,
+    useUpdateProfileMutation,
+} = userApi;
