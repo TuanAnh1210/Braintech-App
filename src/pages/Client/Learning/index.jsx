@@ -30,6 +30,11 @@ const Learning = () => {
     const [totalLesson, setTotalLesson] = useState(0); // Tổng khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
+    const [timeVideo, setTimeVideo] = useState(0);
+    const [timeChanges, setTimeChanges] = useState({
+        video_time: 0,
+        ramdom_time: 0,
+    });
 
     const mainView = useRef(null);
     const intervalRef = useRef();
@@ -45,6 +50,7 @@ const Learning = () => {
     const { data: currentLesson } = useGetLessonByIdQuery(lessonId, {
         skip: !lessonId,
     }); // lấy ra tất cả các khóa học để thực hiện lọc
+
     const handleGetTime = (event) => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -124,6 +130,7 @@ const Learning = () => {
     // }, [progressVideo, lessonId, isModalShown]);
 
     // Nếu chưa đăng nhập cho về trang chi tiết khóa học
+
     useEffect(() => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
         setProgessVideo(0);
@@ -250,13 +257,20 @@ const Learning = () => {
                                     />
                                 ) : (
                                     <VideoCloudinaryPlayer
+                                        setTimeVideo={setTimeVideo}
+                                        timeChanges={timeChanges}
                                         url={currentLesson?.url_video}
                                         setIsModalShown={setIsModalShown}
                                         handleSetFinish={handleSetFinish}
                                     />
                                 )}
                             </div>
-                            <Comments openStorage={openStorage} setOpenStorage={setOpenStorage} />
+                            <Comments
+                                timeVideo={timeVideo}
+                                openStorage={openStorage}
+                                setTimeChanges={setTimeChanges}
+                                setOpenStorage={setOpenStorage}
+                            />
                         </div>
                         <div className={cx('learning__bar')}>
                             <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>

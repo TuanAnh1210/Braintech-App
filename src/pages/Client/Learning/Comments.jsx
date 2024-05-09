@@ -29,12 +29,11 @@ import styles from './Learning.module.scss';
 import CommentItem from './CommentItem';
 const cx = classNames.bind(styles);
 
-const Comments = ({ openStorage, setOpenStorage }) => {
+const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) => {
     const [open, setOpen] = React.useState(false);
     const [valueNote, setValue] = React.useState('');
     const [idNote, setIdValue] = React.useState('');
     const [err, setErrNote] = React.useState('');
-
 
     const [isComment, setCommment] = React.useState(true); // đang là bình luận hay ghi chú (true false)
     const [cmtInput, setCmtInput] = React.useState(''); // nội dung của cmt
@@ -61,9 +60,11 @@ const Comments = ({ openStorage, setOpenStorage }) => {
     const handleClickScroll = () => {
         ref.current?.scrollIntoView({ behavior: 'smooth' });
     }; // thực hiện scroll
+
     const handleSubmitNote = (e) => {
         e.preventDefault();
         const newNote = {
+            save_at: timeVideo,
             content: noteInput,
             lesson_id: lessonId,
         };
@@ -80,13 +81,13 @@ const Comments = ({ openStorage, setOpenStorage }) => {
         const newCmt = {
             content: cmtInput,
             lesson_id: lessonId,
-            parent_id: parentComment
+            parent_id: parentComment,
         };
 
         handleAddCmt(newCmt)
             .then(() => {
                 setCmtInput('');
-                setParentComment(null)
+                setParentComment(null);
                 refetch();
             })
             .catch((error) => {
@@ -95,8 +96,8 @@ const Comments = ({ openStorage, setOpenStorage }) => {
             });
     };
 
-
     const [isDelete, setDelete] = React.useState(false);
+
     const getColumnSearchProps = (dataIndex) => ({
         filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => (
             <div
@@ -233,10 +234,28 @@ const Comments = ({ openStorage, setOpenStorage }) => {
             },
         },
         {
+            title: 'Lưu tại',
+            dataIndex: 'save_at',
+            width: '30%',
+            render: (save_at) => {
+                return (
+                    <b
+                        onClick={() => setTimeChanges((prev) => ({ video_time: save_at, random_time: Math.random() }))}
+                        className="text-blue-500 font-medium hover:underline cursor-pointer"
+                    >
+                        {secondsToMinutes(save_at)}
+                    </b>
+                );
+            },
+        },
+        {
             title: 'Nội dung',
             dataIndex: 'text',
             width: '30%',
-            ...getColumnSearchProps('text'),
+            render: (text) => {
+                return <div className="line-clamp-3">{text}</div>;
+            },
+            // ...getColumnSearchProps('text'),
         },
         {
             width: '30%',
@@ -323,6 +342,7 @@ const Comments = ({ openStorage, setOpenStorage }) => {
         const updateNote = {
             _id: idNote,
             text: valueNote,
+            save_at: timeVideo,
         };
 
         handleUpdateNotes(updateNote).then(() => {
@@ -336,9 +356,16 @@ const Comments = ({ openStorage, setOpenStorage }) => {
     const onClose = () => {
         setOpen(false);
     };
-    const [parentComment, setParentComment] = useState(null)
 
+    function secondsToMinutes(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        const formattedMinutes = String(minutes).padStart(2, '0');
+        const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+        return `${formattedMinutes}:${formattedSeconds}`;
+    }
 
+    const [parentComment, setParentComment] = useState(null);
 
     return (
         <div style={{ background: '#fff', padding: '0 16px 0 16px', borderRadius: '12px 12px 0 0' }}>
@@ -434,7 +461,9 @@ const Comments = ({ openStorage, setOpenStorage }) => {
                                             />
                                         </div>
 
-                                        <button className={cx('send__comment')}>Thêm ghi chú</button>
+                                        <button className={cx('send__comment')}>
+                                            Thêm ghi chú tại {secondsToMinutes(timeVideo)}
+                                        </button>
                                     </form>
                                 </div>
                             ),
