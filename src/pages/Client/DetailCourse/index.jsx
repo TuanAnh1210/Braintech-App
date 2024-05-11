@@ -150,7 +150,7 @@ const DetailCourse = () => {
                                         {(course?.course?.chapters.length === 0 || isPublicExist) && (
                                             <Empty className="my-8" description="Chưa có dữ liệu" />
                                         )}
-                                        <RatingSide />
+                                        <RatingSide idCourse={courseId} />
                                     </div>
                                 </div>
                             </div>
