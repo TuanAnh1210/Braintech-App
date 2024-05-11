@@ -13,6 +13,7 @@ const cx = classNames.bind(styles);
 
 const CourseItemTeacher = ({ course }) => {
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
+    console.log(data);
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought =
@@ -37,7 +38,7 @@ const CourseItemTeacher = ({ course }) => {
                             <p>{course?.price.toLocaleString()}đ</p>
                         </div>
                     )}
-                    <p>Giảng viên : {course?.teacherId?.full_name} </p>
+                    <p>Giảng viên : {course?.teacherId?.map(role => role.full_name).join('      &     ')} </p>
                 </div>
             </div>
         </Link>
