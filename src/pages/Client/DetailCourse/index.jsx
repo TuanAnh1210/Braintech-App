@@ -30,6 +30,7 @@ const DetailCourse = () => {
     const [createPaymentUrl] = useCreatePaymentUrlMutation();
     const [valueVoucher, setValueVoucher] = useState(0);
     const isLog = cookies.cookieLoginStudent;
+    const { data: currentUser } = useGetUserByIdQuery();
 
     const { data: course } = useGetDetailQuery(courseId, {
         skip: !courseId,
@@ -38,6 +39,7 @@ const DetailCourse = () => {
     const { data: lessonFinish } = useGetFinishLessonByCourseIdQuery(courseId, {
         skip: !courseId,
     });
+
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -95,8 +97,6 @@ const DetailCourse = () => {
             navigate(`/learning/${courseId}/${nextlessonId}`);
         });
     };
-
-    // <<<<<<< HEAD
     //     useEffect(() => {
     //         if (cookies.cookieLoginStudent) {
     //             const decode = jwtDecode(data?.accessToken);
@@ -106,48 +106,28 @@ const DetailCourse = () => {
     //         }
     //     }, [cookies]);
 
-    // =======
-    // >>>>>>> 117032b11d449eda67e2b392cdd7e3d1ae858779
+    function formatArrayWithQuantity() {
+        const { data: arr } = useGetUserByIdQuery();
 
-    // const vouchers = [
-    //     {
-    //         id: 1,
-    //         nameCode: 'SUMMER2',
-    //         quantity: 19,
-    //         discountAmount: 15,
-    //         maxDiscountAmount: 30000,
-    //         startDate: '13/05',
-    //         endDate: '15/05',
-    //         status: 'ACTIVE',
-    //     },
-    //     {
-    //         id: 2,
-    //         nameCode: 'SUMMER3',
-    //         quantity: 19,
-    //         discountAmount: 50,
-    //         maxDiscountAmount: 500000,
-    //         startDate: '13/05',
-    //         endDate: '15/05',
-    //         status: 'ACTIVE',
-    //     },
-    //     {
-    //         id: 3,
-    //         nameCode: 'SUMMER4',
-    //         quantity: 19,
-    //         discountAmount: 30,
-    //         maxDiscountAmount: 20000,
-    //         startDate: '13/05',
-    //         endDate: '15/05',
-    //         status: 'ACTIVE',
-    //     },
-    // ];
+        var countMap = {};
+        arr?.vouchers?.forEach(function (obj) {
+            var key = JSON.stringify(obj);
+            countMap[key] = (countMap[key] || 0) + 1;
+        });
 
-    const { data: currentUser } = useGetUserByIdQuery();
+        var newArray = [];
+        Object.keys(countMap)?.forEach(function (key) {
+            var obj = JSON.parse(key);
+            newArray.push(Object.assign({}, obj, { quantity: countMap[key] }));
+        });
+
+        return newArray;
+    }
+
+    var formattedArray = formatArrayWithQuantity();
 
     const handleChangeVoucher = (id) => {
-        console.log(id);
         const currentVoucher = currentUser?.vouchers.find((voucher) => voucher._id == id);
-        console.log(currentVoucher);
         let lastDiscountValue = 0;
         let maxDiscountValue = currentVoucher.maxDiscountAmount; //30000
         let percentDiscount = currentVoucher.discountAmount / 100; // 20%
@@ -233,10 +213,10 @@ const DetailCourse = () => {
                                             <option value="0" hidden>
                                                 Chọn người nhận
                                             </option>
-                                            {currentUser?.vouchers.map((voucher) => (
+                                            {formattedArray?.map((voucher) => (
                                                 <option value={voucher._id}>
                                                     Giảm {voucher.discountAmount}% Giảm tối đa{' '}
-                                                    {voucher.maxDiscountAmount}k
+                                                    {voucher.maxDiscountAmount}k - x{voucher.quantity}
                                                 </option>
                                             ))}
                                         </select>
