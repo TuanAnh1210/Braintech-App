@@ -13,9 +13,10 @@ import { useGetFinishLessonByCourseIdQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
 import { useCookies } from 'react-cookie';
 import { Breadcrumb, Button, Empty, Form, Input, Modal, Rate, message, notification } from 'antd';
-import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
+import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 import RatingSide from './RatingSide';
+import { useGetUserByIdQuery } from '@/providers/apis/userApi';
 
 const cx = classNames.bind(styles);
 
@@ -37,7 +38,6 @@ const DetailCourse = () => {
     const { data: lessonFinish } = useGetFinishLessonByCourseIdQuery(courseId, {
         skip: !courseId,
     });
-
     useEffect(() => {
         window.scrollTo(0, 0);
     }, []);
@@ -109,44 +109,48 @@ const DetailCourse = () => {
     // =======
     // >>>>>>> 117032b11d449eda67e2b392cdd7e3d1ae858779
 
-    const vouchers = [
-        {
-            id: 1,
-            nameCode: 'SUMMER2',
-            quantity: 19,
-            discountAmount: 15,
-            maxDiscountAmount: 30000,
-            startDate: '13/05',
-            endDate: '15/05',
-            status: 'ACTIVE',
-        },
-        {
-            id: 2,
-            nameCode: 'SUMMER3',
-            quantity: 19,
-            discountAmount: 50,
-            maxDiscountAmount: 500000,
-            startDate: '13/05',
-            endDate: '15/05',
-            status: 'ACTIVE',
-        },
-        {
-            id: 3,
-            nameCode: 'SUMMER4',
-            quantity: 19,
-            discountAmount: 30,
-            maxDiscountAmount: 20000,
-            startDate: '13/05',
-            endDate: '15/05',
-            status: 'ACTIVE',
-        },
-    ];
+    // const vouchers = [
+    //     {
+    //         id: 1,
+    //         nameCode: 'SUMMER2',
+    //         quantity: 19,
+    //         discountAmount: 15,
+    //         maxDiscountAmount: 30000,
+    //         startDate: '13/05',
+    //         endDate: '15/05',
+    //         status: 'ACTIVE',
+    //     },
+    //     {
+    //         id: 2,
+    //         nameCode: 'SUMMER3',
+    //         quantity: 19,
+    //         discountAmount: 50,
+    //         maxDiscountAmount: 500000,
+    //         startDate: '13/05',
+    //         endDate: '15/05',
+    //         status: 'ACTIVE',
+    //     },
+    //     {
+    //         id: 3,
+    //         nameCode: 'SUMMER4',
+    //         quantity: 19,
+    //         discountAmount: 30,
+    //         maxDiscountAmount: 20000,
+    //         startDate: '13/05',
+    //         endDate: '15/05',
+    //         status: 'ACTIVE',
+    //     },
+    // ];
+
+    const { data: currentUser } = useGetUserByIdQuery();
 
     const handleChangeVoucher = (id) => {
-        const currentVoucher = vouchers.filter((voucher) => voucher.id === +id);
+        console.log(id);
+        const currentVoucher = currentUser?.vouchers.find((voucher) => voucher._id == id);
+        console.log(currentVoucher);
         let lastDiscountValue = 0;
-        let maxDiscountValue = currentVoucher[0].maxDiscountAmount; //30000
-        let percentDiscount = currentVoucher[0].discountAmount / 100; // 20%
+        let maxDiscountValue = currentVoucher.maxDiscountAmount; //30000
+        let percentDiscount = currentVoucher.discountAmount / 100; // 20%
         let valuedDiscount = course?.course.price * percentDiscount; //20% * 399999 = 79999 /
 
         if (valuedDiscount >= maxDiscountValue) {
@@ -157,6 +161,7 @@ const DetailCourse = () => {
 
         setValueVoucher(course?.course.price - lastDiscountValue);
     };
+
     return (
         <>
             <div className={cx('detail-course')}>
@@ -228,8 +233,8 @@ const DetailCourse = () => {
                                             <option value="0" hidden>
                                                 Chọn người nhận
                                             </option>
-                                            {vouchers.map((voucher) => (
-                                                <option value={voucher.id}>
+                                            {currentUser?.vouchers.map((voucher) => (
+                                                <option value={voucher._id}>
                                                     Giảm {voucher.discountAmount}% Giảm tối đa{' '}
                                                     {voucher.maxDiscountAmount}k
                                                 </option>
@@ -244,7 +249,7 @@ const DetailCourse = () => {
                                                 {course?.course?.old_price.toLocaleString()}đ
                                             </p>
                                             <p className={cx('price_cur')}>
-                                                {valueVoucher || course?.course?.price.toLocaleString()}đ
+                                                {Math.round(valueVoucher || course?.course?.price)}đ
                                             </p>
                                         </div>
                                         <a onClick={handleBuyCourse}>
