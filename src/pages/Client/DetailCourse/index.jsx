@@ -13,23 +13,24 @@ import { useGetFinishLessonByCourseIdQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
 import { useCookies } from 'react-cookie';
 import { Breadcrumb, Button, Empty, Form, Input, Modal, Rate, message, notification } from 'antd';
-import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
+import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 import RatingSide from './RatingSide';
+import { useGetUserByIdQuery } from '@/providers/apis/userApi';
 
 const cx = classNames.bind(styles);
 
 const DetailCourse = () => {
     const [isLogin, setIsLogin] = useState(true);
-
     const { courseId } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [handleAddSttCourse] = useAddSttCourseMutation();
     const [cookies] = useCookies(['cookieLoginStudent']);
     const [createPaymentUrl] = useCreatePaymentUrlMutation();
-
+    const [valueVoucher, setValueVoucher] = useState(0);
     const isLog = cookies.cookieLoginStudent;
+    const { data: currentUser } = useGetUserByIdQuery();
 
     const { data: course } = useGetDetailQuery(courseId, {
         skip: !courseId,
@@ -96,19 +97,51 @@ const DetailCourse = () => {
             navigate(`/learning/${courseId}/${nextlessonId}`);
         });
     };
+    //     useEffect(() => {
+    //         if (cookies.cookieLoginStudent) {
+    //             const decode = jwtDecode(data?.accessToken);
+    //             setUserid(decode._id);
+    //         } else {
+    //             navigate('/');
+    //         }
+    //     }, [cookies]);
 
-<<<<<<< HEAD
-    useEffect(() => {
-        if (cookies.cookieLoginStudent) {
-            const decode = jwtDecode(data?.accessToken);
-            setUserid(decode._id);
+    function formatArrayWithQuantity() {
+        const { data: arr } = useGetUserByIdQuery();
+
+        var countMap = {};
+        arr?.vouchers?.forEach(function (obj) {
+            var key = JSON.stringify(obj);
+            countMap[key] = (countMap[key] || 0) + 1;
+        });
+
+        var newArray = [];
+        Object.keys(countMap)?.forEach(function (key) {
+            var obj = JSON.parse(key);
+            newArray.push(Object.assign({}, obj, { quantity: countMap[key] }));
+        });
+
+        return newArray;
+    }
+
+    var formattedArray = formatArrayWithQuantity();
+
+    const handleChangeVoucher = (id) => {
+        const currentVoucher = currentUser?.vouchers.find((voucher) => voucher._id == id);
+        let lastDiscountValue = 0;
+        let maxDiscountValue = currentVoucher.maxDiscountAmount; //30000
+        let percentDiscount = currentVoucher.discountAmount / 100; // 20%
+        let valuedDiscount = course?.course.price * percentDiscount; //20% * 399999 = 79999 /
+
+        if (valuedDiscount >= maxDiscountValue) {
+            lastDiscountValue = maxDiscountValue;
         } else {
-            navigate('/');
+            lastDiscountValue = valuedDiscount;
         }
-    }, [cookies]);
 
-=======
->>>>>>> 117032b11d449eda67e2b392cdd7e3d1ae858779
+        setValueVoucher(course?.course.price - lastDiscountValue);
+    };
+
     return (
         <>
             <div className={cx('detail-course')}>
@@ -170,13 +203,34 @@ const DetailCourse = () => {
                         <Col lg={4}>
                             <div className="course_img_wrapper">
                                 <img className={cx('course_img')} src={course?.course?.thumb} alt="" />
+                                <div className={cx('voucher-container')}>
+                                    <h3>Áp dụng vouchers</h3>
+                                    <div classNames={cx('select-wrapper')}>
+                                        <select
+                                            className={cx('select-css')}
+                                            onChange={(e) => handleChangeVoucher(e.target.value)}
+                                        >
+                                            <option value="0" hidden>
+                                                Chọn người nhận
+                                            </option>
+                                            {formattedArray?.map((voucher) => (
+                                                <option value={voucher._id}>
+                                                    Giảm {voucher.discountAmount}% Giảm tối đa{' '}
+                                                    {voucher.maxDiscountAmount}k - x{voucher.quantity}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
                                 {!dataBought && course?.course?.price > 0 ? (
                                     <>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
                                                 {course?.course?.old_price.toLocaleString()}đ
                                             </p>
-                                            <p className={cx('price_cur')}>{course?.course?.price.toLocaleString()}đ</p>
+                                            <p className={cx('price_cur')}>
+                                                {Math.round(valueVoucher || course?.course?.price)}đ
+                                            </p>
                                         </div>
                                         <a onClick={handleBuyCourse}>
                                             <button className={cx('course_btn-learn')}>Mua ngay</button>
