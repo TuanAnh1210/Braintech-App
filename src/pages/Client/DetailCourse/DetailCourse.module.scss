@@ -286,3 +286,17 @@
 .select-css option {
 	font-weight:normal;
 }
+
+.applied-voucher {
+    align-items: center;
+    font-size: 20px;
+    text-align: center;
+    color: silver;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+.applied-voucher > .applied-vch {
+    color: green;
+}
+

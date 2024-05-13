@@ -29,6 +29,7 @@ const DetailCourse = () => {
     const [cookies] = useCookies(['cookieLoginStudent']);
     const [createPaymentUrl] = useCreatePaymentUrlMutation();
     const [valueVoucher, setValueVoucher] = useState(0);
+    const [isApllyVoucher, setApplyVoucher] = useState(false);
     const isLog = cookies.cookieLoginStudent;
     const { data: currentUser } = useGetUserByIdQuery();
 
@@ -127,6 +128,7 @@ const DetailCourse = () => {
     var formattedArray = formatArrayWithQuantity();
 
     const handleChangeVoucher = (id) => {
+        setApplyVoucher(true);
         const currentVoucher = currentUser?.vouchers.find((voucher) => voucher._id == id);
         let lastDiscountValue = 0;
         let maxDiscountValue = currentVoucher.maxDiscountAmount; //30000
@@ -224,6 +226,13 @@ const DetailCourse = () => {
                                 </div>
                                 {!dataBought && course?.course?.price > 0 ? (
                                     <>
+                                        <div className={cx('applied-voucher')}>
+                                            {isApllyVoucher ? (
+                                                <p className={cx('applied-vch')}>Đã áp dụng voucher</p>
+                                            ) : (
+                                                <p>Chưa áp dụng voucher</p>
+                                            )}
+                                        </div>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
                                                 {course?.course?.old_price.toLocaleString()}đ
