@@ -213,7 +213,7 @@ const DetailCourse = () => {
                                             onChange={(e) => handleChangeVoucher(e.target.value)}
                                         >
                                             <option value="0" hidden>
-                                                Chọn người nhận
+                                                Chọn mã giảm giá
                                             </option>
                                             {formattedArray?.map((voucher) => (
                                                 <option value={voucher._id}>
