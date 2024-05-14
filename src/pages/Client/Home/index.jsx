@@ -20,16 +20,16 @@ import images from '@/assets/images';
 import { useEffect, useRef } from 'react';
 import CourseItem from '@/components/CourseItem/CourseItem';
 import CourseItemTeacher from '@/components/CourseItem/CourseItemTeacher';
-import { useGetCoursesQuery } from '@/providers/apis/courseApi';
-import { useGetCoursesQuery as useGetCoursesteacherQuery } from '@/providers/apis/courseTeacherApi';
+//import { useGetCoursesQuery } from '@/providers/apis/courseApi';
+import { useGetCoursesQuery } from '@/providers/apis/courseTeacherApi';
 
 const cx = classNames.bind(styles);
 
 const Home = () => {
-    const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
-    const { data: listCoursesTeacher } = useGetCoursesteacherQuery();
+    // const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
+    const { data: listCoursesTeacher } = useGetCoursesQuery();
     const { html, css, intern, js, node, react, fe, be, bg, group } = images;
-    console.log(listCoursesTeacher);
+    console.log(1, listCoursesTeacher);
     const infos = [
         {
             title: 'Ghi chú dễ dàng',

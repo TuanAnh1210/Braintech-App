@@ -23,7 +23,7 @@ const CourseItemTeacher = ({ course }) => {
     return (
         <Link to={`/detail/teacher/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
-                <Image src={course?.thumb} alt={course?.name} />
+                <Image src={course?.thumb} alt={course?.name} className="w-[250px] h-[200px]" />
 
                 <h4>{course?.name}</h4>
                 <div className={cx('courses-newest_info')}>

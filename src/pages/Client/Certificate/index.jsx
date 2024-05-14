@@ -4,7 +4,8 @@ import images from '@/assets/images';
 import { toPng } from 'html-to-image';
 import React, { useEffect, useRef, useState } from 'react'; // Import useRef hook
 import { useParams } from 'react-router-dom';
-import { useGetDetailQuery } from '@/providers/apis/courseApi';
+// import { useGetDetailQuery } from '@/providers/apis/courseApi';
+import { useGetDetailQuery } from '@/providers/apis/courseTeacherApi';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useCookies } from 'react-cookie';
 import { Button, Col, Form, Input, Modal, Rate, notification } from 'antd';
@@ -16,7 +17,8 @@ const Certificate = () => {
     const [form] = Form.useForm();
     const [isOpen, setOpen] = useState(false);
 
-    const { data: dataCourses } = useGetDetailQuery(id);
+    //const { data: dataCourses } = useGetDetailQuery(id);
+    const { data: dataCourses } = useGetDetailQuery(id)
     const { data: rateData, isLoading: isLoadingRateData } = useGetContentRatingQuery();
     const [cookies, setCookie] = useCookies('cookieLoginStudent');
     const [handleRateCourse] = useRateCourseMutation();
