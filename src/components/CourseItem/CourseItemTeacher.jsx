@@ -38,7 +38,7 @@ const CourseItemTeacher = ({ course }) => {
                             <p>{course?.price.toLocaleString()}đ</p>
                         </div>
                     )}
-                    <p>Giảng viên : {course?.teacherId?.map(role => role.full_name).join('      &     ')} </p>
+                    <p>Giảng viên : {course?.teacherId?.slice(0, 2)?.map(role => role.full_name).join(' &  ')} </p>
                 </div>
             </div>
         </Link>
