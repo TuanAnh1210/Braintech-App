@@ -1,17 +1,21 @@
-import { useCreateCmtMutation, useDeleteCmtMutation, useGetAllQuery, useUpdateCmtMutation } from "@/providers/apis/cmtApi";
-import React, { useState } from "react";
+import {
+    useCreateCmtMutation,
+    useDeleteCmtMutation,
+    useGetAllQuery,
+    useUpdateCmtMutation,
+} from '@/providers/apis/cmtApi';
+import React, { useState } from 'react';
 import styles from './Learning.module.scss';
 import classNames from 'classnames/bind';
-import { Button, Popover } from "antd";
-import { faComments, faEllipsis, faPaperPlane, faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Draggable from "react-draggable";
+import { Button, Popover } from 'antd';
+import { faComments, faEllipsis, faPaperPlane, faPen, faTrash } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Draggable from 'react-draggable';
 const cx = classNames.bind(styles);
 const CommentItem = ({ cmt, refetch }) => {
     const toggleReplyForm = (cmt) => {
         setShowReplyForm({ reply: true, ...cmt });
     };
-    console.log(cmt)
     const [replyText, setReplyText] = useState('');
     const [showReplyForm, setShowReplyForm] = useState({ reply: false });
     const handleReplySubmit = (e) => {
@@ -19,18 +23,18 @@ const CommentItem = ({ cmt, refetch }) => {
         const newCmt = {
             content: replyText,
             lesson_id: showReplyForm.lesson_id,
-            parent_id: showReplyForm._id
+            parent_id: showReplyForm._id,
         };
 
         handleAddCmt(newCmt)
             .then(() => {
-                setParentComment(null)
+                setParentComment(null);
                 refetch();
             })
             .catch((error) => {
                 console.error('Error adding comment:', error);
             });
-        setShowReplyForm({ reply: false })
+        setShowReplyForm({ reply: false });
         setReplyText('');
     };
     const handleDelete = (id) => {
@@ -56,7 +60,7 @@ const CommentItem = ({ cmt, refetch }) => {
     const [handleAddCmt] = useCreateCmtMutation();
     const [cmtUpdateInput, setCmtUpdateInput] = React.useState(''); // nội dung của cmt
     const [isUpdateCmt, setUpdateCmt] = React.useState({ update: false });
-    const [parentComment, setParentComment] = useState(null)
+    const [parentComment, setParentComment] = useState(null);
     const [isDelete, setDelete] = React.useState(false);
     return (
         <>
@@ -79,29 +83,23 @@ const CommentItem = ({ cmt, refetch }) => {
             <img
                 className={cx('commentBox--img')}
                 style={{ margin: 0 }}
-                src={cmt?.user_id?.avatar || "https://yt3.ggpht.com/UsflU74uvka_3sejOu3LUGwzOhHJV0eIYoWcvOfkOre_c12uIN4ys-QqRlAkbusEmbZjTA-b=s88-c-k-c0x00ffffff-no-rj"}
+                src={
+                    cmt?.user_id?.avatar ||
+                    'https://yt3.ggpht.com/UsflU74uvka_3sejOu3LUGwzOhHJV0eIYoWcvOfkOre_c12uIN4ys-QqRlAkbusEmbZjTA-b=s88-c-k-c0x00ffffff-no-rj'
+                }
                 alt=""
             />
 
-            <div
-                className={cx('commentBox--right')}
-                style={{ background: '#ecf0f1' }}
-            >
-                {isUpdateCmt.update === true &&
-                    cmt._id === isUpdateCmt._id ? (
-                    <form
-                        className={cx('mt-6')}
-                        onSubmit={handleSubmitUpdateCmt}
-                    >
+            <div className={cx('commentBox--right')} style={{ background: '#ecf0f1' }}>
+                {isUpdateCmt.update === true && cmt._id === isUpdateCmt._id ? (
+                    <form className={cx('mt-6')} onSubmit={handleSubmitUpdateCmt}>
                         <textarea
                             rows={4}
                             required={true}
                             name="contentUpdateIpt"
                             className={cx('commentBox--ipt')}
                             placeholder="Nhập bình luận của bạn"
-                            onChange={(e) =>
-                                setCmtUpdateInput(e.target.value)
-                            }
+                            onChange={(e) => setCmtUpdateInput(e.target.value)}
                             value={cmtUpdateInput}
                         />
                         <div className="flex gap-2">
@@ -123,9 +121,7 @@ const CommentItem = ({ cmt, refetch }) => {
                     </form>
                 ) : (
                     <div>
-                        <h5>
-                            {cmt?.user_id?.full_name || 'Người ẩn danh'}
-                        </h5>
+                        <h5>{cmt?.user_id?.full_name || 'Người ẩn danh'}</h5>
                         <p className={cx('commentBox--text')}>{cmt.text}</p>
                         <div className="flex gap-2 text-[12px]">
                             {cmt.isMyComment && (
@@ -196,24 +192,23 @@ const CommentItem = ({ cmt, refetch }) => {
                             Gửi bình luận
                             <FontAwesomeIcon icon={faPaperPlane} />
                         </button>
-                    </form>)}
-                {
-                    cmt.comments.length > 0 ? (<>
-                        {
-                            cmt.comments.map((cmts) => {
-                                return (
-                                    <div className={cx('commentBox', 'noMt')} key={Math.random()}>
-                                        <CommentItem cmt={cmts} refetch={refetch} />
-                                    </div>
-                                );
-                            })
-                        }
-                    </>)
-                        : (<></>)
-                }
+                    </form>
+                )}
+                {cmt.comments.length > 0 ? (
+                    <>
+                        {cmt.comments.map((cmts) => {
+                            return (
+                                <div className={cx('commentBox', 'noMt')} key={Math.random()}>
+                                    <CommentItem cmt={cmts} refetch={refetch} />
+                                </div>
+                            );
+                        })}
+                    </>
+                ) : (
+                    <></>
+                )}
             </div>
-
         </>
-    )
-}
-export default CommentItem
+    );
+};
+export default React.memo(CommentItem);

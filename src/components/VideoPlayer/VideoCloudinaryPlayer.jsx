@@ -9,6 +9,8 @@ import 'video.js/dist/video-js.css';
 function VideoCloudinaryPlayer({
     // url = 'https://res.cloudinary.com/dexdqfkdu/video/upload/sp_auto/v1714422557/j6mwsvhgy7psn0lddbve.m3u8',
     url = '',
+    setTimeVideo,
+    timeChanges,
     handleSetFinish,
 }) {
     const videoRef = React.useRef(null);
@@ -28,6 +30,11 @@ function VideoCloudinaryPlayer({
 
         // player.on('timeupdate', () => {
         //     const currentTime = player.currentTime();
+        //     setTimeVideo(Math.ceil(currentTime));
+        // });
+
+        // player.on('timeupdate', () => {
+        //     const currentTime = player.currentTime();
         //     const duration = player.duration();
         //     const progressPercent = (currentTime / duration) * 100;
         //     if (progressPercent >= 95) {
@@ -41,7 +48,7 @@ function VideoCloudinaryPlayer({
     };
 
     const videoJsOptions = {
-        autoplay: false,
+        autoplay: true,
         controls: true,
         responsive: true,
         fluid: true,
@@ -81,7 +88,22 @@ function VideoCloudinaryPlayer({
             player.autoplay(videoJsOptions.autoplay);
             player.src(videoJsOptions.sources);
         }
-    }, [videoJsOptions, videoRef]);
+    }, []);
+
+    React.useEffect(() => {
+        if (playerRef.current) {
+            playerRef.current.on('timeupdate', () => {
+                const currentTime = playerRef.current.currentTime();
+                setTimeVideo(Math.floor(currentTime));
+            });
+        }
+    }, []);
+
+    React.useEffect(() => {
+        if (playerRef.current) {
+            playerRef.current.currentTime(timeChanges.video_time);
+        }
+    }, [timeChanges]);
 
     // Dispose the Video.js player when the functional component unmounts
     React.useEffect(() => {
