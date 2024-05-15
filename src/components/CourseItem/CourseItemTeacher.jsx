@@ -13,6 +13,7 @@ const cx = classNames.bind(styles);
 
 const CourseItemTeacher = ({ course }) => {
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
+    console.log(data);
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought =
@@ -22,7 +23,7 @@ const CourseItemTeacher = ({ course }) => {
     return (
         <Link to={`/detail/teacher/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
-                <Image src={course?.thumb} alt={course?.name} />
+                <Image src={course?.thumb} alt={course?.name} className="w-[250px] h-[200px]" />
 
                 <h4>{course?.name}</h4>
                 <div className={cx('courses-newest_info')}>
@@ -37,7 +38,7 @@ const CourseItemTeacher = ({ course }) => {
                             <p>{course?.price.toLocaleString()}đ</p>
                         </div>
                     )}
-                    <p>Giảng viên : {course?.teacherId?.full_name} </p>
+                    <p>Giảng viên : {course?.teacherId?.slice(0, 2)?.map(role => role.full_name).join(' &  ')} </p>
                 </div>
             </div>
         </Link>
