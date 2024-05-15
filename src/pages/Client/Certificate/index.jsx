@@ -17,11 +17,12 @@ const Certificate = () => {
     const [form] = Form.useForm();
     const [isOpen, setOpen] = useState(false);
 
-    //const { data: dataCourses } = useGetDetailQuery(id);
-    const { data: dataCourses } = useGetDetailQuery(id)
-    const { data: rateData, isLoading: isLoadingRateData } = useGetContentRatingQuery();
+
+    const { data: dataCourses } = useGetDetailQuery(id);
+    const { data: rateData, isLoading: isLoadingRateData } = useGetContentRatingQuery(id);
+
     const [cookies, setCookie] = useCookies('cookieLoginStudent');
-    const [handleRateCourse] = useRateCourseMutation();
+    const [handleRateCourse, error] = useRateCourseMutation();
     const [isLoading, setLoading] = useState(false);
     const certificateWrapperRef = useRef(null);
 
@@ -56,11 +57,19 @@ const Certificate = () => {
             course_id: id,
         });
         form.resetFields();
-        notification.success({
-            message: 'Thông báo',
-            description: 'Cảm ơn bạn đã đánh giá !',
-            duration: 1.75,
-        });
+        if (!error) {
+            notification.success({
+                message: 'Thông báo',
+                description: 'Cảm ơn bạn đã đánh giá !',
+                duration: 1.75,
+            });
+        } else {
+            notification.error({
+                message: 'Thông báo',
+                description: error?.error?.data?.message,
+                duration: 1.75,
+            });
+        }
     };
     const onCancel = () => {
         setOpen(false);
@@ -83,12 +92,41 @@ const Certificate = () => {
                         <Form layout="vertical" form={form} autoComplete="off" onFinish={handleSubmit}>
                             <Col gutter={16}>
                                 <Col span={24}>
-                                    <Form.Item name="rate" label="Đánh giá">
+                                    <Form.Item
+                                        name="rate"
+                                        label="Đánh giá"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: 'Đánh giá số sao của bạn',
+                                            },
+                                            {
+                                                type: 'number',
+                                                min: 1,
+                                                message: 'Đánh giá số sao của bạn',
+                                            },
+                                        ]}
+                                    >
                                         <Rate />
                                     </Form.Item>
                                 </Col>
                                 <Col span={24}>
-                                    <Form.Item name="text" label="Nội dung">
+                                    <Form.Item
+                                        name="text"
+                                        label="Nội dung"
+                                        rules={[
+                                            {
+                                                required: true,
+                                                message: 'Vui lòng không để trống.',
+                                            },
+                                            {
+                                                validator: (_, value) =>
+                                                    !value?.includes(' ')
+                                                        ? Promise.resolve()
+                                                        : Promise.reject(new Error('Không được để trống')),
+                                            },
+                                        ]}
+                                    >
                                         <Input.TextArea rows={4} />
                                     </Form.Item>
                                 </Col>
