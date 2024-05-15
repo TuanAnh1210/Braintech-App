@@ -19,8 +19,8 @@ export const rateApi = createApi({
 
     endpoints: (build) => ({
         getContentRating: build.query({
-            query: () => {
-                return '/getallrate';
+            query: (id) => {
+                return `/getallrate/${id}`;
             },
         }),
         rateCourse: build.mutation({

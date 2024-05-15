@@ -85,7 +85,9 @@ const Account = () => {
         },
     });
     const [showModal, setShowModal] = useState(false);
-
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
     const updateLocalStorage = (accessToken, email, phone, fullName, avatar) => {
         const newData = {
             accessToken: accessToken,
@@ -101,7 +103,7 @@ const Account = () => {
         const formData = new FormData();
         formData.append('image', file);
         try {
-            const response = await fetch(JSON.stringify(import.meta.env.VITE_REACT_APP_API_PATH) + '/upload/image', {
+            const response = await fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'upload/image', {
                 method: 'POST',
                 body: formData,
             });
@@ -144,7 +146,6 @@ const Account = () => {
                 duration: 1.75,
             });
         } catch (error) {
-            console.log(error);
             return notification.error({
                 message: 'Thông báo',
                 description: error.data?.message,
@@ -265,7 +266,7 @@ const Account = () => {
                 <div className=" h-[200px] w-[100vh] mx-auto relative bg-auto bg-no-repeat bg-[url('https://imgs.search.brave.com/mnNYq4S0KVo43YKN3R_KP3r6-JuZWTDL-2PIU_J31hs/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9oYXlj/YWZlLnZuL3dwLWNv/bnRlbnQvdXBsb2Fk/cy8yMDIyLzAxL0hp/bmgtYW5oLWJpYS1k/ZXAtbmhhdC04MDB4/NDUwLmpwZw')]"></div>
                 <div className="flex flex-col justify-center items-center m-3">
                     <img
-                        className="absolute top-[150px] rounded-full"
+                        className="absolute top-[150px] rounded-full  h-[150px]"
                         width={150}
                         src={data?.avatar ? data?.avatar : 'https://i.imgur.com/6b6b7Z6.png'}
                         alt="img"
@@ -287,7 +288,7 @@ const Account = () => {
                                 setCourseFinish(false);
                             }}
                         >
-                            Course Bought
+                            Khóa học đã mua
                         </button>
                         <button
                             className={`hover:border-b-4 ${
@@ -299,7 +300,7 @@ const Account = () => {
                                 setCourseFinish(false);
                             }}
                         >
-                            Course Learing
+                            Khóa học đang học
                         </button>
                         <button
                             onClick={() => {
@@ -311,7 +312,7 @@ const Account = () => {
                                 courseFinish && `border-b-4 border-[#f76b1c]`
                             }  justify-center border-b-4 flex items-center p-3 w-50 h-20 transition delay-200 ease-in-out`}
                         >
-                            Course Finish
+                            Khóa học đã hoàn thành
                         </button>
                     </div>
                     <div className="flex gap-3">
@@ -348,9 +349,9 @@ const Account = () => {
                                 </select>
                             </div>
                         </div>
-                        {courseBought && <CourseBought dataBought={dataBought} />}
-                        {courseLearning && <CourseLearning dataJoined={dataJoined} />}
-                        {courseFinish && <CourseFinished dataFinished={dataFinished} />}
+                        {courseBought && <CourseBought dataBought={dataBought} isLoading={coursePayLoading} />}
+                        {courseLearning && <CourseLearning dataJoined={dataJoined} isLoading={loadingSttCourse} />}
+                        {courseFinish && <CourseFinished dataFinished={dataFinished} isLoading={loadingSttCourse} />}
                         {isChatTing ? (
                             <div className="fixed bottom-0 right-20 bg-red-300 w-[300px] h-[400px]">
                                 <div className="flex justify-between p-3 bg-blue-600">
