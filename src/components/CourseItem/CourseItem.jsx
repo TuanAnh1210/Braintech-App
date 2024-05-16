@@ -23,7 +23,7 @@ const CourseItem = ({ course }) => {
 
     useEffect;
     return (
-        <Link to={`/detail/${course?._id}`}>
+        <Link to={`/detail/teacher/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
                 <Image src={course?.thumb} alt={course?.name} />
 

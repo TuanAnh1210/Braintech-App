@@ -21,10 +21,10 @@ export const voucherApi = createApi({
     endpoints: (build) => ({
         getVoucherByUserId: build.query({
             query: () => {
-                return 'api/voucher';
+                return 'api/voucher/getuserId';
             },
         }),
     }),
 });
 
-export const { useGetUserByIdQuery } = voucherApi;
+export const { useGetVoucherByUserIdQuery } = voucherApi;

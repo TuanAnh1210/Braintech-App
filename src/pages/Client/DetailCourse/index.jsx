@@ -4,7 +4,6 @@ import styles from './DetailCourse.module.scss';
 import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
-import { useGetDetailQuery } from '@/providers/apis/courseApi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -17,6 +16,7 @@ import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 import RatingSide from './RatingSide';
 import { useGetUserByIdQuery } from '@/providers/apis/userApi';
+import { useGetDetailQuery } from '@/providers/apis/courseTeacherApi';
 
 const cx = classNames.bind(styles);
 
@@ -95,7 +95,7 @@ const DetailCourse = () => {
     const handleLearn = () => {
         handleAddSttCourse({ course_id: courseId }).then(() => {
             refetch();
-            navigate(`/learning/${courseId}/${nextlessonId}`);
+            navigate(`/learning/teacher/${courseId}/${nextlessonId}`);
         });
     };
     //     useEffect(() => {

@@ -17,7 +17,6 @@ const Certificate = () => {
     const [form] = Form.useForm();
     const [isOpen, setOpen] = useState(false);
 
-
     const { data: dataCourses } = useGetDetailQuery(id);
     const { data: rateData, isLoading: isLoadingRateData } = useGetContentRatingQuery(id);
 
@@ -27,7 +26,7 @@ const Certificate = () => {
     const certificateWrapperRef = useRef(null);
 
     const isRated = rateData?.rates?.some(
-        (rate) => rate.user_id.email === cookies.cookieLoginStudent.email && rate.course_id._id === id,
+        (rate) => rate.user_id.email === cookies.cookieLoginStudent.email && rate.course_id?._id === id,
     );
     const nameCert = cookies.cookieLoginStudent.fullName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
     const nameCourse = dataCourses?.courses?.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
@@ -57,19 +56,11 @@ const Certificate = () => {
             course_id: id,
         });
         form.resetFields();
-        if (!error) {
-            notification.success({
-                message: 'Thông báo',
-                description: 'Cảm ơn bạn đã đánh giá !',
-                duration: 1.75,
-            });
-        } else {
-            notification.error({
-                message: 'Thông báo',
-                description: error?.error?.data?.message,
-                duration: 1.75,
-            });
-        }
+        notification.success({
+            message: 'Thông báo',
+            description: 'Cảm ơn bạn đã đánh giá !',
+            duration: 1.75,
+        });
     };
     const onCancel = () => {
         setOpen(false);
@@ -120,10 +111,9 @@ const Certificate = () => {
                                                 message: 'Vui lòng không để trống.',
                                             },
                                             {
-                                                validator: (_, value) =>
-                                                    !value?.includes(' ')
-                                                        ? Promise.resolve()
-                                                        : Promise.reject(new Error('Không được để trống')),
+                                                required: true,
+                                                whitespace: true,
+                                                message: 'Không để trống',
                                             },
                                         ]}
                                     >
