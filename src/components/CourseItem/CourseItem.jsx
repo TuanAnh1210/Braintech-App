@@ -21,7 +21,6 @@ const CourseItem = ({ course }) => {
     const dataBought =
         !coursePayLoading && coursePay?.data?.find((s) => s?.course_id?._id === course?._id && s?.status === 'SUCCESS');
 
-    useEffect;
     return (
         <Link to={`/detail/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
@@ -30,7 +29,6 @@ const CourseItem = ({ course }) => {
                 <h4>{course?.name}</h4>
                 <div className={cx('courses-newest_info')}>
                     <FontAwesomeIcon icon={faUsers} />
-
                     {isLoading ? 'Loading...' : <span>{data?.count}</span>}
                     {course?.price == 0 || dataBought ? (
                         <p>{dataBought ? 'Đã mua' : 'Miễn phí'} </p>

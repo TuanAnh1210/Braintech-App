@@ -21,10 +21,13 @@ const Courses = () => {
 
             <div className={cx('courses__wrapper')}>
                 <Container>
-                    {(listCoursesTeacher?.courses
-                        ?.filter((course) => course?.cate_id?.code == 'pro').length === 0 ? (<></>) : (<h1>
+                    {listCoursesTeacher?.courses?.filter((course) => course?.cate_id?.code == 'pro').length === 0 ? (
+                        <></>
+                    ) : (
+                        <h1>
                             Khóa học Pro <span className={cx('pro__label')}>Mới</span>
-                        </h1>))}
+                        </h1>
+                    )}
 
                     <Row data-course="1" className={cx('courseWrapper')}>
                         {listCoursesTeacher?.courses
@@ -46,8 +49,11 @@ const Courses = () => {
             </div>
             <div className={cx('courses__wrapper')}>
                 <Container>
-                    {(listCoursesTeacher?.courses
-                        ?.filter((course) => course?.cate_id?.code == 'fe').length === 0) ? (<></>) : (<h1>Khóa học Front-End miễn phí</h1>)}
+                    {listCoursesTeacher?.courses?.filter((course) => course?.cate_id?.code == 'fe').length === 0 ? (
+                        <></>
+                    ) : (
+                        <h1>Khóa học Front-End miễn phí</h1>
+                    )}
 
                     <Row data-course="1" className={cx('courseWrapper')}>
                         {listCoursesTeacher?.courses
@@ -62,8 +68,11 @@ const Courses = () => {
             </div>
             <div className={cx('courses__wrapper')}>
                 <Container>
-                    {(listCoursesTeacher?.courses
-                        ?.filter((course) => course?.cate_id?.code == 'be').length === 0 ? (<></>) : (<h1>Khóa học Back-End miễn phí</h1>))}
+                    {listCoursesTeacher?.courses?.filter((course) => course?.cate_id?.code == 'be').length === 0 ? (
+                        <></>
+                    ) : (
+                        <h1>Khóa học Back-End miễn phí</h1>
+                    )}
 
                     <Row data-course="1" className={cx('courseWrapper')}>
                         {listCoursesTeacher?.courses
