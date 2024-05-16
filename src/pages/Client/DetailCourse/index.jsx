@@ -125,11 +125,9 @@ const DetailCourse = () => {
 
     const handleChangeVoucher = (voucherId) => {
         if (voucherId === '0') {
-            // No voucher selected
             setValueVoucher(course?.course?.price);
             setApplyVoucher(false);
         } else {
-            // Apply selected voucher
             const selectedVoucher = formattedArray.find((voucher) => voucher._id === voucherId);
             if (selectedVoucher) {
                 const discount = (course?.course?.price * selectedVoucher.discountAmount) / 100;
@@ -213,14 +211,38 @@ const DetailCourse = () => {
                                                 onChange={(e) => handleChangeVoucher(e.target.value)}
                                             >
                                                 <option value="0">Không sử dụng mã giảm giá</option>
-                                                {formattedArray?.map((voucher) => (
-                                                    <option key={voucher._id} value={voucher._id}>
-                                                        Giảm {voucher.discountAmount}% Giảm tối đa{' '}
-                                                        {voucher.maxDiscountAmount}k - x{voucher.quantity}
-                                                    </option>
-                                                ))}
+                                                {formattedArray?.map((voucher) => {
+                                                    if (course?.course.price >= voucher.conditionAmount) {
+                                                        return (
+                                                            <option
+                                                                key={voucher._id}
+                                                                value={voucher._id}
+                                                                className="py-2 px-4 bg-gray-100 rounded-lg mb-2"
+                                                            >
+                                                                <div className="flex items-center justify-between">
+                                                                    <div className="flex flex-col">
+                                                                        <span className="text-sm font-medium text-gray-800">
+                                                                            Giảm {voucher.discountAmount}% (Tối đa{' '}
+                                                                            {voucher.maxDiscountAmount}k)
+                                                                        </span>
+                                                                        <span className="text-xs text-gray-600">
+                                                                            - Áp dụng khóa học ≥{' '}
+                                                                            {voucher.conditionAmount}k
+                                                                        </span>
+                                                                    </div>
+                                                                    <span className="text-xs text-gray-600">
+                                                                        - x{voucher.quantity}
+                                                                    </span>
+                                                                </div>
+                                                            </option>
+                                                        );
+                                                    } else {
+                                                        return null;
+                                                    }
+                                                })}
                                             </select>
                                         </div>
+
                                         <div className={cx('applied-voucher')}>
                                             {isApplyVoucher ? (
                                                 <p className={cx('applied-vch')}>Đã áp dụng voucher</p>
