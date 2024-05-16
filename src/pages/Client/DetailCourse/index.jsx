@@ -4,7 +4,6 @@ import styles from './DetailCourse.module.scss';
 import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
-import { useGetDetailQuery } from '@/providers/apis/courseApi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -17,6 +16,7 @@ import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 import RatingSide from './RatingSide';
 import { useGetUserByIdQuery } from '@/providers/apis/userApi';
+import { useGetDetailQuery } from '@/providers/apis/courseTeacherApi';
 
 const cx = classNames.bind(styles);
 
@@ -29,14 +29,11 @@ const DetailCourse = () => {
     const [cookies] = useCookies(['cookieLoginStudent']);
     const [createPaymentUrl] = useCreatePaymentUrlMutation();
     const [valueVoucher, setValueVoucher] = useState(0);
-    const [isApllyVoucher, setApplyVoucher] = useState(false);
+    const [isApplyVoucher, setApplyVoucher] = useState(false);
     const isLog = cookies.cookieLoginStudent;
+
     const { data: currentUser } = useGetUserByIdQuery();
-
-    const { data: course } = useGetDetailQuery(courseId, {
-        skip: !courseId,
-    });
-
+    const { data: course } = useGetDetailQuery(courseId);
     const { data: lessonFinish } = useGetFinishLessonByCourseIdQuery(courseId, {
         skip: !courseId,
     });
@@ -61,7 +58,6 @@ const DetailCourse = () => {
 
     const handleBuyCourse = async () => {
         const { data } = await createPaymentUrl({ courseId: courseId });
-
         location.href = data.url;
 
         // Tạo một thẻ <a> ẩn
@@ -127,21 +123,24 @@ const DetailCourse = () => {
 
     var formattedArray = formatArrayWithQuantity();
 
-    const handleChangeVoucher = (id) => {
-        setApplyVoucher(true);
-        const currentVoucher = currentUser?.vouchers.find((voucher) => voucher._id == id);
-        let lastDiscountValue = 0;
-        let maxDiscountValue = currentVoucher.maxDiscountAmount; //30000
-        let percentDiscount = currentVoucher.discountAmount / 100; // 20%
-        let valuedDiscount = course?.course.price * percentDiscount; //20% * 399999 = 79999 /
-
-        if (valuedDiscount >= maxDiscountValue) {
-            lastDiscountValue = maxDiscountValue;
+    const handleChangeVoucher = (voucherId) => {
+        if (voucherId === '0') {
+            // No voucher selected
+            setValueVoucher(course?.course?.price);
+            setApplyVoucher(false);
         } else {
-            lastDiscountValue = valuedDiscount;
+            // Apply selected voucher
+            const selectedVoucher = formattedArray.find((voucher) => voucher._id === voucherId);
+            if (selectedVoucher) {
+                const discount = (course?.course?.price * selectedVoucher.discountAmount) / 100;
+                const finalPrice = Math.max(
+                    course?.course?.price - Math.min(discount, selectedVoucher.maxDiscountAmount),
+                    0,
+                );
+                setValueVoucher(finalPrice);
+                setApplyVoucher(true);
+            }
         }
-
-        setValueVoucher(course?.course.price - lastDiscountValue);
     };
 
     return (
@@ -205,34 +204,34 @@ const DetailCourse = () => {
                         <Col lg={4}>
                             <div className="course_img_wrapper">
                                 <img className={cx('course_img')} src={course?.course?.thumb} alt="" />
-                                <div className={cx('voucher-container')}>
-                                    <h3>Áp dụng vouchers</h3>
-                                    <div classNames={cx('select-wrapper')}>
-                                        <select
-                                            className={cx('select-css')}
-                                            onChange={(e) => handleChangeVoucher(e.target.value)}
-                                        >
-                                            <option value="0" hidden>
-                                                Chọn mã giảm giá
-                                            </option>
-                                            {formattedArray?.map((voucher) => (
-                                                <option value={voucher._id}>
-                                                    Giảm {voucher.discountAmount}% Giảm tối đa{' '}
-                                                    {voucher.maxDiscountAmount}k - x{voucher.quantity}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
-                                {!dataBought && course?.course?.price > 0 ? (
-                                    <>
+                                {course?.course?.price > 0 && (
+                                    <div className={cx('voucher-container')}>
+                                        <h3>Áp dụng vouchers</h3>
+                                        <div className={cx('select-wrapper')}>
+                                            <select
+                                                className={cx('select-css')}
+                                                onChange={(e) => handleChangeVoucher(e.target.value)}
+                                            >
+                                                <option value="0">Không sử dụng mã giảm giá</option>
+                                                {formattedArray?.map((voucher) => (
+                                                    <option key={voucher._id} value={voucher._id}>
+                                                        Giảm {voucher.discountAmount}% Giảm tối đa{' '}
+                                                        {voucher.maxDiscountAmount}k - x{voucher.quantity}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
                                         <div className={cx('applied-voucher')}>
-                                            {isApllyVoucher ? (
+                                            {isApplyVoucher ? (
                                                 <p className={cx('applied-vch')}>Đã áp dụng voucher</p>
                                             ) : (
                                                 <p>Chưa áp dụng voucher</p>
                                             )}
                                         </div>
+                                    </div>
+                                )}
+                                {!dataBought && course?.course?.price > 0 ? (
+                                    <>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
                                                 {course?.course?.old_price.toLocaleString()}đ
