@@ -3,8 +3,8 @@ import { Cookies } from 'react-cookie'; // Import the Cookies object from react-
 
 const cookies = new Cookies(); // Create a new instance of Cookies
 
-export const courseApi = createApi({
-    reducerPath: 'courseApi',
+export const voucherApi = createApi({
+    reducerPath: 'voucherApi',
     baseQuery: fetchBaseQuery({
         baseUrl: import.meta.env.VITE_REACT_APP_API_PATH,
         prepareHeaders: (headers) => {
@@ -19,22 +19,12 @@ export const courseApi = createApi({
         },
     }),
     endpoints: (build) => ({
-        getCourses: build.query({
+        getVoucherByUserId: build.query({
             query: () => {
-                return 'api/courses/all/client';
-            },
-        }),
-        getDetail: build.query({
-            query: (courseId) => {
-                return `api/courses/${courseId}`;
-            },
-        }),
-        getCourseLearning: build.query({
-            query: (courseId) => {
-                return `api/courses/${courseId}/learning`;
+                return 'api/voucher/getuserId';
             },
         }),
     }),
 });
 
-export const { useGetCoursesQuery, useGetCourseLearningQuery, useGetDetailQuery } = courseApi;
+export const { useGetVoucherByUserIdQuery } = voucherApi;

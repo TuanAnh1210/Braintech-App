@@ -19,14 +19,17 @@ import images from '@/assets/images';
 
 import { useEffect, useRef } from 'react';
 import CourseItem from '@/components/CourseItem/CourseItem';
-import { useGetCoursesQuery } from '@/providers/apis/courseApi';
+import CourseItemTeacher from '@/components/CourseItem/CourseItemTeacher';
+//import { useGetCoursesQuery } from '@/providers/apis/courseApi';
+import { useGetCoursesQuery } from '@/providers/apis/courseTeacherApi';
 
 const cx = classNames.bind(styles);
 
 const Home = () => {
-    const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
-    
+    // const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
+    const { data: listCoursesTeacher } = useGetCoursesQuery();
     const { html, css, intern, js, node, react, fe, be, bg, group } = images;
+    console.log(1, listCoursesTeacher);
     const infos = [
         {
             title: 'Ghi chú dễ dàng',
@@ -75,9 +78,9 @@ const Home = () => {
 
     const settings = {
         dots: false,
-        infinite: true,
+        infinite: false,
         speed: 500,
-        slidesToShow: 4,
+        slidesToShow: 3,
         slidesToScroll: 2,
         autoplay: true,
         autoplaySpeed: 2000,
@@ -96,7 +99,6 @@ const Home = () => {
             },
         ],
     };
-
     return (
         <>
             <Banner {...base_banner.banner_home} />
@@ -108,19 +110,20 @@ const Home = () => {
                         ))}
                     </div>
 
-                    {/* <div className="courses-newest">
-                        <h2>Khóa học mới nhất</h2>
-                        <div className="courses-newest_list owl-carousel owl-theme"></div>
-                    </div> */}
+
                 </Container>
             </div>
             <div className={cx('courses-newest')}>
                 <h2>Khóa học mới nhất</h2>
                 <Slider ref={sliderRef} {...settings} className={cx('courses-newest_list')}>
-                    {listCourses?.courses?.slice(0, 5)?.map((course) => (
-                        <CourseItem key={course.id} course={course} />
-                    ))}
+                    {listCoursesTeacher?.courses?.slice(0, 5)?.map((course) => {
+                        return (
+                            <CourseItemTeacher key={course.id} course={course} />
+                        )
+                    }
+                    )}
                 </Slider>
+
                 <div className={cx('courses-action')}>
                     <button onClick={handlePrevious}>
                         <FontAwesomeIcon icon={faAngleLeft} />

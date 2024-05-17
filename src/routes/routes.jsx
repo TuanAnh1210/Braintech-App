@@ -18,6 +18,10 @@ import Certificate from '@/pages/Client/Certificate';
 import ForgotPassword from '@/pages/Client/ForgetPassword';
 import Account from '@/pages/Client/Account';
 
+import DetailCourseTeacher from '@/pages/Client/DetailCourseTeacher';
+import LearningTeacher from '@/pages/Client/LearningTeacher';
+
+
 const publicRoutes = [
     { path: config.home, component: Home },
     { path: config.courses, component: Courses },
@@ -25,10 +29,12 @@ const publicRoutes = [
     { path: config.register, component: Register, layout: null },
     { path: config.forgetPassword, component: ForgotPassword, layout: null },
     { path: config.learning, component: Learning, layout: null },
+    { path: config.learningTeacher, component: LearningTeacher, layout: null },
     { path: config.certificate, component: Certificate },
     { path: config.quizz, component: Quizz },
     { path: config.about, component: About },
     { path: config.detail, component: DetailCourse },
+    { path: config.detailCourseTeacher, component: DetailCourseTeacher },
     { path: config.contact, component: Contact },
     { path: config.info, component: Info },
     { path: config.account, component: Account },

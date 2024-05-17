@@ -14,7 +14,6 @@ const CourseList = () => {
             }),
         );
     };
-    console.log(data);
     React.useEffect(() => {
         fetchData();
     }, []);

@@ -7,7 +7,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 yarn.lock
-
+.yarn
 node_modules
 dist
 dist-ssr
@@ -23,6 +23,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.env
+
 
 bun.lockb

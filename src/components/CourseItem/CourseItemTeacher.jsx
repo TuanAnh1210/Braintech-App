@@ -2,33 +2,33 @@
 import classNames from 'classnames/bind';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUsers } from '@fortawesome/free-solid-svg-icons';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import Image from '../Image/Image';
 import { useCountCourseUserQuery } from '@/providers/apis/sttCourseApi';
 
 import styles from './CourseItem.module.scss';
 import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
-import { jwtDecode } from 'jwt-decode';
-import { useCookies } from 'react-cookie';
-import { useEffect, useState } from 'react';
 const cx = classNames.bind(styles);
 
-const CourseItem = ({ course }) => {
+const CourseItemTeacher = ({ course }) => {
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
+    console.log(data);
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought =
         !coursePayLoading && coursePay?.data?.find((s) => s?.course_id?._id === course?._id && s?.status === 'SUCCESS');
 
+
     return (
         <Link to={`/detail/teacher/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
-                <Image src={course?.thumb} alt={course?.name} />
+                <Image src={course?.thumb} alt={course?.name} className="w-[250px] h-[200px]" />
 
                 <h4>{course?.name}</h4>
                 <div className={cx('courses-newest_info')}>
                     <FontAwesomeIcon icon={faUsers} />
+
                     {isLoading ? 'Loading...' : <span>{data?.count}</span>}
                     {course?.price == 0 || dataBought ? (
                         <p>{dataBought ? 'Đã mua' : 'Miễn phí'} </p>
@@ -38,10 +38,11 @@ const CourseItem = ({ course }) => {
                             <p>{course?.price.toLocaleString()}đ</p>
                         </div>
                     )}
+                    <p>Giảng viên : {course?.teacherId?.slice(0, 2)?.map(role => role.full_name).join(' &  ')} </p>
                 </div>
             </div>
         </Link>
     );
 };
 
-export default CourseItem;
+export default CourseItemTeacher;

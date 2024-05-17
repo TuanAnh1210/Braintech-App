@@ -6,6 +6,7 @@ import userReducer from './slices/userSlice';
 
 import { sttCourseApi } from './apis/sttCourseApi';
 import { courseApi } from './apis/courseApi';
+import { courseTeacherApi } from './apis/courseTeacherApi';
 import { userApi } from './apis/userApi';
 
 import { cmtApi } from './apis/cmtApi';
@@ -16,6 +17,9 @@ import lessonReducer from './slices/lessonSlice';
 import { paymentApi } from './apis/paymentApi';
 import { chapterApi } from './apis/chapterApi';
 import { paymentDetailApi } from './apis/paymentDetail';
+import { rateApi } from './apis/rateApi';
+import { cateApi } from './apis/cateApi';
+import { voucherApi } from '@/providers/apis/voucherApi';
 
 export const store = configureStore({
     reducer: {
@@ -25,6 +29,7 @@ export const store = configureStore({
         lesson: lessonReducer,
         [chapterApi.reducerPath]: chapterApi.reducer,
         [courseApi.reducerPath]: courseApi.reducer,
+        [courseTeacherApi.reducerPath]: courseTeacherApi.reducer,
         [userApi.reducerPath]: userApi.reducer,
         [cmtApi.reducerPath]: cmtApi.reducer,
         [sttCourseApi.reducerPath]: sttCourseApi.reducer,
@@ -32,11 +37,15 @@ export const store = configureStore({
         [lessonApi.reducerPath]: lessonApi.reducer,
         [paymentApi.reducerPath]: paymentApi.reducer,
         [paymentDetailApi.reducerPath]: paymentDetailApi.reducer,
+        [rateApi.reducerPath]: rateApi.reducer,
+        [cateApi.reducerPath]: cateApi.reducer,
+        [voucherApi.reducerPath]: voucherApi.reducer,
     },
 
     middleware: (getDefaultMiddleware) =>
         getDefaultMiddleware().concat(
             courseApi.middleware,
+            courseTeacherApi.middleware,
             userApi.middleware,
             sttCourseApi.middleware,
             cmtApi.middleware,
@@ -45,6 +54,9 @@ export const store = configureStore({
             paymentApi.middleware,
             paymentDetailApi.middleware,
             chapterApi.middleware,
+            rateApi.middleware,
+            cateApi.middleware,
+            voucherApi.middleware,
         ),
 });
 

@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 export const chapterApi = createApi({
     reducerPath: 'chapterApi',
-    baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:8080/api/chapters' }),
+    baseQuery: fetchBaseQuery({ baseUrl: JSON.stringify(import.meta.env.VITE_REACT_APP_API_PATH) + 'api/chapters' }),
     endpoints: (build) => ({
         getChapterById: build.query({
             query: (chapterId) => {

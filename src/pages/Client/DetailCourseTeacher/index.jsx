@@ -4,6 +4,7 @@ import styles from './DetailCourse.module.scss';
 import { Col, Container, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGraduationCap } from '@fortawesome/free-solid-svg-icons';
+import { useGetDetailQuery } from '@/providers/apis/courseTeacherApi';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
@@ -11,36 +12,34 @@ import { openModal } from '@/providers/slices/modalSlice';
 import { useGetFinishLessonByCourseIdQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
 import { useCookies } from 'react-cookie';
-import { Breadcrumb, Button, Empty, Form, Input, Modal, Rate, message, notification } from 'antd';
+import { Empty } from 'antd';
 import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
-import RatingSide from './RatingSide';
-import { useGetUserByIdQuery } from '@/providers/apis/userApi';
-import { useGetDetailQuery } from '@/providers/apis/courseTeacherApi';
 
 const cx = classNames.bind(styles);
 
-const DetailCourse = () => {
+const DetailCourseTeacher = () => {
     const [isLogin, setIsLogin] = useState(true);
+
     const { courseId } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const [handleAddSttCourse] = useAddSttCourseMutation();
     const [cookies] = useCookies(['cookieLoginStudent']);
     const [createPaymentUrl] = useCreatePaymentUrlMutation();
-    const [valueVoucher, setValueVoucher] = useState(0);
-    const [isApplyVoucher, setApplyVoucher] = useState(false);
+
     const isLog = cookies.cookieLoginStudent;
 
-    const { data: currentUser } = useGetUserByIdQuery();
-    const { data: course } = useGetDetailQuery(courseId);
+    const { data: course } = useGetDetailQuery(courseId, {
+        skip: !courseId,
+    });
     const { data: lessonFinish } = useGetFinishLessonByCourseIdQuery(courseId, {
         skip: !courseId,
     });
 
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, []);
+    });
 
     useEffect(() => {
         if (isLog != null) {
@@ -58,6 +57,7 @@ const DetailCourse = () => {
 
     const handleBuyCourse = async () => {
         const { data } = await createPaymentUrl({ courseId: courseId });
+
         location.href = data.url;
 
         // Tạo một thẻ <a> ẩn
@@ -94,68 +94,16 @@ const DetailCourse = () => {
             navigate(`/learning/teacher/${courseId}/${nextlessonId}`);
         });
     };
-    //     useEffect(() => {
-    //         if (cookies.cookieLoginStudent) {
-    //             const decode = jwtDecode(data?.accessToken);
-    //             setUserid(decode._id);
-    //         } else {
-    //             navigate('/');
-    //         }
-    //     }, [cookies]);
-
-    function formatArrayWithQuantity() {
-        const { data: arr } = useGetUserByIdQuery();
-
-        var countMap = {};
-        arr?.vouchers?.forEach(function (obj) {
-            var key = JSON.stringify(obj);
-            countMap[key] = (countMap[key] || 0) + 1;
-        });
-
-        var newArray = [];
-        Object.keys(countMap)?.forEach(function (key) {
-            var obj = JSON.parse(key);
-            newArray.push(Object.assign({}, obj, { quantity: countMap[key] }));
-        });
-
-        return newArray;
-    }
-
-    var formattedArray = formatArrayWithQuantity();
-
-    const handleChangeVoucher = (voucherId) => {
-        if (voucherId === '0') {
-            setValueVoucher(course?.course?.price);
-            setApplyVoucher(false);
-        } else {
-            const selectedVoucher = formattedArray.find((voucher) => voucher._id === voucherId);
-            if (selectedVoucher) {
-                const discount = (course?.course?.price * selectedVoucher.discountAmount) / 100;
-                const finalPrice = Math.max(
-                    course?.course?.price - Math.min(discount, selectedVoucher.maxDiscountAmount),
-                    0,
-                );
-                setValueVoucher(finalPrice);
-                setApplyVoucher(true);
-            }
-        }
-    };
 
     return (
         <>
             <div className={cx('detail-course')}>
                 <Container>
-                    <Breadcrumb
-                        className="mb-4"
-                        items={[{ title: 'Trang chủ' }, { title: 'Khóa học' }, { title: course?.course?.name }]}
-                    />
                     <Row>
                         <Col lg={8}>
                             <div>
                                 <h2 className={cx('course_name')}>{course?.course?.name}</h2>
-
                                 <p className={cx('course_text')}>{course?.course?.description}</p>
-
                                 <div className={cx('learning__bar')}>
                                     <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
                                     <div className={cx('course_topic')}>
@@ -194,7 +142,6 @@ const DetailCourse = () => {
                                         {(course?.course?.chapters.length === 0 || isPublicExist) && (
                                             <Empty className="my-8" description="Chưa có dữ liệu" />
                                         )}
-                                        <RatingSide idCourse={courseId} />
                                     </div>
                                 </div>
                             </div>
@@ -202,65 +149,13 @@ const DetailCourse = () => {
                         <Col lg={4}>
                             <div className="course_img_wrapper">
                                 <img className={cx('course_img')} src={course?.course?.thumb} alt="" />
-                                {course?.course?.price > 0 && (
-                                    <div className={cx('voucher-container')}>
-                                        <h3>Áp dụng vouchers</h3>
-                                        <div className={cx('select-wrapper')}>
-                                            <select
-                                                className={cx('select-css')}
-                                                onChange={(e) => handleChangeVoucher(e.target.value)}
-                                            >
-                                                <option value="0">Không sử dụng mã giảm giá</option>
-                                                {formattedArray?.map((voucher) => {
-                                                    if (course?.course.price >= voucher.conditionAmount) {
-                                                        return (
-                                                            <option
-                                                                key={voucher._id}
-                                                                value={voucher._id}
-                                                                className="py-2 px-4 bg-gray-100 rounded-lg mb-2"
-                                                            >
-                                                                <div className="flex items-center justify-between">
-                                                                    <div className="flex flex-col">
-                                                                        <span className="text-sm font-medium text-gray-800">
-                                                                            Giảm {voucher.discountAmount}% (Tối đa{' '}
-                                                                            {voucher.maxDiscountAmount}k)
-                                                                        </span>
-                                                                        <span className="text-xs text-gray-600">
-                                                                            - Áp dụng khóa học ≥{' '}
-                                                                            {voucher.conditionAmount}k
-                                                                        </span>
-                                                                    </div>
-                                                                    <span className="text-xs text-gray-600">
-                                                                        - x{voucher.quantity}
-                                                                    </span>
-                                                                </div>
-                                                            </option>
-                                                        );
-                                                    } else {
-                                                        return null;
-                                                    }
-                                                })}
-                                            </select>
-                                        </div>
-
-                                        <div className={cx('applied-voucher')}>
-                                            {isApplyVoucher ? (
-                                                <p className={cx('applied-vch')}>Đã áp dụng voucher</p>
-                                            ) : (
-                                                <p>Chưa áp dụng voucher</p>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
                                 {!dataBought && course?.course?.price > 0 ? (
                                     <>
                                         <div className={cx('price__wrapper')}>
                                             <p className={cx('old__price')}>
                                                 {course?.course?.old_price.toLocaleString()}đ
                                             </p>
-                                            <p className={cx('price_cur')}>
-                                                {Math.round(valueVoucher || course?.course?.price)}đ
-                                            </p>
+                                            <p className={cx('price_cur')}>{course?.course?.price.toLocaleString()}đ</p>
                                         </div>
                                         <a onClick={handleBuyCourse}>
                                             <button className={cx('course_btn-learn')}>Mua ngay</button>
@@ -298,4 +193,4 @@ const DetailCourse = () => {
     );
 };
 
-export default DetailCourse;
+export default DetailCourseTeacher;

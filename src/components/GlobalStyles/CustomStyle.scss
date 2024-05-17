@@ -16,3 +16,22 @@
         }
     }
 }
+
+.ant-progress-steps-item {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.ant-progress .ant-progress-steps-item-active {
+    background-color: #1677ff !important;
+}
+
+.ant-progress .ant-progress-text {
+    // display: none;
+    font-weight: 600;
+    color: #fff !important;
+}
+
+.anticon.anticon-check-circle {
+    color: #27ae60;
+
+}

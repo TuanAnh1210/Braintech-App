@@ -59,11 +59,7 @@ const Header = () => {
             icon: faBell,
             path: '/account',
         },
-        {
-            label: 'Cài đặt',
-            icon: faGear,
-            path: '/account',
-        },
+
         {
             label: 'Đăng xuất',
             icon: faRightFromBracket,

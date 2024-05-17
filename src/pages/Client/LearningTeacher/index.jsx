@@ -3,13 +3,13 @@ import { faBars, faChevronLeft, faCircleCheck, faNoteSticky } from '@fortawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Container } from 'react-bootstrap';
 import classNames from 'classnames/bind';
-import { Progress, Spin } from 'antd';
+import { Spin } from 'antd';
 import Draggable from 'react-draggable';
 import { useCookies } from 'react-cookie';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
 
-import { useGetCourseLearningQuery } from '@/providers/apis/courseApi';
+import { useGetCourseLearningQuery } from '@/providers/apis/courseTeacherApi';
 import { useAddFinishLessonMutation, useGetCountQuery, useGetLessonByIdQuery } from '@/providers/apis/lessonApi';
 import { useUpdateSttCourseMutation } from '@/providers/apis/sttCourseApi';
 
@@ -22,7 +22,7 @@ import images from '@/assets/images';
 import styles from './Learning.module.scss';
 const cx = classNames.bind(styles);
 
-const Learning = () => {
+const LearningTeacher = () => {
     const { courseId, lessonId } = useParams();
 
     const [progressVideo, setProgessVideo] = useState(0); // tiến độ video [0-100]
@@ -30,11 +30,6 @@ const Learning = () => {
     const [totalLesson, setTotalLesson] = useState(0); // Tổng khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
-    const [timeVideo, setTimeVideo] = useState(0);
-    const [timeChanges, setTimeChanges] = useState({
-        video_time: 0,
-        ramdom_time: 0,
-    });
 
     const mainView = useRef(null);
     const intervalRef = useRef();
@@ -50,7 +45,6 @@ const Learning = () => {
     const { data: currentLesson } = useGetLessonByIdQuery(lessonId, {
         skip: !lessonId,
     }); // lấy ra tất cả các khóa học để thực hiện lọc
-
     const handleGetTime = (event) => {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
@@ -88,20 +82,20 @@ const Learning = () => {
     };
 
     const handleNext = () => {
-        const lessonPath = window.location.pathname.split('/')[3];
+        const lessonPath = window.location.pathname.split('/')[4];
         const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonPath);
         const nextLessonId = lessons?.[lessonIndex + 1]?._id;
         if (!nextLessonId) return;
-        navigate(`/learning/${courseId}/${nextLessonId}`);
+        navigate(`/learning/teacher/${courseId}/${nextLessonId}`);
     };
 
     const handleSetFinish = async () => {
-        const lessonPath = window.location.pathname.split('/')[3];
-
+        const lessonPath = window.location.pathname.split('/')[4];
         // const lessonIndex = lessons.findIndex((lesson) => lesson._id === lessonPath);
         // const currentLesson = lessons?.[lessonIndex];
 
         // if (currentLesson.isCompleted) return;
+      
 
         await handleAddFinishLesson({
             course_id: courseId,
@@ -130,7 +124,6 @@ const Learning = () => {
     // }, [progressVideo, lessonId, isModalShown]);
 
     // Nếu chưa đăng nhập cho về trang chi tiết khóa học
-
     useEffect(() => {
         mainView.current?.scrollIntoView({ behavior: 'smooth' }); // luôn luôn view ở video
         setProgessVideo(0);
@@ -194,15 +187,14 @@ const Learning = () => {
                                 </Link>
                             </div>
                         </div>
-                        <div className={cx('header__actions', 'flex items-center gap-3')}>
+                        <div className={cx('header__actions')}>
                             <div className={cx('header__progress')}>
-                                <p className={cx('header__progress--txt', 'font-bold')}>
-                                    Tiến độ: <span className="progress_learned">{countLessonFinish?.count}</span>
-                                    {'/'}
+                                <p className={cx('header__progress--txt')}>
+                                    Tiến độ: &emsp;
+                                    <span className="progress_learned">{countLessonFinish?.count}</span>/
                                     <span className="progress_lesson">{totalLesson}</span>
                                 </p>
-                                <Progress className="text-white" percent={progressCourse} steps={5} />
-                                {/* <div className="progress">
+                                <div className="progress">
                                     <div
                                         className="progress-bar"
                                         role="progressbar"
@@ -213,7 +205,7 @@ const Learning = () => {
                                     >
                                         {progressCourse}%
                                     </div>
-                                </div> */}
+                                </div>
                             </div>
                             <div className={cx('header__cert')}>
                                 {countLessonFinish?.count === totalLesson ? (
@@ -224,7 +216,7 @@ const Learning = () => {
                                     >
                                         <button
                                             type="button"
-                                            className="btn btn-secondary "
+                                            className="btn btn-secondary"
                                             data-toggle="tooltip"
                                             data-placement="bottom"
                                             title="Hoàn thành hết các bài học bạn sẽ nhận được chứng chỉ"
@@ -233,7 +225,7 @@ const Learning = () => {
                                         </button>
                                     </Link>
                                 ) : (
-                                    <p className={cx('header__cert--lock', 'font-medium')}>Nhận chứng chỉ</p>
+                                    <p className={cx('header__cert--lock')}>Nhận chứng chỉ</p>
                                 )}
                             </div>
                         </div>
@@ -257,20 +249,13 @@ const Learning = () => {
                                     />
                                 ) : (
                                     <VideoCloudinaryPlayer
-                                        setTimeVideo={setTimeVideo}
-                                        timeChanges={timeChanges}
                                         url={currentLesson?.url_video}
                                         setIsModalShown={setIsModalShown}
                                         handleSetFinish={handleSetFinish}
                                     />
                                 )}
                             </div>
-                            <Comments
-                                timeVideo={timeVideo}
-                                openStorage={openStorage}
-                                setTimeChanges={setTimeChanges}
-                                setOpenStorage={setOpenStorage}
-                            />
+                            <Comments openStorage={openStorage} setOpenStorage={setOpenStorage} />
                         </div>
                         <div className={cx('learning__bar')}>
                             <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
@@ -409,4 +394,4 @@ const Learning = () => {
     );
 };
 
-export default Learning;
+export default LearningTeacher;

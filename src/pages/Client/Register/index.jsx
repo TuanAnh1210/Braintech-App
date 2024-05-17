@@ -1,35 +1,42 @@
 /* eslint-disable react/prop-types */
 import { Button, Form, Input, Spin, message, notification } from 'antd';
 import emailjs from 'emailjs-com';
-import { useRegisterMutation } from '@/providers/apis/userApi';
+import { useLoginMutation, useRegisterMutation } from '@/providers/apis/userApi';
 import useLocalStorage from '@/hooks/useLocalStorage';
 import { closeModal } from '@/providers/slices/modalSlice';
 import { useDispatch } from 'react-redux';
 import { useState } from 'react';
 import OTPTimer from './time';
 import { RedoOutlined } from '@ant-design/icons';
+import { useCookies } from 'react-cookie';
+import { login } from '@/providers/slices/userSlice';
+
 
 const Register = () => {
+    const [handleLogin] = useLoginMutation();
+    const [, setCookie] = useCookies(['cookieLoginStudent']);
     const [, setAccessToken] = useLocalStorage('access_token', null);
     const [handleRegister, { isLoading }] = useRegisterMutation();
     const dispatch = useDispatch();
     const [sent, setSent] = useState(false);
     const [otp, setOtp] = useState('');
-    const [acc, setAcc] = useState('');
+    const [acc, setAcc] = useState();
     const [keyProp, setKeyProp] = useState(0);
     const [expiryTime, setExpiryTime] = useState(null);
     const [otpRelay, setOtpRelay] = useState({});
-    const [confirmPassword, setConfirmPassword] = useState('');
     const [otpSend, setOtpSend] = useState('');
 
     const onFinish = async (value) => {
         try {
+            setAcc1({ ...value })
             setOtp('')
             setOtpRelay({
                 full_name: value.full_name,
                 account: value.account,
                 password: value.password,
-                password_confirm: value.password_confirm
+                password_confirm: value.password_confirm,
+                isAdmin: value?.isAdmin,
+                isTeacher: value?.isTeacher,
             })
             if (value.password !== value.password_confirm) {
                 return notification.error({
@@ -59,7 +66,7 @@ const Register = () => {
 
             setOtpSend(otp);
             setSent(true);
-            setAcc(value)
+
             message.success('Mã OTP sẽ được gửi qua email!');
         } catch (error) {
             console.error('Error sending OTP:', error);
@@ -102,8 +109,7 @@ const Register = () => {
     const checkOTP = (enteredOTP, storedOTP) => {
         return enteredOTP === storedOTP;
     };
-    const verifyOTP = () => {
-        console.log(otpRelay);
+    const verifyOTP = async () => {
         const currentTime = new Date().getTime();
         if (currentTime > expiryTime) {
             console.log('hết hạn');
@@ -125,13 +131,48 @@ const Register = () => {
             auth_type: 'email',
         }
         setKeyProp((prevKey) => prevKey + 1);
-        handleRegister(accRe).then(() => {
+        handleRegister(accRe).then(async () => {
             notification.success({
                 message: 'Success',
                 description: 'Đăng ký thành công!.',
             });
+
+            const { data, error } = await handleLogin({
+                account: accRe.account,
+                password: accRe.password,
+                auth_type: 'email',
+            });
+            if (data) {
+                setCookie('cookieLoginStudent', JSON.stringify(data.user), { path: '/', domain: 'localhost' });
+            }
+
+            if (error) {
+                return notification.error({
+                    message: 'Thông báo',
+                    description: error.data.message,
+                    duration: 1.75,
+                });
+            }
+
+            const user = {
+                token: data.user.accessToken,
+                email: data.user.email,
+                phone: data.user.phone,
+                fullName: data.user.fullName,
+                avatar: data.user.avatar,
+            };
+
+
+            dispatch(login(user));
+
             dispatch(closeModal());
+            if (data.user.isAdmin | data.user.isTeacher) {
+                // navigate('http://localhost:5173/dashboard');
+                window.location.href = 'http://localhost:5173/dashboard';
+            }
         });
+
+
     };
     const generateOTP = () => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -140,7 +181,7 @@ const Register = () => {
 
     return (
         <>
-            {sent === false ? (<Form onFinish={onFinish} autoComplete="off">
+            {sent === false ? (<Form onFinish={onFinish} autoComplete="off" initialValues={{ isAdmin: false, isTeacher: false }}>
                 <div className="mb-4">
                     <p className="mb-1">Họ và tên</p>
                     <Form.Item
@@ -194,11 +235,29 @@ const Register = () => {
                         <Input type="password" className="w-100 p-2 rounded" placeholder="Nhập mật khẩu xác nhận" />
                     </Form.Item>
                 </div>
+                <div className="mb-4">
+
+                    <Form.Item
+                        name="isAdmin"
+                        hidden
+                    >
+                        <Input className="w-100 p-2 rounded" />
+                    </Form.Item>
+                </div>
+                <div className="mb-4">
+
+                    <Form.Item
+                        name="isTeacher"
+                        hidden
+                    >
+                        <Input className="w-100 p-2 rounded" />
+                    </Form.Item>
+                </div>
 
                 <Button htmlType="submit" className="w-100 mt-4" type="primary" size={'large'}>
                     {isLoading ? <Spin /> : 'Đăng ký'}
                 </Button>
-            </Form>) : (
+            </Form >) : (
                 <div style={{ marginTop: '20px' }} >
                     <div className='flex mb-[10px]'>
                         <Input
@@ -216,7 +275,8 @@ const Register = () => {
                     </div>
                     <OTPTimer expiryTime={expiryTime} keyProp={keyProp} />
                 </div>
-            )}
+            )
+            }
 
         </>
 
