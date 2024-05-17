@@ -51,11 +51,16 @@ const CommentItem = ({ cmt, refetch }) => {
     const handleSubmitUpdateCmt = (e) => {
         e.preventDefault();
         const updateData = { content: cmtUpdateInput, id: isUpdateCmt._id };
-        handleUpdateCmt(updateData).then(() => {
-            refetch();
-            setUpdateCmt({ update: false });
-            setCmtUpdateInput('');
-        });
+        const regex = /^\s*$/;
+        if (regex.test(updateData)) {
+            setErrCmt('Vui lòng nhập ký tự khác khoảng trắng.')
+        } else {
+            handleUpdateCmt(updateData).then(() => {
+                refetch();
+                setUpdateCmt({ update: false });
+                setCmtUpdateInput('');
+            });
+        }
     };
     const [errCmt, setErrCmt] = useState('')
     const handleSubmitDeleteCmt = (id) => {
@@ -129,6 +134,7 @@ const CommentItem = ({ cmt, refetch }) => {
                             onChange={(e) => setCmtUpdateInput(e.target.value)}
                             value={cmtUpdateInput}
                         />
+                        {errCmt && (<p className='text-sm text-red-600 italic'>*{errCmt}</p>)}
                         <div className="flex gap-2">
                             <Button
                                 onClick={() =>
