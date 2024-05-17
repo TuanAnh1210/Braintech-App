@@ -15,6 +15,7 @@ import CourseBought from './CourseBought';
 import CourseLearning from './CourseLearning';
 import CourseFinished from './CourseFinished';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useGetVoucherByUserIdQuery } from '@/providers/apis/voucherApi';
 const Account = () => {
     const navigate = useNavigate();
     const schema = Joi.object({
@@ -64,6 +65,7 @@ const Account = () => {
     }, [cookies]);
     const { data: sttCourse, isLoading: loadingSttCourse } = useGetAllSttCourseQuery();
     const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
+    const { data: voucherData } = useGetVoucherByUserIdQuery();
     const dataBought = coursePay?.data?.filter((s) => s.user_id === userid && s.status === 'SUCCESS');
     const dataFinished = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === true);
     const dataJoined = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === false);
@@ -268,7 +270,11 @@ const Account = () => {
                     <img
                         className="absolute top-[150px] rounded-full  h-[150px]"
                         width={150}
-                        src={data?.avatar ? data?.avatar : 'https://i.imgur.com/6b6b7Z6.png'}
+                        src={
+                            data?.avatar
+                                ? data?.avatar
+                                : 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png'
+                        }
                         alt="img"
                     />
                     <div className="text-center m-2">
@@ -316,9 +322,6 @@ const Account = () => {
                         </button>
                     </div>
                     <div className="flex gap-3">
-                        <button onClick={() => setIsChating(true)}>
-                            <FontAwesomeIcon icon="fa-regular fa-comment" /> Chat with teacher
-                        </button>
                         <button onClick={() => setShowModal(true)}>
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -342,10 +345,13 @@ const Account = () => {
                         <div className="flex justify-between">
                             <p className="text-lg font-semibold">Khóa học của tôi</p>
                             <div className="flex gap-2">
-                                <p>Sort by :</p>
+                                <p>Voucher mà bạn có :</p>
                                 <select name="" id="">
-                                    <option value="1">Asc</option>
-                                    <option value="2">Desc</option>
+                                    {voucherData?.data?.map((s) => {
+                                        return s.vouchers.map((v) => {
+                                            return <option>{v.codeName}</option>;
+                                        });
+                                    })}
                                 </select>
                             </div>
                         </div>

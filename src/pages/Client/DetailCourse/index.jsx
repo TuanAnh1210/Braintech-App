@@ -91,7 +91,7 @@ const DetailCourse = () => {
     const handleLearn = () => {
         handleAddSttCourse({ course_id: courseId }).then(() => {
             refetch();
-            navigate(`/learning/${courseId}/${nextlessonId}`);
+            navigate(`/learning/teacher/${courseId}/${nextlessonId}`);
         });
     };
     //     useEffect(() => {

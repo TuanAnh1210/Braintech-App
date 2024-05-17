@@ -22,7 +22,7 @@ const CourseItem = ({ course }) => {
         !coursePayLoading && coursePay?.data?.find((s) => s?.course_id?._id === course?._id && s?.status === 'SUCCESS');
 
     return (
-        <Link to={`/detail/${course?._id}`}>
+        <Link to={`/detail/teacher/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
                 <Image src={course?.thumb} alt={course?.name} />
 

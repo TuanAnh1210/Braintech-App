@@ -7,15 +7,19 @@ import classNames from 'classnames/bind';
 import styles from './DetailCourse.module.scss';
 import { useGetContentRatingQuery } from '@/providers/apis/rateApi';
 import { FaStar } from 'react-icons/fa6';
+import { useEffect } from 'react';
 const cx = classNames.bind(styles);
 
 const RatingSide = ({ idCourse }) => {
     const [isOpen, setOpen] = useState(false);
     const [collapsed, setState] = useState(false);
-    const { data: dataRate, isLoading } = useGetContentRatingQuery(idCourse);
+    const { data: dataRate, refetch } = useGetContentRatingQuery(idCourse);
     const onCancel = () => {
         setOpen(false);
     };
+    useEffect(() => {
+        refetch();
+    }, [dataRate]);
     return (
         <div>
             <h2 className={cx('rate--title')}>Đánh giá khóa học</h2>

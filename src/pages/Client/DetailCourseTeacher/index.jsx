@@ -13,14 +13,13 @@ import { useGetFinishLessonByCourseIdQuery } from '@/providers/apis/lessonApi';
 import { useCreatePaymentUrlMutation } from '@/providers/apis/paymentApi';
 import { useCookies } from 'react-cookie';
 import { Empty } from 'antd';
-import { useGetAllPaymentByUserQuery, useGetAllPaymentQuery } from '@/providers/apis/paymentDetail';
+import { useGetAllPaymentByUserQuery } from '@/providers/apis/paymentDetail';
 import { useAddSttCourseMutation } from '@/providers/apis/sttCourseApi';
 
 const cx = classNames.bind(styles);
 
 const DetailCourseTeacher = () => {
     const [isLogin, setIsLogin] = useState(true);
-    const [userid, setUserid] = useState(null);
 
     const { courseId } = useParams();
     const dispatch = useDispatch();
@@ -90,7 +89,6 @@ const DetailCourseTeacher = () => {
 
     const isPublicExist = course?.course?.chapters?.find((chapter) => !chapter.isPublic);
     const handleLearn = () => {
-       
         handleAddSttCourse({ course_id: courseId }).then(() => {
             refetch();
             navigate(`/learning/teacher/${courseId}/${nextlessonId}`);
