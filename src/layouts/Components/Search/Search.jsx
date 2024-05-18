@@ -22,8 +22,16 @@ function Search() {
 
     console.log(dataCourse, 'data');
     const [courseSearch, setCourseSearch] = useState(dataCourse);
-    console.log(courseSearch, 'courseSearch');
+    const [isInputFocused, setIsInputFocused] = useState(false);
 
+    console.log(courseSearch, 'courseSearch');
+    const handleInputFocus = () => {
+        setIsInputFocused(true);
+    };
+
+    const handleInputBlur = () => {
+        setIsInputFocused(false);
+    };
     const handleSearch = (e) => {
         const keyWord = e.target.value.toLowerCase();
         console.log(keyWord);
@@ -36,7 +44,13 @@ function Search() {
     return (
         <>
             <div className={cx('search')}>
-                <input placeholder="Tìm kiếm khóa học ..." spellCheck={false} onChange={handleSearch} />
+                <input
+                    onFocus={handleInputFocus}
+                    onBlur={handleInputBlur}
+                    placeholder="Tìm kiếm khóa học ..."
+                    spellCheck={false}
+                    onChange={handleSearch}
+                />
                 {/* 
               <button className={cx('clear')}>
                   <FontAwesomeIcon icon={faCircleXmark} />
@@ -45,20 +59,22 @@ function Search() {
                     <FontAwesomeIcon icon={faMagnifyingGlass} />
                 </button>
 
-                <List
-                    className={cx('course_search')}
-                    itemLayout="horizontal"
-                    dataSource={courseSearch || dataCourse}
-                    renderItem={(item, index) => (
-                        <List.Item>
-                            <List.Item.Meta
-                                avatar={<Avatar src={`${item.avatar}`} />}
-                                title={<a href="https://ant.design">{item.title}</a>}
-                                description={item.description}
-                            />
-                        </List.Item>
-                    )}
-                />
+                {isInputFocused && (
+                    <List
+                        className={cx('course_search')}
+                        itemLayout="horizontal"
+                        dataSource={courseSearch || dataCourse}
+                        renderItem={(item, index) => (
+                            <List.Item>
+                                <List.Item.Meta
+                                    avatar={<Avatar src={`${item.avatar}`} />}
+                                    title={<a href="https://ant.design">{item.title}</a>}
+                                    description={item.description}
+                                />
+                            </List.Item>
+                        )}
+                    />
+                )}
             </div>
         </>
     );
