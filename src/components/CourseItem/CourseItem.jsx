@@ -14,7 +14,8 @@ import { useCookies } from 'react-cookie';
 import { useEffect, useState } from 'react';
 const cx = classNames.bind(styles);
 
-const CourseItem = ({ course }) => {
+const CourseItem = ({ course, pro }) => {
+    console.log(pro, 'pro ne');
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
@@ -24,6 +25,14 @@ const CourseItem = ({ course }) => {
     return (
         <Link to={`/detail/teacher/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
+                {pro && (
+                    <img
+                        className={cx('icon_pro_course')}
+                        src="https://fullstack.edu.vn/static/media/crown_icon.3e4800f7485935ab6ea312a7080a85fe.svg"
+                        alt=""
+                    />
+                )}
+
                 <Image src={course?.thumb} alt={course?.name} />
 
                 <h4>{course?.name}</h4>
