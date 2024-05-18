@@ -1,5 +1,13 @@
 /* eslint-disable no-unused-vars */
-import { faBarsStaggered, faBell, faBook, faGear, faRightFromBracket, faUser } from '@fortawesome/free-solid-svg-icons';
+import {
+    faBarsStaggered,
+    faBell,
+    faBook,
+    faGear,
+    faRightFromBracket,
+    faSearch,
+    faUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { Container } from 'react-bootstrap';
@@ -17,6 +25,7 @@ import { logout } from '@/providers/slices/userSlice';
 import images from '@/assets/images';
 import styles from './Header.module.scss';
 import { useCookies } from 'react-cookie';
+import Search from '../Search';
 
 const cx = classNames.bind(styles);
 
@@ -189,6 +198,7 @@ const Header = () => {
                         <FontAwesomeIcon icon={faBarsStaggered} />
                     </div>
                 </div>
+                <Search />
             </Container>
             <AuthLayout />
         </header>
