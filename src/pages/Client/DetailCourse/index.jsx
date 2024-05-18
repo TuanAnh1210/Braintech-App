@@ -212,33 +212,49 @@ const DetailCourse = () => {
                                             >
                                                 <option value="0">Không sử dụng mã giảm giá</option>
                                                 {formattedArray?.map((voucher) => {
-                                                    if (course?.course.price >= voucher.conditionAmount) {
-                                                        return (
-                                                            <option
-                                                                key={voucher._id}
-                                                                value={voucher._id}
-                                                                className="py-2 px-4 bg-gray-100 rounded-lg mb-2"
-                                                            >
-                                                                <div className="flex items-center justify-between">
-                                                                    <div className="flex flex-col">
-                                                                        <span className="text-sm font-medium text-gray-800">
-                                                                            Giảm {voucher.discountAmount}% (Tối đa{' '}
-                                                                            {voucher.maxDiscountAmount}k)
-                                                                        </span>
-                                                                        <span className="text-xs text-gray-600">
-                                                                            - Áp dụng khóa học ≥{' '}
-                                                                            {voucher.conditionAmount}k
-                                                                        </span>
-                                                                    </div>
-                                                                    <span className="text-xs text-gray-600">
-                                                                        - x{voucher.quantity}
+                                                    const isEligible = course.course.price >= voucher.conditionAmount;
+                                                    return (
+                                                        <option
+                                                            key={voucher._id}
+                                                            value={voucher._id}
+                                                            className={`py-2 px-4 mb-2 rounded-lg ${
+                                                                isEligible ? 'bg-gray-100' : 'bg-gray-300 text-gray-400'
+                                                            }`}
+                                                            disabled={!isEligible}
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex flex-col">
+                                                                    <span
+                                                                        className={`text-sm font-medium ${
+                                                                            isEligible
+                                                                                ? 'text-gray-800'
+                                                                                : 'text-gray-400'
+                                                                        }`}
+                                                                    >
+                                                                        Giảm {voucher.discountAmount}% (Tối đa{' '}
+                                                                        {voucher.maxDiscountAmount}k)
+                                                                    </span>
+                                                                    <span
+                                                                        className={`text-xs ${
+                                                                            isEligible
+                                                                                ? 'text-gray-600'
+                                                                                : 'text-gray-400'
+                                                                        }`}
+                                                                    >
+                                                                        Điều kiện: Giá khóa học ≥{' '}
+                                                                        {voucher.conditionAmount}k
                                                                     </span>
                                                                 </div>
-                                                            </option>
-                                                        );
-                                                    } else {
-                                                        return null;
-                                                    }
+                                                                <span
+                                                                    className={`text-xs ${
+                                                                        isEligible ? 'text-gray-600' : 'text-gray-400'
+                                                                    }`}
+                                                                >
+                                                                    - x{voucher.quantity}
+                                                                </span>
+                                                            </div>
+                                                        </option>
+                                                    );
                                                 })}
                                             </select>
                                         </div>
