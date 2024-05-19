@@ -12,7 +12,7 @@ const CourseBought = ({ dataBought }) => {
                     return course.course_id?.cate_id === e?._id;
                 });
                 return (
-                    <Link to={`/detail/${course?.course_id?._id}`}>
+                    <Link to={`/detail/teacher/${course?.course_id?._id}`}>
                         <div className="flex flex-column p-4 border rounded drop-shadow-xl">
                             <img width={200} className="mx-auto rounded" src={course.course_id?.thumb} alt="ngu" />
                             <div className="my-2">
