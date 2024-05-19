@@ -54,6 +54,7 @@
         "react-youtube": "^10.1.0",
         "redux-persist": "^6.0.0",
         "slick-carousel": "^1.8.1",
+        "socket.io-client": "^4.7.5",
         "video.js": "^8.10.0"
     },
     "devDependencies": {
