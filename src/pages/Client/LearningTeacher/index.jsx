@@ -24,7 +24,6 @@ const cx = classNames.bind(styles);
 
 const LearningTeacher = () => {
     const { courseId, lessonId } = useParams();
-
     const [progressVideo, setProgessVideo] = useState(0); // tiến độ video [0-100]
     const [openStorage, setOpenStorage] = useState(false);
     const [totalLesson, setTotalLesson] = useState(0); // Tổng khóa học
@@ -135,12 +134,12 @@ const LearningTeacher = () => {
 
         const access_token = cookies.cookieLoginStudent;
 
-        if (!lessonId) navigate(`/detail/${courseId}`);
+        if (!lessonId || lessonId === 'undefined') navigate(`/detail/teacher/${courseId}`);
 
         if (!access_token && access_token !== 'null') {
-            navigate(`/detail/${courseId}`);
+            navigate(`/detail/teacher/${courseId}`);
         }
-    }, []);
+    }, [lessonId]);
 
     useEffect(() => {
         const count = course?.data?.chapters
