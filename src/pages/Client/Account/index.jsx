@@ -345,11 +345,15 @@ const Account = () => {
                         <div className="flex justify-between">
                             <p className="text-lg font-semibold">Khóa học của tôi</p>
                             <div className="flex gap-2">
-                                <p>Voucher mà bạn có :</p>
+                                <p className="font-bold">Voucher mà bạn có :</p>
                                 <select name="" id="">
                                     {voucherData?.data?.map((s) => {
                                         return s.vouchers.map((v) => {
-                                            return <option>{v.codeName}</option>;
+                                            return (
+                                                <option>
+                                                    {v.codeName} - {v.discountAmount}% (Tối đa {v.maxDiscountAmount}k)
+                                                </option>
+                                            );
                                         });
                                     })}
                                 </select>
