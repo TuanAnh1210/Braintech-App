@@ -14,6 +14,7 @@ const routes = {
     quizz: '/quizz/:id',
     certificate: '/certificate/:id',
     account: '/account',
+    chat: '/chat',
 };
 
 export default routes;

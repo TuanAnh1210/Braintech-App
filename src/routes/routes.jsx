@@ -20,7 +20,7 @@ import Account from '@/pages/Client/Account';
 
 import DetailCourseTeacher from '@/pages/Client/DetailCourseTeacher';
 import LearningTeacher from '@/pages/Client/LearningTeacher';
-
+import Chat from '@/pages/Client/Chat/Chat';
 
 const publicRoutes = [
     { path: config.home, component: Home },
@@ -34,6 +34,7 @@ const publicRoutes = [
     { path: config.quizz, component: Quizz },
     { path: config.about, component: About },
     { path: config.detail, component: DetailCourse },
+    { path: config.chat, component: Chat },
     { path: config.detailCourseTeacher, component: DetailCourseTeacher },
     { path: config.contact, component: Contact },
     { path: config.info, component: Info },
