@@ -15,6 +15,7 @@ const routes = {
     certificate: '/certificate/:id',
     account: '/account',
     chat: '/chat',
+    notify: '/notify',
 };
 
 export default routes;
