@@ -30,6 +30,11 @@ const LearningTeacher = () => {
     const [totalLesson, setTotalLesson] = useState(0); // Tổng khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
+    const [timeVideo, setTimeVideo] = useState(0);
+    const [timeChanges, setTimeChanges] = useState({
+        video_time: 0,
+        ramdom_time: 0,
+    });
 
     const mainView = useRef(null);
     const intervalRef = useRef();
@@ -95,7 +100,6 @@ const LearningTeacher = () => {
         // const currentLesson = lessons?.[lessonIndex];
 
         // if (currentLesson.isCompleted) return;
-      
 
         await handleAddFinishLesson({
             course_id: courseId,
@@ -175,7 +179,7 @@ const LearningTeacher = () => {
                             <div className={cx('header__back')}>
                                 <button
                                     className={cx('button__back btn btn-outline-primary')}
-                                    onClick={() => navigate(`/detail/${courseId}`)}
+                                    onClick={() => navigate(`/detail/teacher/${courseId}`)}
                                 >
                                     <FontAwesomeIcon icon={faChevronLeft} />
                                 </button>
@@ -249,13 +253,20 @@ const LearningTeacher = () => {
                                     />
                                 ) : (
                                     <VideoCloudinaryPlayer
+                                        timeChanges={timeChanges}
+                                        setTimeVideo={setTimeVideo}
                                         url={currentLesson?.url_video}
                                         setIsModalShown={setIsModalShown}
                                         handleSetFinish={handleSetFinish}
                                     />
                                 )}
                             </div>
-                            <Comments openStorage={openStorage} setOpenStorage={setOpenStorage} />
+                            <Comments
+                                timeVideo={timeVideo}
+                                openStorage={openStorage}
+                                setTimeChanges={setTimeChanges}
+                                setOpenStorage={setOpenStorage}
+                            />
                         </div>
                         <div className={cx('learning__bar')}>
                             <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
@@ -295,7 +306,7 @@ const LearningTeacher = () => {
                                                                 isOpenNextLesson ? (
                                                                     <NavLink
                                                                         exact="true"
-                                                                        to={`/learning/${courseId}/${lesson._id}`}
+                                                                        to={`/learning/teacher/${courseId}/${lesson._id}`}
                                                                         className={({ isActive }) => {
                                                                             return cx(
                                                                                 'block',
