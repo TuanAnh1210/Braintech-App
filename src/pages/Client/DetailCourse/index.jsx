@@ -57,7 +57,7 @@ const DetailCourse = () => {
     }, [cookies]);
 
     const handleBuyCourse = async () => {
-        const { data } = await createPaymentUrl({ courseId: courseId });
+        const { data } = await createPaymentUrl({ courseId: courseId, voucherPrice: valueVoucher });
         location.href = data.url;
 
         // Tạo một thẻ <a> ẩn
