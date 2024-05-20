@@ -44,18 +44,18 @@ const Header = () => {
     console.log(noti, 'noti');
     const naviagte = useNavigate();
     console.log(cookies, 'cookies');
-    useEffect(() => {
-        // socket.on('receiveNotification', (notification) => {
-        //     setNotifications((prevNotifications) => [...prevNotifications, notification]);
-        // });
-        socket.emit('register', cookies.cookieLoginStudent._id);
-        // return () => {
-        //     socket.off('receiveNotification');
-        // };
-    }, []);
+    // useEffect(() => {
+    //     // socket.on('receiveNotification', (notification) => {
+    //     //     setNotifications((prevNotifications) => [...prevNotifications, notification]);
+    //     // });
+    //     socket.emit('register', cookies.cookieLoginStudent._id);
+    //     // return () => {
+    //     //     socket.off('receiveNotification');
+    //     // };
+    // }, []);
 
     useEffect(() => {
-        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/noti/' + cookies.cookieLoginStudent._id)
+        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/noti/' + cookies?.cookieLoginStudent?._id)
             .then((res) => {
                 return res.json();
             })
@@ -63,7 +63,7 @@ const Header = () => {
                 console.log(res, 'res');
                 setNoti(res);
             });
-    }, []);
+    }, [cookies]);
 
     // handle active navbar
     const pathPages = window.location.pathname;
