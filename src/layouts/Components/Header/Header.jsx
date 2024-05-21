@@ -13,8 +13,8 @@ import { faCircleXmark } from '@fortawesome/free-regular-svg-icons';
 import { Container } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import classNames from 'classnames/bind';
-import { Divider, Tooltip } from 'antd';
-import { useState } from 'react';
+import { Badge, Divider, Tooltip } from 'antd';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { openModal } from '@/providers/slices/modalSlice';
 
@@ -26,16 +26,44 @@ import images from '@/assets/images';
 import styles from './Header.module.scss';
 import { useCookies } from 'react-cookie';
 import Search from '../Search';
+import { io } from 'socket.io-client';
 
 const cx = classNames.bind(styles);
-
+const ENDPOINT = 'http://localhost:2096';
+const socket = io(ENDPOINT, {
+    secure: false, // sử dụng SSL/TLS
+    port: 2096,
+});
 const Header = () => {
     const dispatch = useDispatch();
     const handleOpenModal = (page) => {
         dispatch(openModal(page));
     };
     const [cookies, setCookie] = useCookies(['cookieLoginStudent']);
+    const [noti, setNoti] = useState();
+    console.log(noti, 'noti');
     const naviagte = useNavigate();
+    console.log(cookies, 'cookies');
+    // useEffect(() => {
+    //     // socket.on('receiveNotification', (notification) => {
+    //     //     setNotifications((prevNotifications) => [...prevNotifications, notification]);
+    //     // });
+    //     socket.emit('register', cookies.cookieLoginStudent._id);
+    //     // return () => {
+    //     //     socket.off('receiveNotification');
+    //     // };
+    // }, []);
+
+    useEffect(() => {
+        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/noti/' + cookies?.cookieLoginStudent?._id)
+            .then((res) => {
+                return res.json();
+            })
+            .then((res) => {
+                console.log(res, 'res');
+                setNoti(res);
+            });
+    }, [cookies]);
 
     // handle active navbar
     const pathPages = window.location.pathname;
@@ -66,7 +94,7 @@ const Header = () => {
         {
             label: 'Thông báo',
             icon: faBell,
-            path: '/account',
+            path: '/notify',
         },
 
         {
@@ -152,17 +180,51 @@ const Header = () => {
                                         {menus.map((menu) => {
                                             return (
                                                 <div key={menu.label}>
-                                                    <div
-                                                        onClick={() => (!menu.path ? menu.func() : naviagte(menu.path))}
-                                                        className={cx(
-                                                            'accMenu_item',
-                                                            'd-flex align-items-center gap-2 px-3 py-2',
-                                                        )}
-                                                        style={{ color: '#000', cursor: 'pointer' }}
-                                                    >
-                                                        <FontAwesomeIcon style={{ color: '#666' }} icon={menu.icon} />
-                                                        <span style={{ userSelect: 'none' }}>{menu.label}</span>
-                                                    </div>
+                                                    {noti?.data.filter((item) => item.status == false).length > 0 &&
+                                                    menu.label == 'Thông báo' ? (
+                                                        <Badge
+                                                            count={
+                                                                noti?.data.filter((item) => item.status == false).length
+                                                            }
+                                                            size="small"
+                                                            offset={[10, 10]}
+                                                        >
+                                                            <div
+                                                                onClick={() =>
+                                                                    !menu.path ? menu.func() : naviagte(menu.path)
+                                                                }
+                                                                className={cx(
+                                                                    'accMenu_item',
+                                                                    'd-flex align-items-center gap-2 px-3 py-2',
+                                                                )}
+                                                                style={{ color: '#000', cursor: 'pointer' }}
+                                                            >
+                                                                <FontAwesomeIcon
+                                                                    style={{ color: '#666' }}
+                                                                    icon={menu.icon}
+                                                                />
+                                                                <span style={{ userSelect: 'none' }}>{menu.label}</span>
+                                                            </div>
+                                                        </Badge>
+                                                    ) : (
+                                                        <div
+                                                            onClick={() =>
+                                                                !menu.path ? menu.func() : naviagte(menu.path)
+                                                            }
+                                                            className={cx(
+                                                                'accMenu_item',
+                                                                'd-flex align-items-center gap-2 px-3 py-2',
+                                                            )}
+                                                            style={{ color: '#000', cursor: 'pointer' }}
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                style={{ color: '#666' }}
+                                                                icon={menu.icon}
+                                                            />
+                                                            <span style={{ userSelect: 'none' }}>{menu.label}</span>
+                                                        </div>
+                                                    )}
+
                                                     <Divider style={{ margin: 0 }} />
                                                 </div>
                                             );
@@ -173,7 +235,9 @@ const Header = () => {
                             >
                                 <div className={cx('acc_wrapper')}>
                                     <div className={cx('info')}>
-                                        <img src={cookies.cookieLoginStudent?.avatar} alt="" />
+                                        <Badge count={noti?.data.filter((item) => item.status == false).length}>
+                                            <img src={cookies.cookieLoginStudent?.avatar} alt="" />
+                                        </Badge>
                                         <strong>{cookies.cookieLoginStudent?.fullName}</strong>
                                     </div>
                                 </div>

@@ -24,12 +24,16 @@ const cx = classNames.bind(styles);
 
 const LearningTeacher = () => {
     const { courseId, lessonId } = useParams();
-
     const [progressVideo, setProgessVideo] = useState(0); // tiến độ video [0-100]
     const [openStorage, setOpenStorage] = useState(false);
     const [totalLesson, setTotalLesson] = useState(0); // Tổng khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
+    const [timeVideo, setTimeVideo] = useState(0);
+    const [timeChanges, setTimeChanges] = useState({
+        video_time: 0,
+        ramdom_time: 0,
+    });
 
     const mainView = useRef(null);
     const intervalRef = useRef();
@@ -130,12 +134,12 @@ const LearningTeacher = () => {
 
         const access_token = cookies.cookieLoginStudent;
 
-        if (!lessonId) navigate(`/detail/${courseId}`);
+        if (!lessonId || lessonId === 'undefined') navigate(`/detail/teacher/${courseId}`);
 
         if (!access_token && access_token !== 'null') {
-            navigate(`/detail/${courseId}`);
+            navigate(`/detail/teacher/${courseId}`);
         }
-    }, []);
+    }, [lessonId]);
 
     useEffect(() => {
         const count = course?.data?.chapters
@@ -248,13 +252,20 @@ const LearningTeacher = () => {
                                     />
                                 ) : (
                                     <VideoCloudinaryPlayer
+                                        timeChanges={timeChanges}
+                                        setTimeVideo={setTimeVideo}
                                         url={currentLesson?.url_video}
                                         setIsModalShown={setIsModalShown}
                                         handleSetFinish={handleSetFinish}
                                     />
                                 )}
                             </div>
-                            <Comments openStorage={openStorage} setOpenStorage={setOpenStorage} />
+                            <Comments
+                                timeVideo={timeVideo}
+                                openStorage={openStorage}
+                                setTimeChanges={setTimeChanges}
+                                setOpenStorage={setOpenStorage}
+                            />
                         </div>
                         <div className={cx('learning__bar')}>
                             <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
