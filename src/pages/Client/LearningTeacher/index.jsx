@@ -95,7 +95,6 @@ const LearningTeacher = () => {
         // const currentLesson = lessons?.[lessonIndex];
 
         // if (currentLesson.isCompleted) return;
-      
 
         await handleAddFinishLesson({
             course_id: courseId,
@@ -175,7 +174,7 @@ const LearningTeacher = () => {
                             <div className={cx('header__back')}>
                                 <button
                                     className={cx('button__back btn btn-outline-primary')}
-                                    onClick={() => navigate(`/detail/${courseId}`)}
+                                    onClick={() => navigate(`/detail/teacher/${courseId}`)}
                                 >
                                     <FontAwesomeIcon icon={faChevronLeft} />
                                 </button>
@@ -295,7 +294,7 @@ const LearningTeacher = () => {
                                                                 isOpenNextLesson ? (
                                                                     <NavLink
                                                                         exact="true"
-                                                                        to={`/learning/${courseId}/${lesson._id}`}
+                                                                        to={`/learning/teacher/${courseId}/${lesson._id}`}
                                                                         className={({ isActive }) => {
                                                                             return cx(
                                                                                 'block',
