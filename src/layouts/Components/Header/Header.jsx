@@ -54,16 +54,16 @@ const Header = () => {
     //     // };
     // }, []);
 
-    useEffect(() => {
-        fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/noti/' + cookies?.cookieLoginStudent?._id)
-            .then((res) => {
-                return res.json();
-            })
-            .then((res) => {
-                console.log(res, 'res');
-                setNoti(res);
-            });
-    }, [cookies]);
+    // useEffect(() => {
+    //     fetch(import.meta.env.VITE_REACT_APP_API_PATH + 'api/noti/' + cookies?.cookieLoginStudent?._id)
+    //         .then((res) => {
+    //             return res.json();
+    //         })
+    //         .then((res) => {
+    //             console.log(res, 'res');
+    //             setNoti(res);
+    //         });
+    // }, [cookies]);
 
     // handle active navbar
     const pathPages = window.location.pathname;
@@ -181,7 +181,7 @@ const Header = () => {
                                             return (
                                                 <div key={menu.label}>
                                                     {noti?.data.filter((item) => item.status == false).length > 0 &&
-                                                    menu.label == 'Thông báo' ? (
+                                                        menu.label == 'Thông báo' ? (
                                                         <Badge
                                                             count={
                                                                 noti?.data.filter((item) => item.status == false).length
