@@ -18,6 +18,7 @@ const CommentItem = ({ cmt, refetch }) => {
     };
     const [replyText, setReplyText] = useState('');
     const [showReplyForm, setShowReplyForm] = useState({ reply: false });
+    const [showAllComments, setShowAllComments] = useState(false);
     const handleReplySubmit = (e) => {
         e.preventDefault();
         const regex = /^\s*$/;
@@ -34,6 +35,7 @@ const CommentItem = ({ cmt, refetch }) => {
             handleAddCmt(newCmt)
                 .then(() => {
                     setParentComment(null);
+                    setShowAllComments(false)
                     refetch();
                 })
                 .catch((error) => {
@@ -77,7 +79,6 @@ const CommentItem = ({ cmt, refetch }) => {
 
     const maxVisibleComments = 3;
     const [visibleComments, setVisibleComments] = useState([]);
-    const [showAllComments, setShowAllComments] = useState(false);
     const reversedCmtData = [...cmt.comments].reverse();
     useEffect(() => {
         if (reversedCmtData.length <= maxVisibleComments) {
@@ -93,7 +94,6 @@ const CommentItem = ({ cmt, refetch }) => {
         setVisibleComments(reversedCmtData.slice(0, nextVisibleComments));
         setShowAllComments(nextVisibleComments >= reversedCmtData.length);
     };
-
     return (
         <>
             {isDelete.isDeleteCmt === true && (
@@ -217,15 +217,26 @@ const CommentItem = ({ cmt, refetch }) => {
                             required={true}
                             name="cmt_content"
                             className={cx('commentBox--ipt')}
-                            placeholder="Gửi bình luận của bạn"
+                            placeholder="Gửi bình luận của bạn..."
                             onChange={(e) => setReplyText(e.target.value)}
                             value={replyText}
                         />
                         {errCmt && (<p className='text-sm text-red-600 italic'>*{errCmt}</p>)}
-                        <button className={cx('send__comment', 'flex items-center gap-2')}>
-                            Gửi bình luận
-                            <FontAwesomeIcon icon={faPaperPlane} />
-                        </button>
+                        <div className='flex justify-end items-center'>
+                            <Button
+                                onClick={() =>
+                                    setShowReplyForm({ reply: false })
+                                }
+                                type="default"
+                                className='h-10 mt-[3px] mr-5'
+                            >
+                                Đóng
+                            </Button>
+                            <button className={cx('send__comment', 'flex items-center gap-2')}>
+                                Gửi bình luận
+                                <FontAwesomeIcon icon={faPaperPlane} />
+                            </button>
+                        </div>
                     </form>
                 )}
                 {reversedCmtData.length > 0 ? (

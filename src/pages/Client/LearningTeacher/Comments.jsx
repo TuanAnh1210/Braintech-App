@@ -60,6 +60,7 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
     const handleClickScroll = () => {
         ref.current?.scrollIntoView({ behavior: 'smooth' });
     }; // thực hiện scroll
+
     const reversedCmtData = [...cmtData].reverse();
     const handleSubmitNote = (e) => {
         e.preventDefault();
@@ -75,6 +76,7 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
         });
     };
     const [errCmt, setErrCmt] = useState('')
+    const [showAllComments, setShowAllComments] = useState(false);
     const handleSubmit = (e) => {
         e.preventDefault();
         const regex = /^\s*$/;
@@ -93,6 +95,7 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
                 .then(() => {
                     setCmtInput('');
                     setParentComment(null);
+                    setShowAllComments(false)
                     refetch();
                 })
                 .catch((error) => {
@@ -373,21 +376,25 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
     const [parentComment, setParentComment] = useState(null);
     const maxVisibleComments = 3;
     const [visibleComments, setVisibleComments] = useState([]);
-    const [showAllComments, setShowAllComments] = useState(false);
+    const [isAllCmt, setIsAllCmt] = useState(false)
 
     useEffect(() => {
+        setIsAllCmt(false)
         if (reversedCmtData.length <= maxVisibleComments) {
             setVisibleComments(reversedCmtData);
         } else {
             setVisibleComments(reversedCmtData.slice(0, maxVisibleComments));
         }
     }, [cmtData]);
-
+    const handleHideComments = () => {
+        setIsAllCmt(false)
+        setVisibleComments(reversedCmtData.slice(0, maxVisibleComments))
+    }
     const handleLoadMoreComments = () => {
         const currentlyVisibleComments = visibleComments.length;
         const nextVisibleComments = currentlyVisibleComments + maxVisibleComments;
         setVisibleComments(reversedCmtData.slice(0, nextVisibleComments));
-        setShowAllComments(nextVisibleComments >= reversedCmtData.length);
+        if (nextVisibleComments >= reversedCmtData.length) setIsAllCmt(true)
     };
 
     return (
@@ -449,9 +456,14 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
                                                         <CommentItem cmt={cmt} refetch={refetch} />
                                                     </div>
                                                 ))}
-                                                {!showAllComments && reversedCmtData.length > maxVisibleComments && (
+                                                {!isAllCmt && reversedCmtData.length > maxVisibleComments && (
                                                     <button className="show-more-button mt-4 ml-[60px] italic font-bold" onClick={handleLoadMoreComments}>
                                                         ...Xem thêm
+                                                    </button>
+                                                )}
+                                                {isAllCmt && (
+                                                    <button className="show-more-button mt-4 ml-[60px] italic font-bold" onClick={handleHideComments}>
+                                                        ...Ẩn bớt
                                                     </button>
                                                 )}
                                             </div>
