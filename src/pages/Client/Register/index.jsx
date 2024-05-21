@@ -11,7 +11,6 @@ import { RedoOutlined } from '@ant-design/icons';
 import { useCookies } from 'react-cookie';
 import { login } from '@/providers/slices/userSlice';
 
-
 const Register = () => {
     const [handleLogin] = useLoginMutation();
     const [, setCookie] = useCookies(['cookieLoginStudent']);
@@ -28,8 +27,8 @@ const Register = () => {
 
     const onFinish = async (value) => {
         try {
-            setAcc1({ ...value })
-            setOtp('')
+            setAcc({ ...value });
+            setOtp('');
             setOtpRelay({
                 full_name: value.full_name,
                 account: value.account,
@@ -37,11 +36,11 @@ const Register = () => {
                 password_confirm: value.password_confirm,
                 isAdmin: value?.isAdmin,
                 isTeacher: value?.isTeacher,
-            })
+            });
             if (value.password !== value.password_confirm) {
                 return notification.error({
                     message: 'Thông báo',
-                    description: "Mật khẩu không khớp",
+                    description: 'Mật khẩu không khớp',
                     duration: 1.75,
                 });
             }
@@ -53,16 +52,18 @@ const Register = () => {
                 otp: otp,
             };
 
-            await emailjs.send(
-                'service_q0lye59', // Service ID from EmailJS dashboard
-                'template_vyebfac', // Template ID from EmailJS dashboard
-                templateParams,
-                'TWJepBKsA2PD3FjQd' // User ID from EmailJS dashboard
-            ).then((response) => {
-                console.log('Email sent successfully:', response);
-                const expiry = Date.now() + 30000; // 5 minutes from now
-                setExpiryTime(expiry);
-            });
+            await emailjs
+                .send(
+                    'service_q0lye59', // Service ID from EmailJS dashboard
+                    'template_vyebfac', // Template ID from EmailJS dashboard
+                    templateParams,
+                    'TWJepBKsA2PD3FjQd', // User ID from EmailJS dashboard
+                )
+                .then((response) => {
+                    console.log('Email sent successfully:', response);
+                    const expiry = Date.now() + 30000; // 5 minutes from now
+                    setExpiryTime(expiry);
+                });
 
             setOtpSend(otp);
             setSent(true);
@@ -72,11 +73,10 @@ const Register = () => {
             console.error('Error sending OTP:', error);
             message.error('Đăng ký lỗi!');
         }
-
     };
     const onRelay = async () => {
         try {
-            setOtp('')
+            setOtp('');
             const otp = generateOTP();
             const templateParams = {
                 to_email: otpRelay.account,
@@ -85,26 +85,27 @@ const Register = () => {
                 otp: otp,
             };
 
-            await emailjs.send(
-                'service_q0lye59', // Service ID from EmailJS dashboard
-                'template_vyebfac', // Template ID from EmailJS dashboard
-                templateParams,
-                'TWJepBKsA2PD3FjQd' // User ID from EmailJS dashboard
-            ).then((response) => {
-                console.log('Email sent successfully:', response);
-                const expiry = Date.now() + 30000; // 5 minutes from now
-                setExpiryTime(expiry);
-            });
+            await emailjs
+                .send(
+                    'service_q0lye59', // Service ID from EmailJS dashboard
+                    'template_vyebfac', // Template ID from EmailJS dashboard
+                    templateParams,
+                    'TWJepBKsA2PD3FjQd', // User ID from EmailJS dashboard
+                )
+                .then((response) => {
+                    console.log('Email sent successfully:', response);
+                    const expiry = Date.now() + 30000; // 5 minutes from now
+                    setExpiryTime(expiry);
+                });
 
             setOtpSend(otp);
             setSent(true);
-            setAcc(otpRelay)
+            setAcc(otpRelay);
             message.success('Mã OTP sẽ được gửi qua email!');
         } catch (error) {
             console.error('Error sending OTP:', error);
             message.error('Đăng ký lỗi!');
         }
-
     };
     const checkOTP = (enteredOTP, storedOTP) => {
         return enteredOTP === storedOTP;
@@ -113,7 +114,7 @@ const Register = () => {
         const currentTime = new Date().getTime();
         if (currentTime > expiryTime) {
             console.log('hết hạn');
-            setOtpSend('')
+            setOtpSend('');
             message.error('Mã OTP đã hết hạn , vui lòng nhấn nhận mã mới!');
             return;
         }
@@ -129,7 +130,7 @@ const Register = () => {
         const accRe = {
             ...acc,
             auth_type: 'email',
-        }
+        };
         setKeyProp((prevKey) => prevKey + 1);
         handleRegister(accRe).then(async () => {
             notification.success({
@@ -162,7 +163,6 @@ const Register = () => {
                 avatar: data.user.avatar,
             };
 
-
             dispatch(login(user));
 
             dispatch(closeModal());
@@ -171,8 +171,6 @@ const Register = () => {
                 window.location.href = 'http://localhost:5173/dashboard';
             }
         });
-
-
     };
     const generateOTP = () => {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
@@ -181,85 +179,79 @@ const Register = () => {
 
     return (
         <>
-            {sent === false ? (<Form onFinish={onFinish} autoComplete="off" initialValues={{ isAdmin: false, isTeacher: false }}>
-                <div className="mb-4">
-                    <p className="mb-1">Họ và tên</p>
-                    <Form.Item
-                        name="full_name"
-                        rules={[
-                            { whitespace: true, message: 'Vui lòng nhập họ và tên!' },
-                            { required: true, message: 'Vui lòng nhập họ và tên!' },
-                        ]}
-                    >
-                        <Input className="w-100 p-2 rounded" placeholder="Họ và tên" />
-                    </Form.Item>
-                </div>
-                <div className="mb-4">
-                    <p className="mb-1">Email</p>
-                    <Form.Item
-                        name="account"
-                        rules={[
-                            { whitespace: true, message: 'Vui lòng nhập email!' },
-                            { required: true, message: 'Vui lòng nhập email!' },
-                            {
-                                type: 'email',
-                                message: 'Vui lòng nhập đúng định dạng email!',
-                            }
-                        ]}
-                    >
-                        <Input type='email' className="w-100 p-2 rounded" placeholder="Email" />
-                    </Form.Item>
-                </div>
-                <div className="mb-4">
-                    <p className="mb-1">Mật khẩu</p>
-                    <Form.Item
-                        name="password"
-                        rules={[
-                            { whitespace: true, message: 'Vui lòng nhập mật khẩu!' },
-                            { required: true, message: 'Vui lòng nhập mật khẩu!' },
-                            { min: 6, message: "Mật khẩu phải chứa ít nhất 6 ký tự" }
-                        ]}
-                    >
-                        <Input type="password" className="w-100 p-2 rounded" placeholder="Mật khẩu" />
-                    </Form.Item>
-                </div>
-                <div className="mb-4">
-                    <p className="mb-1">Xác nhận mật khẩu</p>
-                    <Form.Item
-                        name="password_confirm"
-                        rules={[
-                            { whitespace: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
-                            { required: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
-                        ]}
-                    >
-                        <Input type="password" className="w-100 p-2 rounded" placeholder="Nhập mật khẩu xác nhận" />
-                    </Form.Item>
-                </div>
-                <div className="mb-4">
+            {sent === false ? (
+                <Form onFinish={onFinish} autoComplete="off" initialValues={{ isAdmin: false, isTeacher: false }}>
+                    <div className="mb-4">
+                        <p className="mb-1">Họ và tên</p>
+                        <Form.Item
+                            name="full_name"
+                            rules={[
+                                { whitespace: true, message: 'Vui lòng nhập họ và tên!' },
+                                { required: true, message: 'Vui lòng nhập họ và tên!' },
+                            ]}
+                        >
+                            <Input className="w-100 p-2 rounded" placeholder="Họ và tên" />
+                        </Form.Item>
+                    </div>
+                    <div className="mb-4">
+                        <p className="mb-1">Email</p>
+                        <Form.Item
+                            name="account"
+                            rules={[
+                                { whitespace: true, message: 'Vui lòng nhập email!' },
+                                { required: true, message: 'Vui lòng nhập email!' },
+                                {
+                                    type: 'email',
+                                    message: 'Vui lòng nhập đúng định dạng email!',
+                                },
+                            ]}
+                        >
+                            <Input type="email" className="w-100 p-2 rounded" placeholder="Email" />
+                        </Form.Item>
+                    </div>
+                    <div className="mb-4">
+                        <p className="mb-1">Mật khẩu</p>
+                        <Form.Item
+                            name="password"
+                            rules={[
+                                { whitespace: true, message: 'Vui lòng nhập mật khẩu!' },
+                                { required: true, message: 'Vui lòng nhập mật khẩu!' },
+                                { min: 6, message: 'Mật khẩu phải chứa ít nhất 6 ký tự' },
+                            ]}
+                        >
+                            <Input type="password" className="w-100 p-2 rounded" placeholder="Mật khẩu" />
+                        </Form.Item>
+                    </div>
+                    <div className="mb-4">
+                        <p className="mb-1">Xác nhận mật khẩu</p>
+                        <Form.Item
+                            name="password_confirm"
+                            rules={[
+                                { whitespace: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                                { required: true, message: 'Vui lòng nhập mật khẩu xác nhận!' },
+                            ]}
+                        >
+                            <Input type="password" className="w-100 p-2 rounded" placeholder="Nhập mật khẩu xác nhận" />
+                        </Form.Item>
+                    </div>
+                    <div className="mb-4">
+                        <Form.Item name="isAdmin" hidden>
+                            <Input className="w-100 p-2 rounded" />
+                        </Form.Item>
+                    </div>
+                    <div className="mb-4">
+                        <Form.Item name="isTeacher" hidden>
+                            <Input className="w-100 p-2 rounded" />
+                        </Form.Item>
+                    </div>
 
-                    <Form.Item
-                        name="isAdmin"
-                        hidden
-                    >
-                        <Input className="w-100 p-2 rounded" />
-                    </Form.Item>
-                </div>
-                <div className="mb-4">
-
-                    <Form.Item
-                        name="isTeacher"
-                        hidden
-                    >
-                        <Input className="w-100 p-2 rounded" />
-                    </Form.Item>
-                </div>
-
-                <Button htmlType="submit" className="w-100 mt-4" type="primary" size={'large'}>
-                    {isLoading ? <Spin /> : 'Đăng ký'}
-                </Button>
-            </Form >) : (
-                <div style={{ marginTop: '20px' }} >
-                    <div className='flex mb-[10px]'>
+                    <Button htmlType="submit" className="w-100 mt-4" type="primary" size={'large'}>
+                        {isLoading ? <Spin /> : 'Đăng ký'}
+                    </Button>
+                </Form>
+            ) : (
+                <div style={{ marginTop: '20px' }}>
+                    <div className="flex mb-[10px]">
                         <Input
                             className="w-[300px]"
                             placeholder="Nhập mã OTP"
@@ -271,17 +263,20 @@ const Register = () => {
                         <Button type="primary" style={{ marginLeft: '10px' }} onClick={verifyOTP} className="mb-[15px]">
                             Kiểm tra
                         </Button>
-                        <Button type="primary" style={{ marginLeft: '10px' }} onClick={onRelay} className="mb-[15px]" icon={<RedoOutlined />}> </Button>
+                        <Button
+                            type="primary"
+                            style={{ marginLeft: '10px' }}
+                            onClick={onRelay}
+                            className="mb-[15px]"
+                            icon={<RedoOutlined />}
+                        >
+                            {' '}
+                        </Button>
                     </div>
                     <OTPTimer expiryTime={expiryTime} keyProp={keyProp} />
                 </div>
-            )
-            }
-
+            )}
         </>
-
-
-
     );
 };
 
