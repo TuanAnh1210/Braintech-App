@@ -75,6 +75,7 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
         });
     };
     const [errCmt, setErrCmt] = useState('')
+    const [showAllComments, setShowAllComments] = useState(false);
     const handleSubmit = (e) => {
         e.preventDefault();
         const regex = /^\s*$/;
@@ -93,6 +94,7 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
                 .then(() => {
                     setCmtInput('');
                     setParentComment(null);
+                    setShowAllComments(false)
                     refetch();
                 })
                 .catch((error) => {
@@ -373,7 +375,7 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
     const [parentComment, setParentComment] = useState(null);
     const maxVisibleComments = 3;
     const [visibleComments, setVisibleComments] = useState([]);
-    const [showAllComments, setShowAllComments] = useState(false);
+
 
     useEffect(() => {
         if (reversedCmtData.length <= maxVisibleComments) {
