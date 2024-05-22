@@ -80,13 +80,12 @@ const DetailCourse = () => {
     const dataBought = coursePay?.data?.find((s) => s.course_id?._id === courseId && s.status === 'SUCCESS');
 
     const data = cookies?.cookieLoginStudent;
-
+    console.log(course);
     // const nextlessonId = lessonFinish?.data?.lesson_id || course?.course?.chapters?.[0]?.lessons?.[0]?._id;
 
     const nextlessonId = lessonFinish?.chapters
         ?.find((chapter) => chapter.isPublic)
         ?.lessons.find((lesson) => lesson.isPublic)?._id;
-
     const isPublicExist = course?.course?.chapters?.find((chapter) => !chapter.isPublic);
     const handleLearn = () => {
         handleAddSttCourse({ course_id: courseId }).then(() => {
@@ -140,7 +139,6 @@ const DetailCourse = () => {
             }
         }
     };
-
     return (
         <>
             <div className={cx('detail-course')}>
@@ -155,9 +153,16 @@ const DetailCourse = () => {
                                 <h2 className={cx('course_name')}>{course?.course?.name}</h2>
 
                                 <p className={cx('course_text')}>{course?.course?.description}</p>
-
+                                <p>
+                                    Giảng viên :{' '}
+                                    {course?.course?.teacherId
+                                        ?.slice(0, 2)
+                                        ?.map((role) => role.full_name)
+                                        .join(' &  ')}{' '}
+                                </p>
                                 <div className={cx('learning__bar')}>
                                     <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
+
                                     <div className={cx('course_topic')}>
                                         {course?.course?.chapters
                                             ?.filter((chapter) => chapter.isPublic)
