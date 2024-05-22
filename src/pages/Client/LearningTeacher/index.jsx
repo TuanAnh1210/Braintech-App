@@ -24,18 +24,56 @@ const cx = classNames.bind(styles);
 
 const LearningTeacher = () => {
     const { courseId, lessonId } = useParams();
-
     const [progressVideo, setProgessVideo] = useState(0); // tiến độ video [0-100]
     const [openStorage, setOpenStorage] = useState(false);
     const [totalLesson, setTotalLesson] = useState(0); // Tổng khóa học
     const [isModalShown, setIsModalShown] = useState(false);
     const [progressCourse, setProgessCourse] = useState(0);
+    const [timeVideo, setTimeVideo] = useState(0);
+    const [timeChanges, setTimeChanges] = useState({
+        video_time: 0,
+        ramdom_time: 0,
+    });
 
     const mainView = useRef(null);
     const intervalRef = useRef();
 
     const [cookies] = useCookies(['cookieLoginStudent']);
+    useEffect(() => {
+        fetch('http://localhost:8080/api/payment/checkCourse', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                courseId: courseId,
+                userId: cookies?.cookieLoginStudent?._id,
+            }),
+        })
+            .then((res) => res.json())
+            .then((res) => {
+                if (res?.data.length <= 0) {
+                    window.location.href = 'http://localhost:3000';
+                }
+            });
 
+        fetch('http://localhost:8080/api/courses_teacher/checkPublic', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                courseId: courseId,
+            }),
+        })
+            .then((res) => res.json())
+            .then((res) => {
+                console.log(res?.data[0]?.isPublic == false, 'lot vao res lan nua roi');
+                if (!res?.data[0]?.isPublic) {
+                    window.location.href = 'http://localhost:3000';
+                }
+            });
+    }, []);
     const navigate = useNavigate();
 
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
@@ -95,7 +133,6 @@ const LearningTeacher = () => {
         // const currentLesson = lessons?.[lessonIndex];
 
         // if (currentLesson.isCompleted) return;
-      
 
         await handleAddFinishLesson({
             course_id: courseId,
@@ -131,12 +168,12 @@ const LearningTeacher = () => {
 
         const access_token = cookies.cookieLoginStudent;
 
-        if (!lessonId) navigate(`/detail/${courseId}`);
+        if (!lessonId || lessonId === 'undefined') navigate(`/detail/teacher/${courseId}`);
 
         if (!access_token && access_token !== 'null') {
-            navigate(`/detail/${courseId}`);
+            navigate(`/detail/teacher/${courseId}`);
         }
-    }, []);
+    }, [lessonId]);
 
     useEffect(() => {
         const count = course?.data?.chapters
@@ -175,7 +212,7 @@ const LearningTeacher = () => {
                             <div className={cx('header__back')}>
                                 <button
                                     className={cx('button__back btn btn-outline-primary')}
-                                    onClick={() => navigate(`/detail/${courseId}`)}
+                                    onClick={() => navigate(`/detail/teacher/${courseId}`)}
                                 >
                                     <FontAwesomeIcon icon={faChevronLeft} />
                                 </button>
@@ -249,13 +286,20 @@ const LearningTeacher = () => {
                                     />
                                 ) : (
                                     <VideoCloudinaryPlayer
+                                        timeChanges={timeChanges}
+                                        setTimeVideo={setTimeVideo}
                                         url={currentLesson?.url_video}
                                         setIsModalShown={setIsModalShown}
                                         handleSetFinish={handleSetFinish}
                                     />
                                 )}
                             </div>
-                            <Comments openStorage={openStorage} setOpenStorage={setOpenStorage} />
+                            <Comments
+                                timeVideo={timeVideo}
+                                openStorage={openStorage}
+                                setTimeChanges={setTimeChanges}
+                                setOpenStorage={setOpenStorage}
+                            />
                         </div>
                         <div className={cx('learning__bar')}>
                             <h1 className={cx('learning__bar--title')}>Nội dung khóa học</h1>
@@ -295,7 +339,7 @@ const LearningTeacher = () => {
                                                                 isOpenNextLesson ? (
                                                                     <NavLink
                                                                         exact="true"
-                                                                        to={`/learning/${courseId}/${lesson._id}`}
+                                                                        to={`/learning/teacher/${courseId}/${lesson._id}`}
                                                                         className={({ isActive }) => {
                                                                             return cx(
                                                                                 'block',
@@ -328,7 +372,7 @@ const LearningTeacher = () => {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        <div
+                                                                        {/* <div
                                                                             onClick={() =>
                                                                                 navigate(`/quizz/${lesson._id}`)
                                                                             }
@@ -337,7 +381,7 @@ const LearningTeacher = () => {
                                                                             )}
                                                                         >
                                                                             Bài tập
-                                                                        </div>
+                                                                        </div> */}
                                                                     </NavLink>
                                                                 ) : (
                                                                     <div className={cx('lesson_lock')}>
@@ -345,7 +389,7 @@ const LearningTeacher = () => {
                                                                             {indexChapter + '.' + ++indexLesson}
                                                                         </strong>{' '}
                                                                         {lesson.name}
-                                                                        <div>
+                                                                        {/* <div>
                                                                             <p
                                                                                 className={cx(
                                                                                     'learning__chapter--lesson-btn',
@@ -353,7 +397,7 @@ const LearningTeacher = () => {
                                                                             >
                                                                                 Bài tập
                                                                             </p>
-                                                                        </div>
+                                                                        </div> */}
                                                                     </div>
                                                                 )}
                                                             </div>

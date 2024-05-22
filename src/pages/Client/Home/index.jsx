@@ -29,7 +29,6 @@ const Home = () => {
     // const { data: listCourses, isLoading, isFetching, isError } = useGetCoursesQuery();
     const { data: listCoursesTeacher } = useGetCoursesQuery();
     const { html, css, intern, js, node, react, fe, be, bg, group } = images;
-    console.log(1, listCoursesTeacher);
     const infos = [
         {
             title: 'Ghi chú dễ dàng',
@@ -109,19 +108,14 @@ const Home = () => {
                             <BannerCard key={index} {...infos} />
                         ))}
                     </div>
-
-
                 </Container>
             </div>
             <div className={cx('courses-newest')}>
                 <h2>Khóa học mới nhất</h2>
                 <Slider ref={sliderRef} {...settings} className={cx('courses-newest_list')}>
                     {listCoursesTeacher?.courses?.slice(0, 5)?.map((course) => {
-                        return (
-                            <CourseItemTeacher key={course.id} course={course} />
-                        )
-                    }
-                    )}
+                        return <CourseItemTeacher key={course.id} course={course} />;
+                    })}
                 </Slider>
 
                 <div className={cx('courses-action')}>

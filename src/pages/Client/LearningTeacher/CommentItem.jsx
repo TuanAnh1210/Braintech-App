@@ -80,6 +80,7 @@ const CommentItem = ({ cmt, refetch }) => {
     const maxVisibleComments = 3;
     const [visibleComments, setVisibleComments] = useState([]);
     const reversedCmtData = [...cmt.comments].reverse();
+    const [isAllCmt, setIsAllCmt] = useState(false)
     useEffect(() => {
         if (reversedCmtData.length <= maxVisibleComments) {
             setVisibleComments(reversedCmtData);
@@ -87,13 +88,17 @@ const CommentItem = ({ cmt, refetch }) => {
             setVisibleComments(reversedCmtData.slice(0, maxVisibleComments));
         }
     }, [cmt]);
-
+    const handleHideComments = () => {
+        setIsAllCmt(false)
+        setVisibleComments(reversedCmtData.slice(0, maxVisibleComments))
+    }
     const handleLoadMoreComments = () => {
         const currentlyVisibleComments = visibleComments.length;
         const nextVisibleComments = currentlyVisibleComments + maxVisibleComments;
         setVisibleComments(reversedCmtData.slice(0, nextVisibleComments));
-        setShowAllComments(nextVisibleComments >= reversedCmtData.length);
+        if (nextVisibleComments >= reversedCmtData.length) setIsAllCmt(true)
     };
+
     return (
         <>
             {isDelete.isDeleteCmt === true && (
@@ -247,9 +252,14 @@ const CommentItem = ({ cmt, refetch }) => {
                                     <CommentItem cmt={cmt} refetch={refetch} />
                                 </div>
                             ))}
-                            {!showAllComments && reversedCmtData.length > maxVisibleComments && (
+                            {!isAllCmt && reversedCmtData.length > maxVisibleComments && (
                                 <button className="show-more-button mt-4 ml-[60px] italic font-bold" onClick={handleLoadMoreComments}>
                                     ...Xem thêm
+                                </button>
+                            )}
+                            {isAllCmt && (
+                                <button className="show-more-button mt-4 ml-[60px] italic font-bold" onClick={handleHideComments}>
+                                    ...Ẩn bớt
                                 </button>
                             )}
                         </div>

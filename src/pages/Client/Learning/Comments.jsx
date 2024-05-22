@@ -10,7 +10,7 @@ import { format } from 'date-fns';
 import Highlighter from 'react-highlight-words';
 import Draggable from 'react-draggable';
 import { Button, Col, Drawer, Empty, Form, Input, Popconfirm, Popover, Row, Space, Table, Tabs, message } from 'antd';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
     useCreateCmtMutation,
@@ -60,7 +60,7 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
     const handleClickScroll = () => {
         ref.current?.scrollIntoView({ behavior: 'smooth' });
     }; // thực hiện scroll
-
+    const reversedCmtData = [...cmtData].reverse();
     const handleSubmitNote = (e) => {
         e.preventDefault();
         const newNote = {
@@ -74,28 +74,35 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
             refetchNote();
         });
     };
-
+    const [errCmt, setErrCmt] = useState('')
+    const [showAllComments, setShowAllComments] = useState(false);
     const handleSubmit = (e) => {
         e.preventDefault();
+        const regex = /^\s*$/;
+        if (regex.test(cmtInput)) {
+            setErrCmt('Vui lòng nhập ký tự khác khoảng trắng.');
+            // return
+        } else {
+            setErrCmt('');
+            const newCmt = {
+                content: cmtInput,
+                lesson_id: lessonId,
+                parent_id: parentComment,
+            };
 
-        const newCmt = {
-            content: cmtInput,
-            lesson_id: lessonId,
-            parent_id: parentComment,
+            handleAddCmt(newCmt)
+                .then(() => {
+                    setCmtInput('');
+                    setParentComment(null);
+                    setShowAllComments(false)
+                    refetch();
+                })
+                .catch((error) => {
+                    console.error('Error adding comment:', error);
+                    // Handle error if necessary
+                });
         };
-
-        handleAddCmt(newCmt)
-            .then(() => {
-                setCmtInput('');
-                setParentComment(null);
-                refetch();
-            })
-            .catch((error) => {
-                console.error('Error adding comment:', error);
-                // Handle error if necessary
-            });
-    };
-
+    }
     const [isDelete, setDelete] = React.useState(false);
 
     const getColumnSearchProps = (dataIndex) => ({
@@ -366,6 +373,24 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
     }
 
     const [parentComment, setParentComment] = useState(null);
+    const maxVisibleComments = 3;
+    const [visibleComments, setVisibleComments] = useState([]);
+
+
+    useEffect(() => {
+        if (reversedCmtData.length <= maxVisibleComments) {
+            setVisibleComments(reversedCmtData);
+        } else {
+            setVisibleComments(reversedCmtData.slice(0, maxVisibleComments));
+        }
+    }, [cmtData]);
+
+    const handleLoadMoreComments = () => {
+        const currentlyVisibleComments = visibleComments.length;
+        const nextVisibleComments = currentlyVisibleComments + maxVisibleComments;
+        setVisibleComments(reversedCmtData.slice(0, nextVisibleComments));
+        setShowAllComments(nextVisibleComments >= reversedCmtData.length);
+    };
 
     return (
         <div style={{ background: '#fff', padding: '0 16px 0 16px', borderRadius: '12px 12px 0 0' }}>
@@ -402,6 +427,7 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
                                                 onChange={(e) => setCmtInput(e.target.value)}
                                                 value={cmtInput}
                                             />
+                                            {errCmt && (<p className='text-sm text-red-600 italic'>*{errCmt}</p>)}
                                             <button className={cx('send__comment', 'flex items-center gap-2')}>
                                                 Gửi bình luận
                                                 <FontAwesomeIcon icon={faPaperPlane} />
@@ -419,16 +445,21 @@ const Comments = ({ openStorage, timeVideo, setTimeChanges, setOpenStorage }) =>
                                                 <span className="mt-3">Đang tải...</span>
                                             </div>
                                         ) : (
-                                            cmtData.map((cmt) => {
-                                                return (
-                                                    <div className={cx('commentBox', 'noMt')} key={Math.random()}>
+                                            <div className='w-[100%]'>
+                                                {visibleComments.map((cmt) => (
+                                                    <div className={cx('commentBox', 'noMt')} key={cmt.id}>
                                                         <CommentItem cmt={cmt} refetch={refetch} />
                                                     </div>
-                                                );
-                                            })
+                                                ))}
+                                                {!showAllComments && reversedCmtData.length > maxVisibleComments && (
+                                                    <button className="show-more-button mt-4 ml-[60px] italic font-bold" onClick={handleLoadMoreComments}>
+                                                        ...Xem thêm
+                                                    </button>
+                                                )}
+                                            </div>
                                         )}
 
-                                        {cmtData.length === 0 && (
+                                        {reversedCmtData.length === 0 && (
                                             <Empty className="my-8" description="Chưa có dữ liệu" />
                                         )}
                                     </div>

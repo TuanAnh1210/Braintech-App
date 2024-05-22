@@ -257,8 +257,8 @@ const Learning = () => {
                                     />
                                 ) : (
                                     <VideoCloudinaryPlayer
-                                        setTimeVideo={setTimeVideo}
                                         timeChanges={timeChanges}
+                                        setTimeVideo={setTimeVideo}
                                         url={currentLesson?.url_video}
                                         setIsModalShown={setIsModalShown}
                                         handleSetFinish={handleSetFinish}

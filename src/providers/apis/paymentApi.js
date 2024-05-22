@@ -20,6 +20,7 @@ export const paymentApi = createApi({
     endpoints: (build) => ({
         createPaymentUrl: build.mutation({
             query: (payload) => {
+                console.log(payload);
                 return { url: `/create_payment_url`, method: 'POST', body: payload };
             },
         }),

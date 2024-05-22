@@ -6,6 +6,7 @@ import classNames from 'classnames/bind';
 
 import styles from './Search.module.scss';
 import { useGetCoursesQuery as useGetCoursesteacherQuery } from '@/providers/apis/courseTeacherApi';
+import { Link } from 'react-router-dom';
 
 const cx = classNames.bind(styles);
 
@@ -14,39 +15,40 @@ function Search() {
 
     const dataCourse = listCoursesTeacher?.courses?.map((item) => {
         return {
+            id: item?._id,
             title: item?.name,
             avatar: item?.thumb,
             description: item?.description,
         };
     });
 
-    console.log(dataCourse, 'data');
     const [courseSearch, setCourseSearch] = useState(dataCourse);
     const [isInputFocused, setIsInputFocused] = useState(false);
 
-    console.log(courseSearch, 'courseSearch');
     const handleInputFocus = () => {
         setIsInputFocused(true);
     };
 
-    const handleInputBlur = () => {
+    const handleUnfocus = () => {
         setIsInputFocused(false);
     };
     const handleSearch = (e) => {
+        setIsInputFocused(true);
         const keyWord = e.target.value.toLowerCase();
-        console.log(keyWord);
         const newData = dataCourse?.filter(
             (item) => item.title.toLowerCase().includes(keyWord) || item.description.toLowerCase().includes(keyWord),
         );
         setCourseSearch(newData);
     };
-
+    const handleLinkClick = (e) => {
+        // Ngăn chặn sự kiện click lan truyền lên các phần tử cha
+        setIsInputFocused(false);
+    };
     return (
         <>
             <div className={cx('search')}>
                 <input
                     onFocus={handleInputFocus}
-                    onBlur={handleInputBlur}
                     placeholder="Tìm kiếm khóa học ..."
                     spellCheck={false}
                     onChange={handleSearch}
@@ -56,7 +58,17 @@ function Search() {
                   <FontAwesomeIcon icon={faCircleXmark} />
               </button> */}
                 <button className={cx('search-btn')} onMouseDown={(e) => e.preventDefault()}>
-                    <FontAwesomeIcon icon={faMagnifyingGlass} />
+                    {isInputFocused ? (
+                        <FontAwesomeIcon
+                            icon={faSpinner}
+                            spin
+                            onClick={() => {
+                                handleUnfocus();
+                            }}
+                        />
+                    ) : (
+                        <FontAwesomeIcon icon={faMagnifyingGlass} />
+                    )}
                 </button>
 
                 {isInputFocused && (
@@ -68,7 +80,11 @@ function Search() {
                             <List.Item>
                                 <List.Item.Meta
                                     avatar={<Avatar src={`${item.avatar}`} />}
-                                    title={<a href="https://ant.design">{item.title}</a>}
+                                    title={
+                                        <Link to={`/detail/teacher/${item.id}`} onClick={handleLinkClick}>
+                                            {item.title}
+                                        </Link>
+                                    }
                                     description={item.description}
                                 />
                             </List.Item>

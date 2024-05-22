@@ -61,7 +61,7 @@ const Login = () => {
             // navigate('http://localhost:5173/dashboard');
             window.location.href = 'http://localhost:5173/dashboard';
         }
-        if (data?.user?.isAdmin && data?.user?.isTeacher) {
+        if (!data?.user?.isAdmin && data?.user?.isTeacher) {
             // navigate('http://localhost:5173/dashboard');
             window.location.href = 'http://localhost:5173/my-courses';
         }
