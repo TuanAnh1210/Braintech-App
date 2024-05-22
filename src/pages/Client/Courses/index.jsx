@@ -9,12 +9,16 @@ import images from '@/assets/images';
 import CourseItem from '@/components/CourseItem/CourseItem';
 import { useGetCoursesQuery as useGetCoursesteacherQuery } from '@/providers/apis/courseTeacherApi';
 import { useGetCoursesQuery } from '@/providers/apis/courseApi';
+import { useEffect } from 'react';
 
 const cx = classNames.bind(styles);
 const Courses = () => {
-    const { data: listCoursesTeacher } = useGetCoursesteacherQuery();
+    const { data: listCoursesTeacher, refetch } = useGetCoursesteacherQuery();
 
     const { group } = images;
+    useEffect(() => {
+        refetch();
+    }, [listCoursesTeacher]);
     return (
         <>
             <Banner {...base_banner.banner_course} />
