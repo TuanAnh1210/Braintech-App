@@ -355,7 +355,7 @@ const LearningTeacher = () => {
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                                                        <div
+                                                                        {/* <div
                                                                             onClick={() =>
                                                                                 navigate(`/quizz/${lesson._id}`)
                                                                             }
@@ -364,7 +364,7 @@ const LearningTeacher = () => {
                                                                             )}
                                                                         >
                                                                             Bài tập
-                                                                        </div>
+                                                                        </div> */}
                                                                     </NavLink>
                                                                 ) : (
                                                                     <div className={cx('lesson_lock')}>
@@ -372,7 +372,7 @@ const LearningTeacher = () => {
                                                                             {indexChapter + '.' + ++indexLesson}
                                                                         </strong>{' '}
                                                                         {lesson.name}
-                                                                        <div>
+                                                                        {/* <div>
                                                                             <p
                                                                                 className={cx(
                                                                                     'learning__chapter--lesson-btn',
@@ -380,7 +380,7 @@ const LearningTeacher = () => {
                                                                             >
                                                                                 Bài tập
                                                                             </p>
-                                                                        </div>
+                                                                        </div> */}
                                                                     </div>
                                                                 )}
                                                             </div>

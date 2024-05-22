@@ -13,12 +13,10 @@ const cx = classNames.bind(styles);
 
 const CourseItemTeacher = ({ course }) => {
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
-    console.log(data);
 
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought =
         !coursePayLoading && coursePay?.data?.find((s) => s?.course_id?._id === course?._id && s?.status === 'SUCCESS');
-
 
     return (
         <Link to={`/detail/teacher/${course?._id}`}>
@@ -38,7 +36,6 @@ const CourseItemTeacher = ({ course }) => {
                             <p>{course?.price.toLocaleString()}đ</p>
                         </div>
                     )}
-                    <p>Giảng viên : {course?.teacherId?.slice(0, 2)?.map(role => role.full_name).join(' &  ')} </p>
                 </div>
             </div>
         </Link>

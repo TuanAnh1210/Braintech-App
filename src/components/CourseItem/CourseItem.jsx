@@ -15,9 +15,7 @@ import { useEffect, useState } from 'react';
 const cx = classNames.bind(styles);
 
 const CourseItem = ({ course, pro }) => {
-    console.log(pro, 'pro ne');
     const { data, isLoading } = useCountCourseUserQuery(course?._id);
-
     const { data: coursePay, isLoading: coursePayLoading, refetch } = useGetAllPaymentByUserQuery();
     const dataBought =
         !coursePayLoading && coursePay?.data?.find((s) => s?.course_id?._id === course?._id && s?.status === 'SUCCESS');
