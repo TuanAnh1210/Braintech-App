@@ -14,12 +14,12 @@ const CourseLearning = ({ dataJoined }) => {
                 return (
                     <Link to={`/detail/teacher/${course?.course_id?._id}`}>
                         <div className="flex flex-column p-4 border rounded drop-shadow-xl">
-                            <img width={200} className="mx-auto rounded" src={course?.course_id?.thumb} alt="ngu" />
+                            <img width={200} className="mx-auto rounded" src={course?.course_id?.thumb} alt="nodata" />
                             <div className="my-2">
                                 <div>
                                     <p className="text-lg font-bold">{course?.course_id?.name}</p>
                                     <p className="text-xs leading-[10px] font-thin">
-                                        Đã mua ngày: {format(course?.createdAt, 'dd/MM/yyyy')}
+                                        Đã mua ngày: {format(course?.updatedAt, 'dd/MM/yyyy')}
                                     </p>
                                 </div>
                                 <div className="flex justify-between mt-1">
