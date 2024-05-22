@@ -39,7 +39,24 @@ const LearningTeacher = () => {
     const intervalRef = useRef();
 
     const [cookies] = useCookies(['cookieLoginStudent']);
-
+    useEffect(() => {
+        fetch('http://localhost:8080/api/payment/checkCourse', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                courseId: courseId,
+                userId: cookies?.cookieLoginStudent?._id,
+            }),
+        })
+            .then((res) => res.json())
+            .then((res) => {
+                if (res?.data.length <= 0) {
+                    window.location.href = 'http://localhost:3000';
+                }
+            });
+    }, []);
     const navigate = useNavigate();
 
     const [handleAddFinishLesson] = useAddFinishLessonMutation();
