@@ -8,28 +8,64 @@ import { useParams } from 'react-router-dom';
 import { useGetDetailQuery } from '@/providers/apis/courseTeacherApi';
 import { useGetUsersQuery } from '@/providers/apis/userApi';
 import { useCookies } from 'react-cookie';
+import { useNavigate } from 'react-router-dom';
 import { Button, Col, Form, Input, Modal, Rate, notification } from 'antd';
 import { useGetContentRatingQuery, useRateCourseMutation } from '@/providers/apis/rateApi';
+import { jwtDecode } from 'jwt-decode';
 const cx = classNames.bind(styles);
 
 const Certificate = () => {
     const { id } = useParams();
+
     const [form] = Form.useForm();
     const [isOpen, setOpen] = useState(false);
-
+    const navigate = useNavigate();
     const { data: dataCourses } = useGetDetailQuery(id);
     const { data: rateData, isLoading: isLoadingRateData } = useGetContentRatingQuery(id);
-
+    const [isRated, setIsRated] = useState(false);
     const [cookies, setCookie] = useCookies('cookieLoginStudent');
     const [handleRateCourse, error] = useRateCourseMutation();
     const [isLoading, setLoading] = useState(false);
     const certificateWrapperRef = useRef(null);
+    const [nameCert, setNameCert] = useState('');
+    const [nameCourse, setNameCourse] = useState('');
 
-    const isRated = rateData?.rates?.some(
-        (rate) => rate.user_id.email === cookies.cookieLoginStudent.email && rate.course_id?._id === id,
-    );
-    const nameCert = cookies.cookieLoginStudent.fullName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
-    const nameCourse = dataCourses?.courses?.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+    useEffect(() => {
+        fetch('http://localhost:8080/api/payment/checkCourse', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                courseId: id,
+                userId: cookies?.cookieLoginStudent?._id,
+            }),
+        })
+            .then((res) => res.json())
+            .then((res) => {
+                if (res?.data.length <= 0) {
+                    window.location.href = 'http://localhost:3000';
+                }
+            });
+
+        fetch('http://localhost:8080/api/courses_teacher/checkPublic', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                courseId: id,
+            }),
+        })
+            .then((res) => res.json())
+            .then((res) => {
+                console.log(res?.data[0]?.isPublic == false, 'lot vao res lan nua roi');
+                if (!res?.data[0]?.isPublic) {
+                    window.location.href = 'http://localhost:3000';
+                }
+            });
+    }, []);
+
     const handleDownloadCertificate = () => {
         if (certificateWrapperRef.current) {
             setLoading(true);
@@ -73,7 +109,21 @@ const Certificate = () => {
                 setOpen(true);
             }
         }
-    }, [rateData]);
+    }, [rateData, isRated]);
+    useEffect(() => {
+        if (cookies.cookieLoginStudent) {
+            const isRated = rateData?.rates?.some(
+                (rate) => rate.user_id.email === cookies.cookieLoginStudent.email && rate.course_id?._id === id,
+            );
+            setIsRated(isRated);
+            const name = cookies.cookieLoginStudent.fullName.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+            setNameCert(name);
+            const course = dataCourses?.courses?.name.toLowerCase().replace(/[^a-zA-Z0-9]/g, '');
+            setNameCourse(course);
+        } else {
+            navigate('/');
+        }
+    }, [cookies, rateData, dataCourses]);
     return (
         <>
             <div className={cx('certificate_wrapper')}>
@@ -142,7 +192,7 @@ const Certificate = () => {
                     <div ref={certificateWrapperRef} className={cx('cert-main')}>
                         <div className={cx('cert-info')}>
                             <img className={cx('cert-image')} src={images.cert} alt="" />
-                            <div className={cx('cert-nameUser')}>{cookies.cookieLoginStudent.fullName}</div>
+                            <div className={cx('cert-nameUser')}>{cookies.cookieLoginStudent?.fullName}</div>
                             <div className={cx('cert-nameCourse')}>{dataCourses?.course?.name}</div>
                         </div>
                     </div>
