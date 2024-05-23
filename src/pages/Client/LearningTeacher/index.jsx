@@ -52,6 +52,7 @@ const LearningTeacher = () => {
         })
             .then((res) => res.json())
             .then((res) => {
+                
                 if (res?.data.length <= 0) {
                     window.location.href = 'http://localhost:3000';
                 }
