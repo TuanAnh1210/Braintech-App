@@ -1,8 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-refresh/only-export-components */
 /* eslint-disable react/prop-types */
-import { memo } from 'react';
+import { memo, useEffect, useRef } from 'react';
 import YouTube from 'react-youtube';
 
-function VideoYoutubePlayer({ url = '', handleGetTime, handleSetFinish }) {
+function VideoYoutubePlayer({ url = '', handleGetTime, setTimeVideo, timeChanges, handleSetFinish }) {
+    const intervalRef = useRef(null);
+    const playerRef = useRef(null);
+
     const opts = {
         // Cấu hình thẻ Youtube
         height: '515',
@@ -32,6 +37,35 @@ function VideoYoutubePlayer({ url = '', handleGetTime, handleSetFinish }) {
         if (match) videoId = match[0];
     }
 
+    const handleOnStateChange = (event) => {
+        const player = event.target;
+
+        playerRef.current = player;
+
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current); // Xóa bỏ interval hiện tại nếu có
+        }
+
+        intervalRef.current = setInterval(() => {
+            const currentTime = player.getCurrentTime();
+            setTimeVideo(Math.floor(currentTime));
+        }, 1000);
+    };
+
+    useEffect(() => {
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        if (playerRef.current) {
+            playerRef.current.seekTo(timeChanges.video_time);
+        }
+    }, [timeChanges]);
+
     return (
         <YouTube
             opts={opts}
@@ -45,6 +79,7 @@ function VideoYoutubePlayer({ url = '', handleGetTime, handleSetFinish }) {
             videoId={videoId}
             onReady={handleGetTime}
             onEnd={handleSetFinish}
+            onStateChange={handleOnStateChange}
         />
     );
 }
