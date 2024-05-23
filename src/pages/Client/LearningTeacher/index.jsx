@@ -52,7 +52,6 @@ const LearningTeacher = () => {
         })
             .then((res) => res.json())
             .then((res) => {
-                
                 if (res?.data.length <= 0) {
                     window.location.href = 'http://localhost:3000';
                 }
@@ -91,6 +90,7 @@ const LearningTeacher = () => {
 
         const player = event.target;
         const totalDuration = player.getDuration();
+
         intervalRef.current = setInterval(() => {
             const currentTime = player.getCurrentTime();
             const timeCatched = Math.floor((currentTime / totalDuration) * 100);
@@ -146,6 +146,11 @@ const LearningTeacher = () => {
         setProgessVideo(0);
         clearInterval(intervalRef.current);
         setIsModalShown(false);
+
+        setTimeChanges({
+            video_time: 0,
+            ramdom_time: 0,
+        });
 
         handleNext();
     };
@@ -281,9 +286,11 @@ const LearningTeacher = () => {
                             >
                                 {currentLesson?.source_type === 'youtube' ? (
                                     <VideoYoutubePlayer
+                                        setTimeVideo={setTimeVideo}
                                         url={currentLesson?.url_video}
                                         handleGetTime={handleGetTime}
                                         handleSetFinish={handleSetFinish}
+                                        timeChanges={timeChanges}
                                     />
                                 ) : (
                                     <VideoCloudinaryPlayer
