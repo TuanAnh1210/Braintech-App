@@ -63,8 +63,8 @@ const Account = () => {
             navigate('/');
         }
     }, [cookies]);
-    const { data: sttCourse, isLoading: loadingSttCourse } = useGetAllSttCourseQuery();
-    const { data: coursePay, isLoading: coursePayLoading } = useGetAllPaymentByUserQuery();
+    const { data: sttCourse, isLoading: loadingSttCourse, refetch: refetchStt } = useGetAllSttCourseQuery();
+    const { data: coursePay, isLoading: coursePayLoading, refetch: refetchPay } = useGetAllPaymentByUserQuery();
     const { data: voucherData } = useGetVoucherByUserIdQuery();
     const dataBought = coursePay?.data?.filter((s) => s.user_id === userid && s.status === 'SUCCESS');
     const dataFinished = sttCourse?.data?.filter((s) => s.user_id === userid && s.isFinish === true);
@@ -89,7 +89,9 @@ const Account = () => {
     const [showModal, setShowModal] = useState(false);
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, []);
+        refetchStt();
+        refetchPay();
+    }, [sttCourse, coursePay]);
     const updateLocalStorage = (accessToken, email, phone, fullName, avatar) => {
         const newData = {
             accessToken: accessToken,
