@@ -5,9 +5,10 @@ import { Link } from 'react-router-dom';
 
 const CourseLearning = ({ dataJoined }) => {
     const { data: dataCate } = useGetAllCateQuery();
+    const dataCheck = dataJoined.filter((e) => e);
     return (
         <div className="grid grid-cols-4 mt-4 justify-center gap-4">
-            {dataJoined?.map((course) => {
+            {dataCheck?.map((course) => {
                 const cate_name = dataCate?.data.find((e) => {
                     return course?.course_id?.cate_id === e?._id;
                 });

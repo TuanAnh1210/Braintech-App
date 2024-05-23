@@ -49,7 +49,7 @@ function VideoYoutubePlayer({ url = '', handleGetTime, setTimeVideo, timeChanges
         intervalRef.current = setInterval(() => {
             const currentTime = player.getCurrentTime();
             setTimeVideo(Math.floor(currentTime));
-        }, 1000);
+        }, 500);
     };
 
     useEffect(() => {
