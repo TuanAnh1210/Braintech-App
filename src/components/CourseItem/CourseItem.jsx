@@ -23,13 +23,7 @@ const CourseItem = ({ course, pro }) => {
     return (
         <Link to={`/detail/teacher/${course?._id}`}>
             <div className={cx('courses-newest_item')}>
-                {pro && (
-                    <img
-                        className={cx('icon_pro_course')}
-                        src="https://fullstack.edu.vn/static/media/crown_icon.3e4800f7485935ab6ea312a7080a85fe.svg"
-                        alt=""
-                    />
-                )}
+                {pro && <img className={cx('icon_pro_course')} src="/public/pro.svg" alt="" />}
 
                 <Image src={course?.thumb} alt={course?.name} />
 
